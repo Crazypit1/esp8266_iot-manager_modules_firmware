@@ -1,15 +1,9 @@
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ СЕНСОРОВ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ ДАННЫХ========================================================
 void Sensors_init() {
-
-  ts.add(6, 10000, [&](void*) {
-
-    long st_time = millis();
-
-    if (client.connected()) {
-
-      //========================================Модуль измерения уровня в баке==============================================
-      if (jsonRead(configSetup, "module_tank_level") == "1")
-      {
+  //========================================Модуль измерения уровня в баке==============================================
+  if (jsonRead(configSetup, "module_tank_level") == "1") {
+    ts.add(LEVEL, 10000, [&](void*) {
+      if (client.connected()) {
         long duration_;
         int distance_cm;
         int level_persent;
@@ -33,12 +27,16 @@ void Sensors_init() {
           level_persent = map(distance_cm, jsonReadtoInt(optionJson, "empty_level"), jsonReadtoInt(optionJson, "full_level"), 0, 100);
           sendSTATUS("lev", String(level_persent));
           jsonWrite(configJson, "lev", level_persent);
-          Serial.print("sensor 1 send date");
+          Serial.println("sensor 1 send date");
         }
         distance_cm_old = distance_cm;
       }
-      //===========================================Модуль аналогового сенсора========================================
-      if (jsonRead(configSetup, "module_analog") == "1") {
+    }, nullptr, true);
+  }
+  //===========================================Модуль аналогового сенсора========================================
+  if (jsonRead(configSetup, "module_analog") == "1") {
+    ts.add(ANALOG, 10000, [&](void*) {
+      if (client.connected()) {
 
         int analog = analogRead(A0);
         jsonWrite(optionJson, "analog", analog);
@@ -49,18 +47,23 @@ void Sensors_init() {
           int analog_out = map(analog, jsonReadtoInt(optionJson, "start_value"), jsonReadtoInt(optionJson, "end_value"), jsonReadtoInt(optionJson, "start_value_out"), jsonReadtoInt(optionJson, "end_value_out"));
           sendSTATUS("ana", String(analog_out));
           jsonWrite(configJson, "ana", analog_out);
-          Serial.print("sensor 2 send date");
+          Serial.println("sensor 2 send date");
         }
         analog_old = analog;
       }
-      //============================================Сценарии для всех модулей==============================================
-      
-      if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
+    }, nullptr, true);
+  }
+  //============================================Сценарии для всех модулей==============================================
+  if (jsonRead(configSetup, "scenario") == "1") {
+    ts.add(SCENARIO, 10000, [&](void*) {
+      if (client.connected()) {
+        stringExecution(scenario);
+      }
+    }, nullptr, true);
+  }
 
-    }
 
-    long end_time = millis();
-    Serial.println(" sensors total timeout = " + String(end_time - st_time));
 
-  }, nullptr, true);
 }
+
+

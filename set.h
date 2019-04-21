@@ -37,14 +37,16 @@ StringCommand sCmd;
 //---------------------------------------------------------
 //#include "InputDebounce.h"
 //---------------------------------------------------------
-#include <OneWire.h>                 
-#include <DallasTemperature.h>       
+#include <OneWire.h>
+#include <DallasTemperature.h>
 OneWire *oneWire;
 DallasTemperature sensors;
 //---------------------------------------------------------
 #define BUFFER_SIZE 100
 #define reconnecting 60000
 //---------------------------------------------------------
+
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, SCENARIO };
 
 
 String chipID = "";

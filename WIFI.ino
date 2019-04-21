@@ -79,11 +79,11 @@ bool StartAPMode() {
   led_blink(2, 200, "on");
 
 #ifdef reconnecting
-  ts.add(2, reconnecting, [&](void*) {
+  ts.add(WIFI, reconnecting, [&](void*) {
 
     Serial.println("try find router");
     if (RouterFind(jsonRead(configSetup, "ssid"))) { 
-      ts.remove(2);
+      ts.remove(WIFI);
       WIFI_init();                                      //ESP.restart();
       MQTT_init();
     }

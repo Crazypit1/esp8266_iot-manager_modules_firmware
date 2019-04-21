@@ -31,7 +31,7 @@ void MQTT_init() {
   //проверка подключения к серверу
 
 #ifdef reconnecting
-  ts.add(1, reconnecting, [&](void*) {
+  ts.add(MQTT_WIFI, reconnecting, [&](void*) {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("->WiFi-ok");
       if (client.connected()) {
@@ -44,7 +44,7 @@ void MQTT_init() {
       }
     } else {
       Serial.println("->Lost WiFi connection");
-      ts.remove(1);
+      ts.remove(MQTT_WIFI);
       StartAPMode();
     }
   }, nullptr, true);
@@ -213,7 +213,7 @@ void sendAllWigets() {
     jsonWrite(tmp, "id", String(counter));
     sendMQTT("config", tmp);
     Serial.println("videt no " + String(counter) + " pass");
-    Serial.println(tmp);
+    //Serial.println(tmp);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }
