@@ -104,7 +104,7 @@ int count(String str, String found) {
   }
   return i; // Достигли пустой строки и ничего не нашли
 }
-//============================================WEB SOKET==========================================================
+/*//============================================WEB SOKET==========================================================
 
 void SoketData (String key, String data, String data_old)  {
 
@@ -123,8 +123,8 @@ void SoketData (String key, int data, int data_old)  {
     webSocket.broadcastTXT(broadcast);
   }
 }
-
-//============================================URL===================================================================
+*/
+/*//============================================URL===================================================================
 // ----------------------Запрос на удаленный URL
 String getURL(String urls) {
   String answer = "";
@@ -141,7 +141,7 @@ String getURL(String urls) {
   http.end();
   return answer;
 }
-
+*/
 //===========================================FILES===================================================================
 
 String safeDataToFile(String data, String Folder)
@@ -212,18 +212,6 @@ String readFileString(String fileName, String found)
 
 //=======================================УПРАВЛЕНИЕ ВИДЖЕТАМИ MQTT======================================================================
 
-
-
-/*void sendSTATUS(String topik, String key1, String date1, String key2, String date2) {
-  yield();
-  topik = prefix + "/" + chipID + "/" + topik + "/status";
-  String t = "{}";
-  jsonWrite(t, key1, date1);
-  jsonWrite(t, key2, date2);
-  client.publish(MQTT::Publish(topik, t).set_qos(1));
-  yield();
-  }
-*/
 
 void sendCONFIG(String topik, String widgetConfig, String key, String date) {
   yield();

@@ -5,15 +5,16 @@ void CMD_init() {
   sCmd.addCommand("rel",  relayControl);
 
   sCmd.addCommand("LEVEL",  tank_levelInit);
-
   sCmd.addCommand("ANALOG",  analogInit);
+  sCmd.addCommand("TEMP_ds18b20",  ds18b20Init);
+  
 
 
 
   sCmd.addCommand("SCENARIO",  Scenario);
 }
 
-//==========================================МОДУЛЬ РЕЛЕ===================================================
+//==========================================Модуль управления реле===================================================
 void relayInit() {
 
   static boolean flag = true;
@@ -42,7 +43,7 @@ void relayInit() {
   jsonWrite(viget, "topic", prex + "/rel" + relay_number);
   all_vigets += viget + "\r\n";
 }
-//==========================================КОНТРОЛЬ МОДУЛЯ РЕЛЕ===================================================
+//==========================================Контроль модуля управления реле===================================================
 void relayControl() {
 
   String relay_number = sCmd.next();
@@ -56,7 +57,7 @@ void relayControl() {
   sendSTATUS("rel" + relay_number, relay_state);
 }
 
-//=========================================МОДУЛЬ TANK LEVEL============================================================
+//=========================================Модуль измерения уровня в баке============================================================
 void tank_levelInit() {
 
   static boolean flag = true;
@@ -84,7 +85,7 @@ void tank_levelInit() {
   jsonWrite(viget, "topic", prex + "/lev");
   all_vigets += viget + "\r\n";
 }
-//=========================================МОДУЛЬ АНАЛОГОВЫЙ СЕНСОР============================================================
+//=========================================Модуль аналогового сенсора============================================================
 void analogInit() {
 
   static boolean flag = true;
@@ -116,7 +117,32 @@ void analogInit() {
   all_vigets += viget + "\r\n";
 }
 
-//=========================================СЦЕНАРИИ ДЛЯ ВСЕХ МОДУЛЕЙ============================================================
+//=========================================Модуль температурного сенсора DS18B20============================================================
+void ds18b20Init() {
+
+  static boolean flag = true;
+  String pin = sCmd.next();
+  String viget_name = sCmd.next();
+  String page_name = sCmd.next();
+  String page_number = sCmd.next();
+ 
+  //jsonWrite(optionJson, "start_value", start_value);
+  
+  static String viget;
+
+  if (flag) {
+    viget = readFile("blok.termometr.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+
+  jsonWrite(viget, "topic", prex + "/DS");
+  all_vigets += viget + "\r\n";
+}
+
+//=========================================Сценарии для всех модулей============================================================
 void Scenario() {
 
   String module_name = sCmd.next();

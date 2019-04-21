@@ -1,32 +1,51 @@
 #include <ESP8266WiFi.h>
+//---------------------------------------------------------
 #include <ESP8266WebServer.h>
-#include <ESP8266SSDP.h>
-#include <FS.h>
-#include <ArduinoJson.h>
-#include <ESP8266HTTPUpdateServer.h>
-//#include <DNSServer.h>
-//#include <SoftwareSerial.h>
-#include <TickerScheduler.h>
-#include <WebSocketsServer.h>
-#include <PubSubClient.h>
-#include <ESP8266HTTPClient.h>
-//#include <WiFiClientSecure.h>
-#include <StringCommand.h>
-//#include "InputDebounce.h"
-
-#define BUFFER_SIZE 100
-#define reconnecting 60000
-
-WebSocketsServer webSocket = WebSocketsServer(81);
-TickerScheduler ts(10);
-ESP8266HTTPUpdateServer httpUpdater;
 ESP8266WebServer HTTP(80);
+//---------------------------------------------------------
+#include <ESP8266SSDP.h>
+//---------------------------------------------------------
+#include <FS.h>
 File fsUploadFile;
-WiFiClientSecure push_client;
-StringCommand sCmd;
+//---------------------------------------------------------
+#include <ArduinoJson.h>
+//---------------------------------------------------------
+#include <ESP8266HTTPUpdateServer.h>
+ESP8266HTTPUpdateServer httpUpdater;
+//#include <ESP8266HTTPClient.h>
+//---------------------------------------------------------
+//#include <DNSServer.h>
 //DNSServer dnsServer;
+//---------------------------------------------------------
+//#include <SoftwareSerial.h>
+//---------------------------------------------------------
+#include <TickerScheduler.h>
+TickerScheduler ts(10);
+//---------------------------------------------------------
+//#include <WebSocketsServer.h>
+//WebSocketsServer webSocket = WebSocketsServer(81);
+//---------------------------------------------------------
+#include <PubSubClient.h>
 WiFiClient espClient;
 PubSubClient client(espClient);
+//---------------------------------------------------------
+//#include <WiFiClientSecure.h>
+//WiFiClientSecure push_client;
+//---------------------------------------------------------
+#include <StringCommand.h>
+StringCommand sCmd;
+//---------------------------------------------------------
+//#include "InputDebounce.h"
+//---------------------------------------------------------
+#include <OneWire.h>                 
+#include <DallasTemperature.h>       
+OneWire *oneWire;
+DallasTemperature sensors;
+//---------------------------------------------------------
+#define BUFFER_SIZE 100
+#define reconnecting 60000
+//---------------------------------------------------------
+
 
 String chipID = "";
 String prefix   = "/IoTmanager";

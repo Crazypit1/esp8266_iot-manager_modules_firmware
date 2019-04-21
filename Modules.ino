@@ -1,12 +1,13 @@
 void Modules_web_page_init() {
+  
   if (jsonRead(configSetup, "scenario") == "1") scenario = readFile("scenario.all.txt", 1024);
-  if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
+  //if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
   //==================================================================================================
   HTTP.on("/scenario", HTTP_GET, []() {
     jsonWrite(configSetup, "scenario", HTTP.arg("status"));
     saveConfig();
     if (jsonRead(configSetup, "scenario") == "1") scenario = readFile("scenario.all.txt", 1024);
-    if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
+    //if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
     HTTP.send(200, "text/plain", "OK");
   });
   HTTP.on("/module_relay", HTTP_GET, []() {
@@ -30,6 +31,13 @@ void Modules_web_page_init() {
     //outcoming_date();
     HTTP.send(200, "text/plain", "OK");
   });
+    HTTP.on("/module_ds18b20", HTTP_GET, []() {
+    jsonWrite(configSetup, "module_ds18b20", HTTP.arg("status"));
+    saveConfig();
+    All_Modules_init();
+    //outcoming_date();
+    HTTP.send(200, "text/plain", "OK");
+  });
   //==================================================================================================
   HTTP.on("/all_modules_init", HTTP_GET, []() {
     All_Modules_init();
@@ -45,6 +53,7 @@ void All_Modules_init() {
   if (jsonRead(configSetup, "module_relay") == "1") txtExecution("blok.relay.txt");
   if (jsonRead(configSetup, "module_tank_level") == "1") txtExecution("blok.tank.level.txt");
   if (jsonRead(configSetup, "module_analog") == "1") txtExecution("blok.analog.txt");
+  if (jsonRead(configSetup, "module_ds18b20") == "1") txtExecution("blok.ds18b20.txt");
   
 }
 //====================================================================================================

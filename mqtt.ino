@@ -19,11 +19,12 @@ void MQTT_init() {
     client.disconnect();
     MQTT_Connecting(false);
 
-
-    HTTP.send(200, "application/json", stateMQTT());
-
+    String tmp = "{}";
+    jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + stateMQTT());
+    jsonWrite(tmp, "class", "pop-up"); 
+    
+    HTTP.send(200, "application/json", tmp);
   });
-
 
   jsonWrite(configSetup, "chipID", chipID);
 
@@ -50,9 +51,6 @@ void MQTT_init() {
 #endif
 }
 
-
-
-
 //================================================ОБНОВЛЕНИЕ====================================================
 
 void  handleMQTT() {
@@ -65,7 +63,18 @@ void  handleMQTT() {
     }
   }
 }
+//выполнение команд в лупе по очереди из строки order
+void handleCMD() {
 
+  if (order != "") {
+
+    String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
+    sCmd.readStr(tmp);                            //выполняем первую команду
+    Serial.println(order);
+    order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
+
+  }
+}
 //===============================================ПОДКЛЮЧЕНИЕ========================================================
 void MQTT_Connecting(boolean send_date) {
 
@@ -82,7 +91,7 @@ void MQTT_Connecting(boolean send_date) {
           led_blink(2, 20, "off");
           Serial.println("->Connecting to MQTT server completed");
           //Serial.println(stateMQTT());
-          SoketData ("stateMQTT", stateMQTT(), "");
+
 
           client.setCallback(callback);
 
@@ -92,7 +101,8 @@ void MQTT_Connecting(boolean send_date) {
 
           //SCENARIO ANALOG > 5 800324-1458415 rel1 0
           if (jsonRead(configSetup, "scenario") == "1") {
-            String all_text = readFile("scenario.all.txt", 1024) + "\r\n";
+            //String all_text = readFile("scenario.all.txt", 1024) + "\r\n";
+            String all_text = scenario + "\r\n";
             all_text.replace("\r\n", "\n");
             all_text.replace("\r", "\n");
             while (all_text.length() != 0) {
@@ -111,11 +121,9 @@ void MQTT_Connecting(boolean send_date) {
 
           if (send_date) outcoming_date(); //отправляем данные в виджеты
 
-
-
         } else {
           //Serial.println(stateMQTT());
-          SoketData ("stateMQTT", stateMQTT(), "");
+
           Serial.println("try again in " + String(reconnecting / 1000) +  " sec");
           led_blink(2, 20, "on");
         }
@@ -124,7 +132,7 @@ void MQTT_Connecting(boolean send_date) {
   }
 }
 
-//=====================================================ВХОДЯЩИЕ И ИСХОДЯЩИЕ ДАННЫЕ========================================================
+//=====================================================ВХОДЯЩИЕ ДАННЫЕ========================================================
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
@@ -148,42 +156,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //Serial.println(order);
   }
 }
-
-
-/*void callback(const MQTT::Publish& pub) { //если что то пришло
-
-  //Serial.print(pub.topic());
-  //Serial.print(" => ");
-  //Serial.print(pub.payload_string());
-  //Serial.println();
-  String payload = pub.payload_string();
-
-  //---------обработка входящих данных----------------------------------------------------------------------------------------
-  if (pub.payload_string() == "HELLO" ) outcoming_date();                  //отправляем данные при обновлении страницы!!!
-  if (String(pub.topic()) == prefix + "/ids") ids = pub.payload_string();  //получаем ids
-
-  String topic_ = String(pub.topic());    //формируем строку из строки /pin5 ==>> pin 5 1,   (где pin - название группы(о чем идет речь), 5 - номер пина, 1 - значение )
-  if (topic_.indexOf("control") > 0) {
-    //IoTmanager/800324-1458415/rel0/control 1
-    topic_ = deleteToMarkerLast(topic_, "/control");
-    //Serial.println(topic_);                               //IoTmanager/799371-1458415/rel0
-    topic_ = selectToMarkerLast(topic_, "/");
-    //Serial.println(topic_);                               //rel0
-    String t = topic_.substring(3);
-    //Serial.println(t);                                    //0
-    topic_.replace(t, " " + t);
-    //Serial.println(topic_);                               //rel 0
-    topic_ += " " + pub.payload_string();
-    //Serial.println(topic_);
-    order += topic_ + ",";
-    Serial.println(order);
-  }
-  ///IoTmanager/800324-1458415/rel1/status {"status":"1"}
-
-  /* if (topic_.indexOf(jsonRead(optionJson, "scenario_device")) > 0) {
-
-    }*/
-//}
 
 //данные которые отправляем при подключении или отбновлении страницы
 void outcoming_date() {
@@ -228,19 +200,7 @@ void sendCONTROL(String id, String topik, String state) {
 }
 
 
-//выполнение команд в лупе по очереди из строки order
-void handleCMD() {
 
-  if (order != "") {
-
-    String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
-    sCmd.readStr(tmp);                            //выполняем первую команду
-    Serial.println(order);
-    order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
-
-
-  }
-}
 //=====================================================ОТПРАВЛЯЕМ ВИДЖЕТЫ========================================================
 void sendAllWigets() {
 
@@ -252,8 +212,8 @@ void sendAllWigets() {
     String tmp = selectToMarker (viget, "\r\n");
     jsonWrite(tmp, "id", String(counter));
     sendMQTT("config", tmp);
-    Serial.println(counter);
-    //Serial.println(tmp);
+    Serial.println("videt no " + String(counter) + " pass");
+    Serial.println(tmp);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }
@@ -277,74 +237,6 @@ void sendAllData() {
     if (topic != "SSDP" && topic != "lang" && topic != "ip") sendSTATUS(topic, state);
     current_config = deleteBeforeDelimiter(current_config, ",");
   }
-}
-//=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ ДАННЫХ========================================================
-void Sensors_init() {
-
-  ts.add(6, 10000, [&](void*) {
-
-    long st_time = millis();
-
-    if (client.connected()) {
-
-      //========================================МОДУЛЬ TANK LEVEL==============================================
-      if (jsonRead(configSetup, "module_tank_level") == "1")
-      {
-        long duration_;
-        int distance_cm;
-        int level_persent;
-        static int distance_cm_old; //переменная static сохраняет свое значение между вызовами функции
-        digitalWrite(14, LOW);
-        yield();
-        delayMicroseconds(2);
-        yield();
-        digitalWrite(14, HIGH);
-        yield();
-        delayMicroseconds(10);
-        yield();
-        digitalWrite(14, LOW);
-        duration_ = pulseIn(12, HIGH, 30000); // 3000 µs = 50cm // 30000 µs = 5 m
-        distance_cm = duration_ / 29 / 2;
-
-        jsonWrite(optionJson, "distance_cm", distance_cm);
-
-        if (distance_cm_old != distance_cm) {
-
-          level_persent = map(distance_cm, jsonReadtoInt(optionJson, "empty_level"), jsonReadtoInt(optionJson, "full_level"), 0, 100);
-          sendSTATUS("lev", String(level_persent));
-          jsonWrite(configJson, "lev", level_persent);
-          Serial.println("1");
-        }
-        distance_cm_old = distance_cm;
-      }
-      //===========================================МОДУЛЬ АНАЛОГОВЫЙ СЕНСОР========================================
-      if (jsonRead(configSetup, "module_analog") == "1") {
-
-        int analog = analogRead(A0);
-        jsonWrite(optionJson, "analog", analog);
-        static int analog_old;
-
-        if (analog_old != analog) {
-
-          int analog_out = map(analog, jsonReadtoInt(optionJson, "start_value"), jsonReadtoInt(optionJson, "end_value"), jsonReadtoInt(optionJson, "start_value_out"), jsonReadtoInt(optionJson, "end_value_out"));
-          sendSTATUS("ana", String(analog_out));
-          jsonWrite(configJson, "ana", analog_out);
-          Serial.println("2");
-        }
-        analog_old = analog;
-      }
-      //===============================================================================================================
-
-      if (jsonRead(configSetup, "scenario") == "1") stringExecution(scenario);
-
-      //===============================================================================================================
-
-    }
-
-    long end_time = millis();
-    Serial.println("sensor total timeout = " + String(end_time - st_time));
-
-  }, nullptr, true);
 }
 
 String stateMQTT() {
