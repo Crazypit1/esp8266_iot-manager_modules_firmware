@@ -1,0 +1,82 @@
+{
+ "configs": [
+
+ "/config.live.json",
+"/config.setup.json",
+"/config.option.json",
+ "/lang/lang.ru.json",
+"socket {{ip}}:81/"
+ ],
+ "class":"col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8 col-lg-offset-3 col-lg-6",
+ "content": [
+  {
+   "type": "h5",
+   "title": "{{SSDP}}",
+   "class":"alert-warning"
+  },
+{
+   "type": "hr"
+  },
+
+{
+   "type": "h4",
+   "title": "Статус соединения: {{stateMQTT}}"
+  },
+ {
+   "type": "hr"
+  },
+ {
+   "type": "h4",
+   "title": "Server name:"
+  },
+{
+   "type": "input",
+   "title": "",
+   "name":"1",
+   "state": "{{mqttServer}}"
+  },
+{
+   "type": "h4",
+   "title": "Port:"
+  },
+{
+   "type": "input",
+   "title": "",
+   "name":"2",
+   "state": "{{mqttPort}}"
+  },
+{
+   "type": "h4",
+   "title": "User name:"
+  },
+{
+   "type": "input",
+   "title": "",
+   "name":"3",
+   "state": "{{mqttUser}}"
+  },
+{
+   "type": "h4",
+   "title": "Password:"
+  },
+{
+   "type": "input",
+   "title": "",
+   "name":"4",
+   "state": "{{mqttPass}}"
+  },
+{
+   "type": "button",
+   "title": "Проверить соединение с сервером",
+    "action": "mqttSave?mqttServer=[[1]]&mqttPort=[[2]]&mqttUser=[[3]]&mqttPass=[[4]]",
+   "class": "btn btn-block btn-success",
+   "style": "width:100%;display:inline"
+  },
+  {
+   "type": "link",
+   "title": "Главная",
+   "action": "/page.htm?index",
+   "class": "btn btn-block btn-danger btn-sm"
+  }
+ ]
+}
