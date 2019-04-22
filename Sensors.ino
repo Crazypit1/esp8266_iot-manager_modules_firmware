@@ -1,6 +1,11 @@
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ СЕНСОРОВ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ ДАННЫХ========================================================
 void Sensors_init() {
-  //========================================Модуль измерения уровня в баке==============================================
+  tank_level_();
+  analog_();
+  scenario_();
+}
+//========================================Модуль измерения уровня в баке==============================================
+void  tank_level_() {
   if (jsonRead(configSetup, "module_tank_level") == "1") {
     ts.add(LEVEL, 10000, [&](void*) {
       if (client.connected()) {
@@ -32,8 +37,12 @@ void Sensors_init() {
         distance_cm_old = distance_cm;
       }
     }, nullptr, true);
+  } else {
+    ts.disable(LEVEL);
   }
-  //===========================================Модуль аналогового сенсора========================================
+}
+//===========================================Модуль аналогового сенсора========================================
+void analog_() {
   if (jsonRead(configSetup, "module_analog") == "1") {
     ts.add(ANALOG, 10000, [&](void*) {
       if (client.connected()) {
@@ -52,18 +61,28 @@ void Sensors_init() {
         analog_old = analog;
       }
     }, nullptr, true);
+  } else {
+    ts.disable(ANALOG);
   }
-  //============================================Сценарии для всех модулей==============================================
+}
+//============================================Сценарии для всех модулей==============================================
+void scenario_() {
   if (jsonRead(configSetup, "scenario") == "1") {
-    ts.add(SCENARIO, 10000, [&](void*) {
+    ts.add(SCENARIO, 20000, [&](void*) {
       if (client.connected()) {
-        stringExecution(scenario);
+        static boolean flag = false;
+        if (flag) stringExecution(scenario);
+        flag = true;
+        //Serial.println("scenario send date");
       }
     }, nullptr, true);
+  } else {
+    ts.disable(SCENARIO);
   }
-
-
-
 }
+
+
+
+
 
 

@@ -53,13 +53,19 @@
    "state": "{{mqttPass}}"
   },
 {
+  "type":"h3",
+  "name":"my-block",
+"style":"position:fixed;top:30%;left:50%;width:400px;margin-left:-200px;text-align:center;",
+  "class":"hidden"
+ },
+{
    "type": "button",
-  "title":"Сохранить",
+  "title":"Сохранить и проверить соединение",
     "action": "mqttSave?mqttServer=[[1]]&mqttPort=[[2]]&mqttUser=[[3]]&mqttPass=[[4]]",
+    "response":"[[my-block]]",
    "class": "btn btn-block btn-success",
    "style": "width:100%;display:inline"
   },
-
   {
    "type": "link",
    "title": "Главная",

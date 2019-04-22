@@ -35,13 +35,18 @@ void setup() {
   Serial.println("MQTT_init");
   Sensors_init();
   Serial.println("Sensors_init");
+
+
+  //ts.disable(TEST);
+
+  //ts.enable(TEST);
 }
 
 
 void loop()
 {
   HTTP.handleClient();
-//  webSocket.loop();
+  //  webSocket.loop();
   handleMQTT();
   handleCMD();
 

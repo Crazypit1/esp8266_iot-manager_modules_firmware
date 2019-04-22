@@ -109,6 +109,32 @@
    "type": "hr"
  },
 {
+"type": "checkbox",
+"name":"ds18b20",
+"title": "Модуль температурного сенсора ds18b20",
+"action": "module_ds18b20?status=[[ds18b20]]",
+"state": "{{module_ds18b20}}"
+},
+{
+   "type": "h4",
+   "title": "Текущее значение: {{ds18b20}}"
+  },
+{
+   "type": "h6",
+   "title": "TEMP_ds18b20 / Пин  / Имя виджета /  Имя вкладки / Номер на вкладке"
+  },
+ {
+   "type":"file",
+   "state":"blok.ds18b20.txt",
+   "style":"width:100%;height:50px",
+   "title": "Сохранить",
+   "action": "/all_modules_init",
+   "class":"btn btn-block btn-success"
+  },
+{
+   "type": "hr"
+ },
+{
    "type": "link",
    "title": "Сценарии",
    "action": "/page.htm?scenario",

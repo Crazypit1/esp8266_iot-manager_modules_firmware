@@ -46,7 +46,7 @@ DallasTemperature sensors;
 #define reconnecting 60000
 //---------------------------------------------------------
 
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, SCENARIO };
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, SCENARIO, TEST };
 
 
 String chipID = "";

@@ -17,12 +17,12 @@ void MQTT_init() {
     saveConfig();
 
     client.disconnect();
-    MQTT_Connecting(false);
+    MQTT_Connecting(false, false);
 
     String tmp = "{}";
     jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + stateMQTT());
-    jsonWrite(tmp, "class", "pop-up"); 
-    
+    jsonWrite(tmp, "class", "pop-up");
+
     HTTP.send(200, "application/json", tmp);
   });
 
@@ -31,6 +31,7 @@ void MQTT_init() {
   //проверка подключения к серверу
 
 #ifdef reconnecting
+
   ts.add(MQTT_WIFI, reconnecting, [&](void*) {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("->WiFi-ok");
@@ -39,8 +40,16 @@ void MQTT_init() {
         led_blink(2, 20, "off");
       } else {
         Serial.println("->Lost MQTT connection, start reconnecting");
+        static boolean flag = true;
         led_blink(2, 20, "on");
-        MQTT_Connecting(false);
+        if (flag) {
+          MQTT_Connecting(false, true);
+          Serial.println("first");
+          flag = false;
+        } else {
+          MQTT_Connecting(false, false);
+          Serial.println("second");
+        }
       }
     } else {
       Serial.println("->Lost WiFi connection");
@@ -76,7 +85,7 @@ void handleCMD() {
   }
 }
 //===============================================ПОДКЛЮЧЕНИЕ========================================================
-void MQTT_Connecting(boolean send_date) {
+void MQTT_Connecting(boolean send_date, boolean scenario_subscribe) {
 
   String mqtt_server = jsonRead(configSetup, "mqttServer");
 
@@ -98,27 +107,8 @@ void MQTT_Connecting(boolean send_date) {
           client.subscribe(prefix.c_str());  // Для приема получения HELLOW и подтверждения связи
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
           client.subscribe((prefix + "/ids").c_str()); // Подписываемся на топики ids
-
-          //SCENARIO ANALOG > 5 800324-1458415 rel1 0
-          if (jsonRead(configSetup, "scenario") == "1") {
-            //String all_text = readFile("scenario.all.txt", 1024) + "\r\n";
-            String all_text = scenario + "\r\n";
-            all_text.replace("\r\n", "\n");
-            all_text.replace("\r", "\n");
-            while (all_text.length() != 0) {
-              String line_ = selectToMarker (all_text, "\n");
-              String id = selectFromMarkerToMarker(line_, " ", 4);
-              if (id != "not found") {
-                Serial.println(id);
-                //long st_time = millis();
-                int st = client.subscribe((prefix + "/" + id + "/+/status").c_str(), 0);
-                //long end_time = millis();
-                //Serial.println("status = " + String(st) + ", timeout = " + String(end_time - st_time));
-              }
-              all_text = deleteBeforeDelimiter(all_text, "\n");
-            }
-          }
-
+          sendMQTT("test", "work");
+ //       if (scenario_subscribe) scenario_devices_topiks_subscribe();
           if (send_date) outcoming_date(); //отправляем данные в виджеты
 
         } else {
@@ -136,15 +126,17 @@ void MQTT_Connecting(boolean send_date) {
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  //Serial.print(topic);
+  Serial.print(topic);
   String topic_str = String(topic);
 
   String str;
   for (int i = 0; i < length; i++) {
     str += (char)payload[i];
   }
-  //Serial.println(" " + str);
+  Serial.println(" " + str);
   if (str == "HELLO") outcoming_date();
+
+  //if (str == "CHECK") sendMQTT("CHECK", "OK");
 
   if (topic_str.indexOf("control") > 0) {                      //IoTmanager/800324-1458415/rel0/control 1
     topic_str = deleteToMarkerLast(topic_str, "/control");     //IoTmanager/799371-1458415/rel0
@@ -160,7 +152,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //данные которые отправляем при подключении или отбновлении страницы
 void outcoming_date() {
 
-  sendMQTT("test", "work");
+ 
   sendAllWigets();
   sendAllData();
   Serial.println("->Sending all date to iot manager completed");
@@ -186,17 +178,17 @@ void sendSTATUS(String topik, String state) {
   //long st_time = millis();
   int send_status =  client.publish (topik.c_str(), json_.c_str(), false);
   //long end_time = millis();
-  //Serial.println("status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
+  //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
 //== == == == == == == == == = CONTROL == == == == == == == == == == == == == == == == == == =
 ///IoTmanager/800324-1458415/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
   String  all_line = prefix + "/" + id + "/" + topik + "/control";
 
-  //long st_time = millis();
+  long st_time = millis();
   int send_status = client.publish (all_line.c_str(), state.c_str(), false);
-  //long end_time = millis();
-  //Serial.println("status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
+  long end_time = millis();
+  Serial.println("send control = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
 
 
@@ -266,3 +258,42 @@ String stateMQTT() {
       break;
   }
 }
+/*void scenario_devices_topiks_subscribe() {
+
+  //SCENARIO ANALOG > 5 800324-1458415 rel1 0
+  if (jsonRead(configSetup, "scenario") == "1") {
+    //String all_text = readFile("scenario.all.txt", 1024) + "\r\n";
+    String all_text = scenario + "\r\n";
+    all_text.replace("\r\n", "\n");
+    all_text.replace("\r", "\n");
+    while (all_text.length() != 0) {
+      String line_ = selectToMarker (all_text, "\n");
+      String id = selectFromMarkerToMarker(line_, " ", 4);
+      if (id != "not found") {
+        client.subscribe((prefix + "/" + id + "/+/status").c_str(), 0);
+        Serial.println("subscribed to device, id: " + id);
+      }
+      all_text = deleteBeforeDelimiter(all_text, "\n");
+    }
+  }
+}
+*/
+/*void scenario_devices_test_msg_send() {
+
+  if (jsonRead(configSetup, "scenario") == "1") {
+
+    String all_text = scenario + "\r\n";
+    all_text.replace("\r\n", "\n");
+    all_text.replace("\r", "\n");
+    while (all_text.length() != 0) {
+      String line_ = selectToMarker (all_text, "\n");
+      String id = selectFromMarkerToMarker(line_, " ", 4);
+      if (id != "not found") {
+        //Serial.println();
+        Serial.println(client.publish ((prefix + "/" + id).c_str(), "CHECK", true));
+
+      }
+      all_text = deleteBeforeDelimiter(all_text, "\n");
+    }
+  }
+}*/
