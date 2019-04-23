@@ -4,4 +4,4 @@
 # Ссылка для скачивания прошивки:
 https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/releases/download/v1.0.3/esp8266_iot-manager_modules_firmware.zip
 
-![download](https://raw.githubusercontent.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/master/tutorial/settings1.png)
+![download](https://raw.githubusercontent.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/date/tutorial/settings1.png)
