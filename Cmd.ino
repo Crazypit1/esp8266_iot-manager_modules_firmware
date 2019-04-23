@@ -7,7 +7,7 @@ void CMD_init() {
   sCmd.addCommand("LEVEL",  tank_levelInit);
   sCmd.addCommand("ANALOG",  analogInit);
   sCmd.addCommand("TEMP_ds18b20",  ds18b20Init);
-  
+
 
 
 
@@ -73,7 +73,6 @@ void tank_levelInit() {
   pinMode(12, INPUT);
 
   static String viget;
-
   if (flag) {
     viget = readFile("blok.tank.level.json", 1024);
     flag = false;
@@ -104,7 +103,6 @@ void analogInit() {
   pinMode(A0, INPUT);
 
   static String viget;
-
   if (flag) {
     viget = readFile("blok.analog.json", 1024);
     flag = false;
@@ -117,7 +115,7 @@ void analogInit() {
   all_vigets += viget + "\r\n";
 }
 
-//=========================================Модуль температурного сенсора DS18B20============================================================
+//=========================================Модуль температурного сенсора ds18b20============================================================
 void ds18b20Init() {
 
   static boolean flag = true;
@@ -125,11 +123,15 @@ void ds18b20Init() {
   String viget_name = sCmd.next();
   String page_name = sCmd.next();
   String page_number = sCmd.next();
- 
-  //jsonWrite(optionJson, "start_value", start_value);
-  
-  static String viget;
 
+  //jsonWrite(optionJson, "start_value", start_value);
+  oneWire = new OneWire((uint8_t) pin.toInt());
+  sensors.setOneWire(oneWire);
+  sensors.begin();
+  sensors.setResolution(1);
+
+
+  static String viget;
   if (flag) {
     viget = readFile("blok.termometr.json", 1024);
     flag = false;
@@ -155,35 +157,50 @@ void Scenario() {
 
 
   if (module_name == "LEVEL") {
-    if (sign == ">") {
-      if (jsonReadtoInt(configJson, "lev") > value.toInt()) {
-        sendCONTROL(id, topik, order);
+    if (jsonRead(configSetup, "module_tank_level") == "1") {
+      if (sign == ">") {
+        if (jsonReadtoInt(configJson, "lev") > value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
       }
-
-    }
-    if (sign == "<") {
-      if (jsonReadtoInt(configJson, "lev") < value.toInt()) {
-        sendCONTROL(id, topik, order);
+      if (sign == "<") {
+        if (jsonReadtoInt(configJson, "lev") < value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
       }
     }
   }
-
   if (module_name == "ANALOG") {
-    if (sign == ">") {
-      if (jsonReadtoInt(configJson, "ana") > value.toInt()) {
-        sendCONTROL(id, topik, order);
+    if (jsonRead(configSetup, "module_analog") == "1") {
+      if (sign == ">") {
+        if (jsonReadtoInt(configJson, "ana") > value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
       }
-
-    }
-    if (sign == "<") {
-      if (jsonReadtoInt(configJson, "ana") < value.toInt()) {
-        sendCONTROL(id, topik, order);
+      if (sign == "<") {
+        if (jsonReadtoInt(configJson, "ana") < value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
       }
     }
   }
+  if (module_name == "TEMP_ds18b20") {
+    if (jsonRead(configSetup, "module_ds18b20") == "1") {
+      if (sign == ">") {
+        if (jsonReadtoInt(configJson, "DS") > value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
+      }
+      if (sign == "<") {
+        if (jsonReadtoInt(configJson, "DS") < value.toInt()) {
+          sendCONTROL(id, topik, order);
+        }
+      }
+    }
+  }
+
 
 }
-
 
 
 

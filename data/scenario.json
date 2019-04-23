@@ -39,7 +39,8 @@
    "type":"file",
    "state":"scenario.all.txt",
    "style":"width:100%;height:250px",
-   "title": "Сохранить",
+   "title": "Сохранить и включить",
+   "action": "/scenario?status=1",
    "class":"btn btn-block btn-success"
   },
 

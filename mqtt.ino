@@ -17,7 +17,7 @@ void MQTT_init() {
     saveConfig();
 
     client.disconnect();
-    MQTT_Connecting(false, false);
+    MQTT_Connecting(false);
 
     String tmp = "{}";
     jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + stateMQTT());
@@ -29,9 +29,6 @@ void MQTT_init() {
   jsonWrite(configSetup, "chipID", chipID);
 
   //проверка подключения к серверу
-
-#ifdef reconnecting
-
   ts.add(MQTT_WIFI, reconnecting, [&](void*) {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("->WiFi-ok");
@@ -40,16 +37,8 @@ void MQTT_init() {
         led_blink(2, 20, "off");
       } else {
         Serial.println("->Lost MQTT connection, start reconnecting");
-        static boolean flag = true;
         led_blink(2, 20, "on");
-        if (flag) {
-          MQTT_Connecting(false, true);
-          Serial.println("first");
-          flag = false;
-        } else {
-          MQTT_Connecting(false, false);
-          Serial.println("second");
-        }
+        MQTT_Connecting(true);
       }
     } else {
       Serial.println("->Lost WiFi connection");
@@ -57,7 +46,6 @@ void MQTT_init() {
       StartAPMode();
     }
   }, nullptr, true);
-#endif
 }
 
 //================================================ОБНОВЛЕНИЕ====================================================
@@ -79,13 +67,13 @@ void handleCMD() {
 
     String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
     sCmd.readStr(tmp);                            //выполняем первую команду
-    Serial.println(order);
+    //Serial.println(order);
     order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
 
   }
 }
 //===============================================ПОДКЛЮЧЕНИЕ========================================================
-void MQTT_Connecting(boolean send_date, boolean scenario_subscribe) {
+void MQTT_Connecting(boolean send_date) {
 
   String mqtt_server = jsonRead(configSetup, "mqttServer");
 
@@ -99,8 +87,6 @@ void MQTT_Connecting(boolean send_date, boolean scenario_subscribe) {
         if (client.connect(chipID.c_str(), jsonRead(configSetup, "mqttUser").c_str(), jsonRead(configSetup, "mqttPass").c_str())) {
           led_blink(2, 20, "off");
           Serial.println("->Connecting to MQTT server completed");
-          //Serial.println(stateMQTT());
-
 
           client.setCallback(callback);
 
@@ -108,7 +94,7 @@ void MQTT_Connecting(boolean send_date, boolean scenario_subscribe) {
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
           client.subscribe((prefix + "/ids").c_str()); // Подписываемся на топики ids
           sendMQTT("test", "work");
- //       if (scenario_subscribe) scenario_devices_topiks_subscribe();
+
           if (send_date) outcoming_date(); //отправляем данные в виджеты
 
         } else {
@@ -126,17 +112,15 @@ void MQTT_Connecting(boolean send_date, boolean scenario_subscribe) {
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  Serial.print(topic);
+  //Serial.print(topic);
   String topic_str = String(topic);
 
   String str;
   for (int i = 0; i < length; i++) {
     str += (char)payload[i];
   }
-  Serial.println(" " + str);
+  //Serial.println(" " + str);
   if (str == "HELLO") outcoming_date();
-
-  //if (str == "CHECK") sendMQTT("CHECK", "OK");
 
   if (topic_str.indexOf("control") > 0) {                      //IoTmanager/800324-1458415/rel0/control 1
     topic_str = deleteToMarkerLast(topic_str, "/control");     //IoTmanager/799371-1458415/rel0
@@ -152,7 +136,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //данные которые отправляем при подключении или отбновлении страницы
 void outcoming_date() {
 
- 
+
   sendAllWigets();
   sendAllData();
   Serial.println("->Sending all date to iot manager completed");
@@ -168,7 +152,7 @@ void sendMQTT(String end_of_topik, String data) {
   client.endPublish();
 }
 //== == == == == == == == == = STATUS == == == == == == == == == == == == == == == == == == =
-///IoTmanager/800324-1458415/rel1/status {"status":"1"}
+///IoTmanager/2058631-1589487/rel1/status {"status":"1"}
 ///sendSTATUS(topic, state)
 void sendSTATUS(String topik, String state) {
   topik = prefix + "/" + chipID + "/" + topik + "/" + "status";
@@ -181,14 +165,14 @@ void sendSTATUS(String topik, String state) {
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
 //== == == == == == == == == = CONTROL == == == == == == == == == == == == == == == == == == =
-///IoTmanager/800324-1458415/rel1/control 1
+///IoTmanager/2058631-1589487/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
   String  all_line = prefix + "/" + id + "/" + topik + "/control";
 
-  long st_time = millis();
+  //long st_time = millis();
   int send_status = client.publish (all_line.c_str(), state.c_str(), false);
-  long end_time = millis();
-  Serial.println("send control = " + String(send_status) + ", timeout = " + String(end_time - st_time));
+  //long end_time = millis();
+  //Serial.println("send control = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
 
 
@@ -276,7 +260,7 @@ String stateMQTT() {
       all_text = deleteBeforeDelimiter(all_text, "\n");
     }
   }
-}
+  }
 */
 /*void scenario_devices_test_msg_send() {
 
@@ -296,4 +280,4 @@ String stateMQTT() {
       all_text = deleteBeforeDelimiter(all_text, "\n");
     }
   }
-}*/
+  }*/

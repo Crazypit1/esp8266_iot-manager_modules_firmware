@@ -35,10 +35,10 @@ void setup() {
   Serial.println("MQTT_init");
   Sensors_init();
   Serial.println("Sensors_init");
-
+  
+  test();
 
   //ts.disable(TEST);
-
   //ts.enable(TEST);
 }
 

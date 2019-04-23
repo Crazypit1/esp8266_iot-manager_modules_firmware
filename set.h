@@ -44,10 +44,11 @@ DallasTemperature sensors;
 //---------------------------------------------------------
 #define BUFFER_SIZE 100
 #define reconnecting 60000
+#define sensors_update_int 5000
+#define scenario_update_int 5000
+
 //---------------------------------------------------------
-
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, SCENARIO, TEST };
-
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, TEST };
 
 String chipID = "";
 String prefix   = "/IoTmanager";
