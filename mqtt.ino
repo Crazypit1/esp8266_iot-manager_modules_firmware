@@ -164,6 +164,17 @@ void sendSTATUS(String topik, String state) {
   //long end_time = millis();
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
+void sendSTATUS(String topik, String state, String type, String param) {
+  topik = prefix + "/" + chipID + "/" + topik + "/" + "status";
+  String json_ = "{}";
+  jsonWrite(json_, "status", state);
+  jsonWrite(json_, type, param);
+
+  //long st_time = millis();
+  int send_status =  client.publish (topik.c_str(), json_.c_str(), false);
+  //long end_time = millis();
+  //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
+}
 //== == == == == == == == == = CONTROL == == == == == == == == == == == == == == == == == == =
 ///IoTmanager/2058631-1589487/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
@@ -187,9 +198,35 @@ void sendAllWigets() {
     if (!client.connected()) return;
     String tmp = selectToMarker (viget, "\r\n");
     jsonWrite(tmp, "id", String(counter));
+   
+    /*
+        //-----------------------------------------------------------------------------------------------------------------------------------------------
+        //jsonWrite(tmp, "status", "1");
+        
+        String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
+        current_config.replace("{", "");
+        current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
+        current_config += ",";                                //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
+
+        while (current_config.length() != 0) {
+
+          String tmp = selectToMarker (current_config, ",");  //"rel1":"1"
+          String topic =  selectToMarker (tmp, ":");          //"rel1"
+          topic.replace("\"", "");                            //rel1
+          Serial.println(topic);
+          String state =  selectToMarkerLast (tmp, ":");      //"1"
+          state.replace("\"", "");                            //1
+
+          //if (viget.lastIndexOf(topic) > 0) {
+            jsonWrite(tmp, "status", state);
+          //}
+          current_config = deleteBeforeDelimiter(current_config, ",");
+        }
+       //-------------------------------------------------------------------------------------------------------------------------------------------------
+    */
     sendMQTT("config", tmp);
     Serial.println("videt no " + String(counter) + " pass");
-    //Serial.println(tmp);
+    Serial.println(tmp);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }
@@ -197,19 +234,19 @@ void sendAllWigets() {
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ========================================================
 void sendAllData() {
 
-  String current_config = configJson;
+  String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
   current_config.replace("{", "");
-  current_config.replace("}", "");
-  current_config += ",";
+  current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
+  current_config += ",";                                //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
 
   while (current_config.length() != 0) {
 
-    String tmp = selectToMarker (current_config, ","); //"SSDP":"OVEN"
-    String topic =  selectToMarker (tmp, ":");        //"SSDP"
-    topic.replace("\"", "");                          //SSDP
+    String tmp = selectToMarker (current_config, ",");  //"rel1":"1"
+    String topic =  selectToMarker (tmp, ":");          //"rel1"
+    topic.replace("\"", "");                            //rel1
 
-    String state =  selectToMarkerLast (tmp, ":");
-    state.replace("\"", "");
+    String state =  selectToMarkerLast (tmp, ":");      //"1"
+    state.replace("\"", "");                            //1
     if (topic != "SSDP" && topic != "lang" && topic != "ip") sendSTATUS(topic, state);
     current_config = deleteBeforeDelimiter(current_config, ",");
   }

@@ -3,15 +3,11 @@
       "page": "",
       "pageId": "",
       "widget": "fillgauge",
-      
       "descr": "",
-     
       "class2": "text-center ballanced",
       "style2": "font-size:25px;font-weight:bold;padding-top:10px;padding-bottom:10px;",
-      
       "class3" : "text-center",
       "style3": "padding-top:10px;padding-bottom:10px;",
-      
       "topic": "",
       "width": "250px",
       "height": "250px",

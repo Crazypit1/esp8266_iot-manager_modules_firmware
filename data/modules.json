@@ -33,11 +33,33 @@
 },
 {
    "type": "h6",
-   "title": "RELAY / Номер реле / Пин / Имя виджета /  Имя вкладки / Номер на вкладке / Нач. состояние"
+   "title": "RELAY / Номер реле / Пин / Имя виджета /  Имя вкладки / Нач. состояние / Номер на вкладке "
   },
  {
    "type":"file",
    "state":"blok.relay.txt",
+   "style":"width:100%;height:100px",
+   "title": "Сохранить",
+   "action": "/all_modules_init",
+   "class":"btn btn-block btn-success"
+  },
+{
+   "type": "hr"
+ },
+{
+"type": "checkbox",
+"name":"button",
+"title": "Модуль физической кнопки",
+"action": "module_button?status=[[button]]",
+"state": "{{module_button}}"
+},
+{
+   "type": "h6",
+   "title": "BUTTON / Номер кнопки / Пин  / Время нажатия / Имя виджета /  Имя вкладки / Номер на вкладке"
+  },
+ {
+   "type":"file",
+   "state":"blok.button.txt",
    "style":"width:100%;height:100px",
    "title": "Сохранить",
    "action": "/all_modules_init",
@@ -63,7 +85,7 @@
   },
 {
    "type": "h6",
-   "title": "LEVEL / Имя виджета /  Имя вкладки / Номер на вкладке / Расст. пустоты / Расст. полноты"
+   "title": "LEVEL / Имя виджета /  Имя вкладки  / Расст. пустоты / Расст. полноты / Номер на вкладке"
   },
  {
    "type":"file",
@@ -73,11 +95,9 @@
    "action": "/all_modules_init",
    "class":"btn btn-block btn-success"
   },
-
 {
    "type": "hr"
  },
-
 {
 "type": "checkbox",
 "name":"analog",
@@ -95,7 +115,7 @@
   },
 {
    "type": "h6",
-   "title": "ANALOG / Имя виджета /  Имя вкладки / Номер на вкладке / Нач. знач. / Кон. знач. / Нач. знач. вых. / Кон. знач. вых."
+   "title": "ANALOG / Имя виджета /  Имя вкладки / Нач. знач. / Кон. знач. / Нач. знач. вых. / Кон. знач. вых. / Номер на вкладке"
   },
  {
    "type":"file",

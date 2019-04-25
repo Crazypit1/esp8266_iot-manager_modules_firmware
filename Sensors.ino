@@ -80,7 +80,7 @@ void ds18b20_() {
         static float temp_old;
 
         if (temp_old != temp) {
-   
+
           sendSTATUS("DS", String(temp));
           jsonWrite(configJson, "DS", String(temp));
           Serial.println("sensor ds18b20 send date");

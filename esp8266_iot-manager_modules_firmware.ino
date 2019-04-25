@@ -49,6 +49,7 @@ void loop()
   //  webSocket.loop();
   handleMQTT();
   handleCMD();
+  handleButton();
 
 
   ts.update();

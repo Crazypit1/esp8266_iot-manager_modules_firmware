@@ -42,11 +42,14 @@ StringCommand sCmd;
 OneWire *oneWire;
 DallasTemperature sensors;
 //---------------------------------------------------------
-#define BUFFER_SIZE 100
+#include <Bounce2.h>                 
+#define NUM_BUTTONS 4
+boolean but[NUM_BUTTONS];
+Bounce * buttons = new Bounce[NUM_BUTTONS];
+//---------------------------------------------------------
 #define reconnecting 60000
-#define sensors_update_int 5000
-#define scenario_update_int 5000
-
+#define sensors_update_int 10000
+#define scenario_update_int 10000
 //---------------------------------------------------------
 enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, TEST };
 

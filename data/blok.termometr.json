@@ -10,6 +10,6 @@
         "type": "Linear",
         "titleString": "Спальня",
         "unitString": "°C",
-        "threshold": 90
+        "threshold": 30
       }
     }
