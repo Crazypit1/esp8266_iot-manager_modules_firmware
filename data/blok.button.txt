@@ -1,2 +1,0 @@
-BUTTON 0 0 20 led1 Кнопки 3
-BUTTON 1 2 20 led2 Кнопки 4

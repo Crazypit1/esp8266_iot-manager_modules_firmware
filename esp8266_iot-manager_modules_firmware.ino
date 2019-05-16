@@ -35,8 +35,10 @@ void setup() {
   Serial.println("MQTT_init");
   Sensors_init();
   Serial.println("Sensors_init");
-  
-  test();
+//  Push_init();
+//  Serial.println("Push_init");
+
+
 
   //ts.disable(TEST);
   //ts.enable(TEST);
@@ -50,6 +52,7 @@ void loop()
   handleMQTT();
   handleCMD();
   handleButton();
+  handleSwitch();
 
 
   ts.update();

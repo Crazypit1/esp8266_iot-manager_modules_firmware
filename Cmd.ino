@@ -4,7 +4,8 @@ void CMD_init() {
   sCmd.addCommand("RELAY",  relayInit);
   sCmd.addCommand("rel",  relayControl);
 
-  sCmd.addCommand("BUTTON",  buttonInit);
+  sCmd.addCommand("SWITCH",  switchInit);
+
   sCmd.addCommand("LEVEL",  tank_levelInit);
   sCmd.addCommand("ANALOG",  analogInit);
   sCmd.addCommand("TEMP_ds18b20",  ds18b20Init);
@@ -22,7 +23,7 @@ void relayInit() {
   String page_name = sCmd.next();
   String start_state = sCmd.next();
   String page_number = sCmd.next();
-  
+
 
   uint8_t relay_pin_int = relay_pin.toInt();
   jsonWrite(optionJson, "relay" + relay_number, relay_pin);
@@ -52,56 +53,89 @@ void relayControl() {
   int pin = jsonReadtoInt(optionJson, "relay" + relay_number);
   digitalWrite(pin, relay_state_int);
 
+  //send_push("Дом", "Реле" + relay_number);
+
   jsonWrite(configJson, "rel" + relay_number, relay_state);
   sendSTATUS("rel" + relay_number, relay_state);
 }
 //=========================================Модуль физической кнопки================================================================
-void buttonInit() {
+void switchInit() {
 
   static boolean flag = true;
-  String button_number = sCmd.next();
-  String button_pin = sCmd.next();
-  String button_delay = sCmd.next();
-  String button_name = sCmd.next();
+  String switch_number = sCmd.next();  //номер кнопки на этом устройстве
+  String id = sCmd.next();             //id другого устройства
+  String relay_number = sCmd.next();   //номер реле на др устройстве
+  String switch_pin = sCmd.next();     //пин кнопки на этом
+  String switch_delay = sCmd.next();
+
+  String switch_name = sCmd.next();
   String page_name = sCmd.next();
   String page_number = sCmd.next();
 
-  // jsonWrite(optionJson, "empty_level", button_number);
+  jsonWrite(configJson, "switch" + switch_number, id + " " + relay_number);  //"switch1":"2768820-1458190 1"
 
-  buttons[button_number.toInt()].attach(button_pin.toInt());
-  buttons[button_number.toInt()].interval(button_delay.toInt());
-  but[button_number.toInt()] = true;
+  buttons[switch_number.toInt()].attach(switch_pin.toInt());
+  buttons[switch_number.toInt()].interval(switch_delay.toInt());
+  but[switch_number.toInt()] = true;
 
-  static String viget;
-  if (flag) {
-    viget = readFile("blok.button.json", 1024);
-    flag = false;
+  if (page_number != "NA") {
+
+    static String viget;
+    if (flag) {
+      viget = readFile("blok.switch.json", 1024);
+      flag = false;
+    }
+
+    jsonWrite(viget, "page", page_name);
+    jsonWrite(viget, "pageId", page_number);
+    jsonWrite(viget, "descr", switch_name);
+    jsonWrite(viget, "topic", prex + "/led" + switch_number);
+    all_vigets += viget + "\r\n";
   }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", button_name);
-  jsonWrite(viget, "topic", prex + "/led" + button_number);
-  all_vigets += viget + "\r\n";
 }
 
 void handleButton()  {
 
-  static uint8_t button_number = 0;
+  static uint8_t switch_number = 1;
 
-  if (but[button_number]) {
-    buttons[button_number].update();
-    if (buttons[button_number].fell()) {
-      Serial.println("Tach on " + String(button_number));
-      sendSTATUS("led" + String(button_number), "1", "speech", "button " + String(button_number) + "on");
+  if (but[switch_number]) {
+    buttons[switch_number].update();
+
+    if (buttons[switch_number].fell()) {
+      //Serial.println("Tach on " + String(switch_number));
+      String tmp = jsonRead(configJson, "switch" + String(switch_number));
+      order_switch += selectToMarker (tmp, " ") + " " + deleteBeforeDelimiter(tmp, " ") + " " + "1" + ","; //2768820-1458190 1 1,
+      Serial.println(order_switch);
     }
-    if (buttons[button_number].rose()) {
-      Serial.println("Tach off " + String(button_number));
-      sendSTATUS("led" + String(button_number), "0", "speech", "button " + String(button_number) + "off");
+
+    if (buttons[switch_number].rose()) {
+      //Serial.println("Tach off " + String(switch_number));
+      String tmp = jsonRead(configJson, "switch" + String(switch_number));
+      order_switch += selectToMarker (tmp, " ") + " " + deleteBeforeDelimiter(tmp, " ") + " " + "0" + ","; //2768820-1458190 1 0,
+      Serial.println(order_switch);
     }
   }
-  button_number++;
-  if (button_number == NUM_BUTTONS) button_number = 0;
+  switch_number++;
+  if (switch_number == NUM_BUTTONS) switch_number = 0;
+
+}
+
+void handleSwitch() {
+
+  if (order_switch != "") {
+
+    String tmp = selectToMarker(order_switch, ",");
+
+    //2768820-1458190 1 1,
+    String id = selectFromMarkerToMarker(order_switch, " ", 0);
+    String relay_number = selectFromMarkerToMarker(order_switch, " ", 1);
+    String order = selectFromMarkerToMarker(order_switch, " ", 2);
+    sendCONTROL(id, "rel" + relay_number, order);
+    //sendSTATUS("led" + relay_number, order);
+
+    order_switch = deleteBeforeDelimiter(order_switch, ",");
+
+  }
 }
 //=========================================Модуль измерения уровня в баке============================================================
 void tank_levelInit() {
@@ -112,7 +146,7 @@ void tank_levelInit() {
   String empty_level = sCmd.next();
   String full_level = sCmd.next();
   String page_number = sCmd.next();
-  
+
   jsonWrite(optionJson, "empty_level", empty_level);
   jsonWrite(optionJson, "full_level", full_level);
 
@@ -142,7 +176,7 @@ void analogInit() {
   String start_value_out = sCmd.next();
   String end_value_out = sCmd.next();
   String page_number = sCmd.next();
-  
+
   jsonWrite(optionJson, "start_value", start_value);
   jsonWrite(optionJson, "end_value", end_value);
   jsonWrite(optionJson, "start_value_out", start_value_out);
@@ -201,18 +235,20 @@ void Scenario() {
   String id = sCmd.next();
   String topik = sCmd.next();
   String order = sCmd.next();
-
+  String push = sCmd.next();
 
   if (module_name == "LEVEL") {
     if (jsonRead(configSetup, "module_tank_level") == "1") {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "lev") > value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "lev"));
         }
       }
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "lev") < value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "lev"));
         }
       }
     }
@@ -221,12 +257,15 @@ void Scenario() {
     if (jsonRead(configSetup, "module_analog") == "1") {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "ana") > value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "ana"));
+
         }
       }
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "ana") < value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "ana"));
         }
       }
     }
@@ -235,12 +274,14 @@ void Scenario() {
     if (jsonRead(configSetup, "module_ds18b20") == "1") {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "DS") > value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "DS"));
         }
       }
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "DS") < value.toInt()) {
-          sendCONTROL(id, topik, order);
+          if (id != "NA") sendCONTROL(id, topik, order);
+//          if (push != "NA") send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "DS"));
         }
       }
     }

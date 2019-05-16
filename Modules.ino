@@ -22,8 +22,8 @@ void Modules_web_page_init() {
     HTTP.send(200, "text/plain", "OK");
   });
   //=========================================Модуль физической кнопки======================================================
-  HTTP.on("/module_button", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_button", HTTP.arg("status"));
+  HTTP.on("/module_switch", HTTP_GET, []() {
+    jsonWrite(configSetup, "module_switch", HTTP.arg("status"));
     saveConfig();
 
     All_Modules_init();
@@ -80,7 +80,7 @@ void All_Modules_init() {
   all_vigets = "";
 
   if (jsonRead(configSetup, "module_relay") == "1") txtExecution("blok.relay.txt");
-  if (jsonRead(configSetup, "module_button") == "1") txtExecution("blok.button.txt");
+  if (jsonRead(configSetup, "module_switch") == "1") txtExecution("blok.switch.txt");
   if (jsonRead(configSetup, "module_tank_level") == "1") txtExecution("blok.tank.level.txt");
   if (jsonRead(configSetup, "module_analog") == "1") txtExecution("blok.analog.txt");
   if (jsonRead(configSetup, "module_ds18b20") == "1") txtExecution("blok.ds18b20.txt");
@@ -97,9 +97,9 @@ void txtExecution(String file) {
   while (command_all.length() != 0) {
 
     String tmp = selectToMarker (command_all, "\n");
-    sCmd.readStr(tmp);
-    command_all = deleteBeforeDelimiter(command_all, "\n");
-  }
+    if (tmp.indexOf("//") < 0) sCmd.readStr(tmp);
+      command_all = deleteBeforeDelimiter(command_all, "\n");
+    }
 }
 void stringExecution(String str) {
 
@@ -111,7 +111,7 @@ void stringExecution(String str) {
   while (command_all.length() != 0) {
 
     String tmp = selectToMarker (command_all, "\n");
-    sCmd.readStr(tmp);
+    if (tmp.indexOf("//") < 0) sCmd.readStr(tmp);
     command_all = deleteBeforeDelimiter(command_all, "\n");
   }
 }

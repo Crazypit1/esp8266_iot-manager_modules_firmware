@@ -60,18 +60,6 @@ void  handleMQTT() {
     }
   }
 }
-//выполнение команд в лупе по очереди из строки order
-void handleCMD() {
-
-  if (order != "") {
-
-    String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
-    sCmd.readStr(tmp);                            //выполняем первую команду
-    //Serial.println(order);
-    order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
-
-  }
-}
 //===============================================ПОДКЛЮЧЕНИЕ========================================================
 void MQTT_Connecting(boolean send_date) {
 
@@ -84,6 +72,9 @@ void MQTT_Connecting(boolean send_date) {
     if (WiFi.status() == WL_CONNECTED) {
       if (!client.connected()) {
         Serial.println("->Connecting to MQTT server commenced");
+
+        busy = true;
+
         if (client.connect(chipID.c_str(), jsonRead(configSetup, "mqttUser").c_str(), jsonRead(configSetup, "mqttPass").c_str())) {
           led_blink(2, 20, "off");
           Serial.println("->Connecting to MQTT server completed");
@@ -94,6 +85,9 @@ void MQTT_Connecting(boolean send_date) {
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
           client.subscribe((prefix + "/ids").c_str()); // Подписываемся на топики ids
           sendMQTT("test", "work");
+          Serial.println("->Callback set, subscribe done");
+
+          busy = false;
 
           if (send_date) outcoming_date(); //отправляем данные в виджеты
 
@@ -129,27 +123,42 @@ void callback(char* topic, byte* payload, unsigned int length) {
     topic_str.replace(t, " " + t);                                                      //rel 0
     topic_str += " " + str;
     order += topic_str + ",";
-    //Serial.println(order);
+    Serial.println(order);
   }
 }
+//выполнение команд в лупе по очереди из строки order
+void handleCMD() {
 
+  if (order != "") {
+
+    String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
+    sCmd.readStr(tmp);                            //выполняем первую команду
+    //Serial.println(order);
+    order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
+
+  }
+}
 //данные которые отправляем при подключении или отбновлении страницы
 void outcoming_date() {
 
+  busy = true;
 
   sendAllWigets();
   sendAllData();
   Serial.println("->Sending all date to iot manager completed");
 
+  busy = false;
+
 }
 //== == == == == == == == == = CONFIG == == == == == == == == == == == == == == == == == == =
 ///IoTmanager/2058631-1589487/config {----viget----}
 ///sendMQTT("config", data);
-void sendMQTT(String end_of_topik, String data) {
+boolean sendMQTT(String end_of_topik, String data) {
   String topik = prefix + "/" + chipID + "/" + end_of_topik;
-  client.beginPublish(topik.c_str(), data.length(), false);
+  boolean send_status = client.beginPublish(topik.c_str(), data.length(), false);
   client.print(data);
   client.endPublish();
+  return send_status;
 }
 //== == == == == == == == == = STATUS == == == == == == == == == == == == == == == == == == =
 ///IoTmanager/2058631-1589487/rel1/status {"status":"1"}
@@ -198,11 +207,11 @@ void sendAllWigets() {
     if (!client.connected()) return;
     String tmp = selectToMarker (viget, "\r\n");
     jsonWrite(tmp, "id", String(counter));
-   
+
     /*
         //-----------------------------------------------------------------------------------------------------------------------------------------------
         //jsonWrite(tmp, "status", "1");
-        
+
         String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
         current_config.replace("{", "");
         current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
@@ -224,9 +233,15 @@ void sendAllWigets() {
         }
        //-------------------------------------------------------------------------------------------------------------------------------------------------
     */
-    sendMQTT("config", tmp);
-    Serial.println("videt no " + String(counter) + " pass");
-    Serial.println(tmp);
+    boolean send_status = sendMQTT("config", tmp);
+    String send_status_str;
+    if (send_status) {
+      send_status_str = " pass";
+    } else {
+      send_status_str = " failed";
+    }
+    Serial.println("videt no " + String(counter) + send_status_str);
+    //Serial.println(tmp);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }

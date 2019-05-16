@@ -30,7 +30,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 //---------------------------------------------------------
 //#include <WiFiClientSecure.h>
-//WiFiClientSecure push_client;
+//WiFiClientSecure client_push;
 //---------------------------------------------------------
 #include <StringCommand.h>
 StringCommand sCmd;
@@ -43,15 +43,16 @@ OneWire *oneWire;
 DallasTemperature sensors;
 //---------------------------------------------------------
 #include <Bounce2.h>                 
-#define NUM_BUTTONS 4
+#define NUM_BUTTONS 6
 boolean but[NUM_BUTTONS];
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 //---------------------------------------------------------
 #define reconnecting 60000
-#define sensors_update_int 10000
-#define scenario_update_int 10000
+#define sensors_update_int 20000
+#define scenario_update_int 20000
+#define push_update_int 10000
 //---------------------------------------------------------
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, TEST };
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, PUSH , TEST};
 
 String chipID = "";
 String prefix   = "/IoTmanager";
@@ -64,6 +65,17 @@ String optionJson = "{}";
 
 int port = 80;
 String order;
+String order_switch;
+String order_push;
+
 String all_vigets = "";
 String scenario;
 
+boolean busy;
+
+//------------------------------------------------------------------
+const char* host = "api.github.com";
+const int httpsPort = 443;
+const char* accessToken = "o.qjOvmrc1wjGOGs20jir3G5kpFVL52hRa";
+const char* fingerprint = "TODO";
+//------------------------------------------------------------------

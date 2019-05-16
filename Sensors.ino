@@ -10,7 +10,7 @@ void Sensors_init() {
 void  tank_level_() {
   if (jsonRead(configSetup, "module_tank_level") == "1") {
     ts.add(LEVEL, sensors_update_int, [&](void*) {
-      if (client.connected()) {
+      //if (client.connected()) {
         long duration_;
         int distance_cm;
         int level_persent;
@@ -34,10 +34,10 @@ void  tank_level_() {
           level_persent = map(distance_cm, jsonReadtoInt(optionJson, "empty_level"), jsonReadtoInt(optionJson, "full_level"), 0, 100);
           sendSTATUS("lev", String(level_persent));
           jsonWrite(configJson, "lev", level_persent);
-          Serial.println("sensor tank level send date");
+          Serial.println("sensor tank level send date " + String(level_persent));
         }
         distance_cm_old = distance_cm;
-      }
+      //}
     }, nullptr, true);
   } else {
     ts.disable(LEVEL);
@@ -47,7 +47,7 @@ void  tank_level_() {
 void analog_() {
   if (jsonRead(configSetup, "module_analog") == "1") {
     ts.add(ANALOG, sensors_update_int, [&](void*) {
-      if (client.connected()) {
+      //if (client.connected()) {
 
         int analog = analogRead(A0);
         jsonWrite(optionJson, "analog", analog);
@@ -58,10 +58,10 @@ void analog_() {
           int analog_out = map(analog, jsonReadtoInt(optionJson, "start_value"), jsonReadtoInt(optionJson, "end_value"), jsonReadtoInt(optionJson, "start_value_out"), jsonReadtoInt(optionJson, "end_value_out"));
           sendSTATUS("ana", String(analog_out));
           jsonWrite(configJson, "ana", analog_out);
-          Serial.println("sensor analog send date");
+          Serial.println("sensor analog send date " + String(analog_out));
         }
         analog_old = analog;
-      }
+     // }
     }, nullptr, true);
   } else {
     ts.disable(ANALOG);
@@ -71,7 +71,7 @@ void analog_() {
 void ds18b20_() {
   if (jsonRead(configSetup, "module_ds18b20") == "1") {
     ts.add(DS18B20, sensors_update_int, [&](void*) {
-      if (client.connected()) {
+      //if (client.connected()) {
 
         float temp = 0;
         sensors.requestTemperatures();
@@ -83,10 +83,10 @@ void ds18b20_() {
 
           sendSTATUS("DS", String(temp));
           jsonWrite(configJson, "DS", String(temp));
-          Serial.println("sensor ds18b20 send date");
+          Serial.println("sensor ds18b20 send date" + String(temp));
         }
         temp_old = temp;
-      }
+      //}
     }, nullptr, true);
   } else {
     ts.disable(DS18B20);
@@ -96,12 +96,14 @@ void ds18b20_() {
 void scenario_() {
   if (jsonRead(configSetup, "scenario") == "1") {
     ts.add(SCENARIO, scenario_update_int, [&](void*) {
-      if (client.connected()) {
+      //if (client.connected()) {
+
         static boolean flag = false;
         if (flag) stringExecution(scenario);
         flag = true;
+
         Serial.println("scenario send date");
-      }
+      //}
     }, nullptr, true);
   } else {
     ts.disable(SCENARIO);
