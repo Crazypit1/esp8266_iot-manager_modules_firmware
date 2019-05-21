@@ -1,1 +1,1 @@
-ANALOG Analog Сенсоры 0 1024 0 1024 6
+ANALOG Analog Сенсоры 0 1024 0 100 6

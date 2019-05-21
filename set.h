@@ -29,8 +29,7 @@ TickerScheduler ts(10);
 WiFiClient espClient;
 PubSubClient client(espClient);
 //---------------------------------------------------------
-//#include <WiFiClientSecure.h>
-//WiFiClientSecure client_push;
+#include <WiFiClientSecure.h>
 //---------------------------------------------------------
 #include <StringCommand.h>
 StringCommand sCmd;
@@ -64,7 +63,8 @@ String configJson = "{}";
 String optionJson = "{}";
 
 int port = 80;
-String order;
+
+String order_relays;
 String order_switch;
 String order_push;
 
@@ -73,9 +73,5 @@ String scenario;
 
 boolean busy;
 
-//------------------------------------------------------------------
-const char* host = "api.github.com";
-const int httpsPort = 443;
-const char* accessToken = "o.qjOvmrc1wjGOGs20jir3G5kpFVL52hRa";
-const char* fingerprint = "TODO";
-//------------------------------------------------------------------
+
+

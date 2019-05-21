@@ -69,7 +69,7 @@ bool StartAPMode() {
   // Задаем настройки сети
   WiFi.softAPConfig(apIP, staticGateway, staticSubnet);
   //Включаем DNS
-  //  dnsServer.start(53, "*", apIP);
+  //dnsServer.start(53, "*", apIP);
   // Включаем WIFI в режиме точки доступа с именем и паролем
   // хронящихся в переменных _ssidAP _passwordAP
   String _ssidAP = jsonRead(configSetup, "ssidAP");
@@ -78,7 +78,7 @@ bool StartAPMode() {
   jsonWrite(configJson, "ip", apIP.toString());
   led_blink(2, 200, "on");
 
-#ifdef reconnecting
+
   ts.add(WIFI, reconnecting, [&](void*) {
 
     Serial.println("try find router");
@@ -88,7 +88,6 @@ bool StartAPMode() {
       MQTT_init();
     }
   }, nullptr, true);
-#endif
 
   return true;
 }

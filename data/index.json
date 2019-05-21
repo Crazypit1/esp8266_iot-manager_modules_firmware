@@ -50,6 +50,12 @@
    "title": "Конфигурация MQTT",
    "action": "/page.htm?mqtt",
    "class": "btn btn-block btn-success"
+  },
+{
+   "type": "link",
+   "title": "Конфигурация push",
+   "action": "/page.htm?push",
+   "class": "btn btn-block btn-success"
   }
  ]
 }

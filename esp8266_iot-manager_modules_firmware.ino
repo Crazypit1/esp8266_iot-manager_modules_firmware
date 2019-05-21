@@ -35,8 +35,8 @@ void setup() {
   Serial.println("MQTT_init");
   Sensors_init();
   Serial.println("Sensors_init");
-//  Push_init();
-//  Serial.println("Push_init");
+  Push_init();
+  Serial.println("Push_init");
 
 
 
@@ -48,7 +48,7 @@ void setup() {
 void loop()
 {
   HTTP.handleClient();
-  //  webSocket.loop();
+  //webSocket.loop();
   handleMQTT();
   handleCMD();
   handleButton();

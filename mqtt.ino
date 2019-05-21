@@ -122,19 +122,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
     String t = topic_str.substring(3);                                                      //0
     topic_str.replace(t, " " + t);                                                      //rel 0
     topic_str += " " + str;
-    order += topic_str + ",";
-    Serial.println(order);
+    order_relays += topic_str + ",";
+    Serial.println(order_relays);
   }
 }
 //выполнение команд в лупе по очереди из строки order
 void handleCMD() {
 
-  if (order != "") {
+  if (order_relays != "") {
 
-    String tmp = selectToMarker(order, ",");      //выделяем из страки order первую команду rel 5 1
-    sCmd.readStr(tmp);                            //выполняем первую команду
-    //Serial.println(order);
-    order = deleteBeforeDelimiter(order, ",");    //осекаем выполненную команду
+    String tmp = selectToMarker(order_relays, ",");             //выделяем из страки order первую команду rel 5 1
+    sCmd.readStr(tmp);                                          //выполняем первую команду
+    //Serial.println(order_relays);
+    order_relays = deleteBeforeDelimiter(order_relays, ",");    //осекаем выполненную команду
 
   }
 }

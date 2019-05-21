@@ -11,13 +11,13 @@
   },
  {
    "type": "h4",
-   "title": "Server name:"
+   "title": "Host name:"
   },
 {
    "type": "input",
    "title": "",
    "name":"1",
-   "state": "{{mqttServer}}"
+   "state": "{{pushHost}}"
   },
 {
    "type": "h4",
@@ -27,27 +27,27 @@
    "type": "input",
    "title": "",
    "name":"2",
-   "state": "{{mqttPort}}"
+   "state": "{{pushPort}}"
   },
 {
    "type": "h4",
-   "title": "User name:"
+   "title": "Fingerprint:"
   },
 {
    "type": "input",
    "title": "",
    "name":"3",
-   "state": "{{mqttUser}}"
+   "state": "{{pushFingerprint}}"
   },
 {
    "type": "h4",
-   "title": "Password:"
+   "title": "Access Token:"
   },
 {
    "type": "input",
    "title": "",
    "name":"4",
-   "state": "{{mqttPass}}"
+   "state": "{{pushAccessToken}}"
   },
 {
   "type":"h3",
@@ -58,10 +58,29 @@
 {
    "type": "button",
   "title":"Сохранить и проверить соединение",
-    "action": "mqttSave?mqttServer=[[1]]&mqttPort=[[2]]&mqttUser=[[3]]&mqttPass=[[4]]",
+    "action": "pushDate?pushHost=[[1]]&pushPort=[[2]]&pushFingerprint=[[3]]&pushAccessToken=[[4]]",
     "response":"[[my-block]]",
    "class": "btn btn-block btn-success",
    "style": "width:100%;display:inline"
+  },
+{
+   "type": "hr"
+  },
+{
+"type": "checkbox",
+"name":"module-push",
+"title": "Отправлять push при включении устройства",
+"action": "module_push?status=[[module-push]]",
+"state": "{{module_push}}"
+},
+{
+   "type": "hr"
+  },
+ {
+   "type": "link",
+   "title": "Перезагрузить устройство",
+   "action": "javascript:if(confirm(renameBlock(jsonResponse,'Перезагрузить?'))){send_request(this,'/restart?device=ok');}",
+   "class": "btn btn-block btn-warning"
   },
   {
    "type": "link",

@@ -83,7 +83,7 @@ void ds18b20_() {
 
           sendSTATUS("DS", String(temp));
           jsonWrite(configJson, "DS", String(temp));
-          Serial.println("sensor ds18b20 send date" + String(temp));
+          Serial.println("sensor ds18b20 send date " + String(temp));
         }
         temp_old = temp;
       //}
@@ -102,7 +102,7 @@ void scenario_() {
         if (flag) stringExecution(scenario);
         flag = true;
 
-        Serial.println("scenario send date");
+        Serial.println("scenario send date ");
       //}
     }, nullptr, true);
   } else {
