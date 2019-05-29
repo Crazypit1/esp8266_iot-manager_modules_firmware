@@ -30,6 +30,7 @@ void Push_init() {
 
     if (client_push.connect(host, httpsPort)) {
       result = "Connected";
+      send_push(jsonRead(configSetup, "SSDP"), "test");
     } else {
       result = "Connection failed";
     }
@@ -62,9 +63,10 @@ void Push_init() {
 }
 
 void send_push(String title, String body) {
-
+  
+  
   order_push += title + " " + body + ","; //Аналог >100=361,
-  Serial.println(order_push);
+  //Serial.print(order_push);  
 
 }
 
@@ -91,7 +93,7 @@ void handle_push() {
         //------------------------------------------------------------------
 
         // Use WiFiClientSecure class to create TLS connection
-        Serial.println("=>commence sending push");
+        Serial.print("sending push: \"");
         WiFiClientSecure client_push;
         //Serial.print("connecting to ");
         //Serial.println(host);
@@ -99,7 +101,7 @@ void handle_push() {
         client_push.setFingerprint(fingerprint);
 
         if (!client_push.connect(host, httpsPort)) {
-          Serial.println("=>connection failed");
+          Serial.print("push connection failed: \"");
           return;
         }
 
@@ -154,10 +156,9 @@ void handle_push() {
           }
         */
         //--------------------------------------------------------------------------------------------------------------------------
-
-        order_push = deleteBeforeDelimiter(order_push, ",");
-        Serial.println(order_push);
-        Serial.println("=>completed sending push");
+        Serial.print(tmp);
+        order_push = deleteBeforeDelimiter(order_push, ",");    
+        Serial.println("\" done");
         return;
       }
     }

@@ -1,0 +1,10 @@
+   { 
+     "id" : "",
+     "page" : "",
+     "widget" : "anydata",
+     "class1" : "item rounded text-center no-padding",
+     "class2" : "assertive-bg light",
+     "style2" : "font-size:20px;font-weight:bold",
+     "descr" : "",
+     "topic" : ""
+   }

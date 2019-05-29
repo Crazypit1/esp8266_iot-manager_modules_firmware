@@ -155,6 +155,28 @@
    "type": "hr"
  },
 {
+"type": "checkbox",
+"name":"pwm",
+"title": "Модуль управления ШИМ",
+"action": "module_pwm?status=[[pwm]]",
+"state": "{{module_pwm}}"
+},
+{
+   "type": "h6",
+   "title": "PWM / Номер / Пин  / Имя ползунка /  Имя вкладки / Начальное состояние / Номер на вкладке"
+  },
+ {
+   "type":"file",
+   "state":"blok.pwm.txt",
+   "style":"width:100%;height:50px",
+   "title": "Сохранить",
+   "action": "/all_modules_init",
+   "class":"btn btn-block btn-success"
+  },
+{
+   "type": "hr"
+ },
+{
    "type": "link",
    "title": "Сценарии",
    "action": "/page.htm?scenario",

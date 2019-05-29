@@ -122,19 +122,19 @@ void callback(char* topic, byte* payload, unsigned int length) {
     String t = topic_str.substring(3);                                                      //0
     topic_str.replace(t, " " + t);                                                      //rel 0
     topic_str += " " + str;
-    order_relays += topic_str + ",";
-    Serial.println(order_relays);
+    order_main += topic_str + ",";
+    Serial.println(order_main);
   }
 }
 //выполнение команд в лупе по очереди из строки order
 void handleCMD() {
 
-  if (order_relays != "") {
+  if (order_main != "") {
 
-    String tmp = selectToMarker(order_relays, ",");             //выделяем из страки order первую команду rel 5 1
+    String tmp = selectToMarker(order_main, ",");             //выделяем из страки order первую команду rel 5 1
     sCmd.readStr(tmp);                                          //выполняем первую команду
-    //Serial.println(order_relays);
-    order_relays = deleteBeforeDelimiter(order_relays, ",");    //осекаем выполненную команду
+    //Serial.println(order_main);
+    order_main = deleteBeforeDelimiter(order_main, ",");    //осекаем выполненную команду
 
   }
 }
@@ -150,7 +150,7 @@ void outcoming_date() {
   busy = false;
 
 }
-//== == == == == == == == == = CONFIG == == == == == == == == == == == == == == == == == == =
+//======================================CONFIG==================================================
 ///IoTmanager/2058631-1589487/config {----viget----}
 ///sendMQTT("config", data);
 boolean sendMQTT(String end_of_topik, String data) {
@@ -160,7 +160,7 @@ boolean sendMQTT(String end_of_topik, String data) {
   client.endPublish();
   return send_status;
 }
-//== == == == == == == == == = STATUS == == == == == == == == == == == == == == == == == == =
+//======================================STATUS==================================================
 ///IoTmanager/2058631-1589487/rel1/status {"status":"1"}
 ///sendSTATUS(topic, state)
 void sendSTATUS(String topik, String state) {
@@ -184,7 +184,7 @@ void sendSTATUS(String topik, String state, String type, String param) {
   //long end_time = millis();
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
-//== == == == == == == == == = CONTROL == == == == == == == == == == == == == == == == == == =
+//======================================CONTROL==================================================
 ///IoTmanager/2058631-1589487/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
   String  all_line = prefix + "/" + id + "/" + topik + "/control";
@@ -194,8 +194,6 @@ void sendCONTROL(String id, String topik, String state) {
   //long end_time = millis();
   //Serial.println("send control = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
-
-
 
 //=====================================================ОТПРАВЛЯЕМ ВИДЖЕТЫ========================================================
 void sendAllWigets() {
@@ -241,7 +239,7 @@ void sendAllWigets() {
       send_status_str = " failed";
     }
     Serial.println("videt no " + String(counter) + send_status_str);
-    //Serial.println(tmp);
+    Serial.println(tmp);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }

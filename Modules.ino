@@ -64,6 +64,20 @@ void Modules_web_page_init() {
 
     HTTP.send(200, "text/plain", "OK");
   });
+  //=========================================Модуль управления ШИМ==================================================
+  HTTP.on("/module_pwm", HTTP_GET, []() {
+    jsonWrite(configSetup, "module_pwm", HTTP.arg("status"));
+    saveConfig();
+
+    All_Modules_init();
+    Sensors_init();
+    //outcoming_date();
+
+    HTTP.send(200, "text/plain", "OK");
+  });
+
+
+  
   //===========================================Все модули===========================================================================
   HTTP.on("/all_modules_init", HTTP_GET, []() {
 
@@ -84,7 +98,8 @@ void All_Modules_init() {
   if (jsonRead(configSetup, "module_tank_level") == "1") txtExecution("blok.tank.level.txt");
   if (jsonRead(configSetup, "module_analog") == "1") txtExecution("blok.analog.txt");
   if (jsonRead(configSetup, "module_ds18b20") == "1") txtExecution("blok.ds18b20.txt");
-
+  if (jsonRead(configSetup, "module_pwm") == "1") txtExecution("blok.pwm.txt");
+  
 }
 //====================================================================================================
 void txtExecution(String file) {
@@ -98,8 +113,8 @@ void txtExecution(String file) {
 
     String tmp = selectToMarker (command_all, "\n");
     if (tmp.indexOf("//") < 0) sCmd.readStr(tmp);
-      command_all = deleteBeforeDelimiter(command_all, "\n");
-    }
+    command_all = deleteBeforeDelimiter(command_all, "\n");
+  }
 }
 void stringExecution(String str) {
 

@@ -4,8 +4,10 @@ void CMD_init() {
   sCmd.addCommand("RELAY",  relayInit);
   sCmd.addCommand("rel",  relayControl);
 
-  sCmd.addCommand("SWITCH",  switchInit);
+  sCmd.addCommand("PWM",  pwmInit);
+  sCmd.addCommand("pwm",  pwmControl);
 
+  sCmd.addCommand("SWITCH",  switchInit);
   sCmd.addCommand("LEVEL",  tank_levelInit);
   sCmd.addCommand("ANALOG",  analogInit);
   sCmd.addCommand("TEMP_ds18b20",  ds18b20Init);
@@ -33,7 +35,7 @@ void relayInit() {
 
   static String viget;
   if (flag) {
-    viget = readFile("blok.relay.json", 1024);
+    viget = readFile("viget.toggle.json", 1024);
     flag = false;
   }
 
@@ -86,7 +88,7 @@ void switchInit() {
 
     static String viget;
     if (flag) {
-      viget = readFile("blok.switch.json", 1024);
+      viget = readFile("viget.led.json", 1024);
       flag = false;
     }
 
@@ -160,7 +162,7 @@ void handleSwitch() {
     String page_number = selectFromMarkerToMarker(order_switch, " ", 7);
 
     if (id != "NA") sendCONTROL(id, "rel" + relay_number, order);
-    if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+    if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
     if (page_number != "NA") sendSTATUS("led" + switch_number, order);
 
     if (push_msg_on != "NA" && order == "1") send_push(switch_name, push_msg_on);
@@ -188,7 +190,7 @@ void tank_levelInit() {
 
   static String viget;
   if (flag) {
-    viget = readFile("blok.tank.level.json", 1024);
+    viget = readFile("viget.fillgauge.json", 1024);
     flag = false;
   }
 
@@ -219,7 +221,7 @@ void analogInit() {
 
   static String viget;
   if (flag) {
-    viget = readFile("viget.gauge.json", 1024);//blok.analog.json
+    viget = readFile("viget.gauge.json", 1024);
     flag = false;
   }
 
@@ -247,7 +249,7 @@ void ds18b20Init() {
 
   static String viget;
   if (flag) {
-    viget = readFile("blok.termometr.json", 1024);
+    viget = readFile("viget.termometr.json", 1024);
     flag = false;
   }
 
@@ -256,6 +258,50 @@ void ds18b20Init() {
 
   jsonWrite(viget, "topic", prex + "/DS");
   all_vigets += viget + "\r\n";
+}
+
+//==========================================Модуль управления ШИМ===================================================
+void pwmInit() {
+
+  static boolean flag = true;
+  String pwm_number = sCmd.next();
+  String pwm_pin = sCmd.next();
+  String pwm_name = sCmd.next();
+  String page_name = sCmd.next();
+  String start_state = sCmd.next();
+  String page_number = sCmd.next();
+
+
+  uint8_t pwm_pin_int = pwm_pin.toInt();
+  jsonWrite(optionJson, "pwm" + pwm_number, pwm_pin);
+  pinMode(pwm_pin_int, INPUT);
+  analogWrite(pwm_pin_int, start_state.toInt());
+  jsonWrite(configJson, "pwm" + pwm_number, start_state);
+
+  static String viget;
+  if (flag) {
+    viget = readFile("viget.range.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", pwm_name);
+  jsonWrite(viget, "topic", prex + "/pwm" + pwm_number);
+  all_vigets += viget + "\r\n";
+}
+
+void pwmControl() {
+
+  String pwm_number = sCmd.next();
+  String pwm_state = sCmd.next();
+  int pwm_state_int = pwm_state.toInt();
+
+  int pin = jsonReadtoInt(optionJson, "pwm" + pwm_number);
+  analogWrite(pin, pwm_state_int);
+
+  jsonWrite(configJson, "pwm" + pwm_number, pwm_state);
+  sendSTATUS("pwm" + pwm_number, pwm_state);
 }
 
 //=========================================Сценарии для всех модулей============================================================
@@ -268,7 +314,7 @@ void Scenario() {
   String id = sCmd.next();
   String topik = sCmd.next();  //rel1
   String relay_number = deleteBeforeDelimiter(topik, "l");
-  Serial.println(relay_number);
+  //Serial.println(relay_number);
   String order = sCmd.next();
   String push = sCmd.next();
 
@@ -287,7 +333,7 @@ void Scenario() {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "lev") > value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_level_1) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "lev"));
@@ -300,7 +346,7 @@ void Scenario() {
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "lev") < value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_level_2) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "lev"));
@@ -317,7 +363,7 @@ void Scenario() {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "ana") > value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_analog_1) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "ana"));
@@ -330,7 +376,7 @@ void Scenario() {
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "ana") < value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_analog_2) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "ana"));
@@ -347,7 +393,7 @@ void Scenario() {
       if (sign == ">") {
         if (jsonReadtoInt(configJson, "DS") > value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_temp_1) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "DS"));
@@ -360,7 +406,7 @@ void Scenario() {
       if (sign == "<") {
         if (jsonReadtoInt(configJson, "DS") < value.toInt()) {
           if (id != "NA") sendCONTROL(id, topik, order);
-          if (id == "LOCAL") order_relays += "rel " + relay_number + " " + order + ",";
+          if (id == "LOCAL") order_main += "rel " + relay_number + " " + order + ",";
           if (push != "NA") {
             if (flag_temp_2) {
               send_push(push, sign + value + "=" + jsonReadtoInt(configJson, "DS"));
@@ -375,11 +421,38 @@ void Scenario() {
 
 }
 
+void add_viget(String page_name, String text) {
 
+  static boolean flag = true;
+  static String viget;
 
+  if (flag) {
+    viget = readFile("viget.alert.json", 1024);
+    flag = false;
+  }
 
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "descr", text);
+  //jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "topic", prex + "/alert");
 
+  all_vigets += viget + "\r\n";
+  Serial.println(all_vigets);
 
+}
+
+void del_viget(String text) {
+
+  int psn = all_vigets.indexOf(text);
+  int psn_dev_end = all_vigets.indexOf("\r\n", psn);
+  int psn_dev_start = all_vigets.lastIndexOf("{", psn);
+  
+  String tmp = all_vigets.substring(psn_dev_start, psn_dev_end + 2);
+
+  all_vigets.replace(tmp, "");
+  Serial.println(all_vigets);
+  
+}
 
 
 

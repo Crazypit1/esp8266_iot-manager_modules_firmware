@@ -1,4 +1,5 @@
-/*void WebSoket_init () {
+#ifdef debug_mode_web_sokets
+void WebSoket_init () {
 
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
@@ -40,6 +41,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       // webSocket.sendBIN(num, payload, length);
       break;
   }
-
 }
-*/
+#endif
+

@@ -104,8 +104,8 @@ int count(String str, String found) {
   }
   return i; // Достигли пустой строки и ничего не нашли
 }
-/*//============================================WEB SOKET==========================================================
-
+//============================================WEB SOKET==========================================================
+#ifdef debug_mode_web_sokets
 void SoketData (String key, String data, String data_old)  {
 
   if (data_old != data) {
@@ -123,10 +123,10 @@ void SoketData (String key, int data, int data_old)  {
     webSocket.broadcastTXT(broadcast);
   }
 }
-*/
+#endif
 /*//============================================URL===================================================================
-// ----------------------Запрос на удаленный URL
-String getURL(String urls) {
+  // ----------------------Запрос на удаленный URL
+  String getURL(String urls) {
   String answer = "";
   HTTPClient http;
   http.begin(urls); //HTTP
@@ -140,7 +140,7 @@ String getURL(String urls) {
   }
   http.end();
   return answer;
-}
+  }
 */
 //===========================================FILES===================================================================
 

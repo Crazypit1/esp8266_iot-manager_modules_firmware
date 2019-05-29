@@ -1,0 +1,11 @@
+     {
+      "id": "",
+      "page": "",
+      "descr": "",
+      "widget": "range",
+      "topic": "",
+      "widgetConfig": {
+        "maxValue": 50,
+        "minValue": -50
+      }
+      }
