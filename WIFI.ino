@@ -20,7 +20,7 @@ void WIFI_init() {
   WiFi.mode(WIFI_OFF);
   WiFi.mode(WIFI_STA);
   led_blink(2, 1, "on");
-  byte tries = 15;
+  byte tries = 20;
   String _ssid = jsonRead(configSetup, "ssid");
   String _password = jsonRead(configSetup, "password");
   WiFi.persistent(false);
