@@ -41,16 +41,7 @@ void setup() {
   Serial.println("Push_init");
 
   //ts.disable(TEST);
-  //ts.enable(TEST);
-
-  
-
-    
-
-
-    
-
-   
+  //ts.enable(TEST);  
 
 }
 

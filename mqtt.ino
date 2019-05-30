@@ -36,8 +36,6 @@ void MQTT_init() {
         Serial.println("->MQTT-ok");
         led_blink(2, 20, "off");
       } else {
-        Serial.println("->Lost MQTT connection, start reconnecting");
-        led_blink(2, 20, "on");
         MQTT_Connecting(true);
       }
     } else {
@@ -66,6 +64,9 @@ void MQTT_Connecting(boolean send_date) {
   String mqtt_server = jsonRead(configSetup, "mqttServer");
 
   if ((mqtt_server != "")) {
+
+    led_blink(2, 20, "on");
+    Serial.println("->Lost MQTT connection, start reconnecting");
 
     client.setServer(mqtt_server.c_str(), jsonReadtoInt(configSetup, "mqttPort"));
     // подключаемся к MQTT серверу
@@ -99,6 +100,8 @@ void MQTT_Connecting(boolean send_date) {
         }
       }
     }
+  } else {
+    Serial.println("->No date for MQTT connection");
   }
 }
 

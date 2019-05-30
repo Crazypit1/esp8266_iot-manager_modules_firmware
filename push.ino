@@ -51,22 +51,24 @@ void Push_init() {
 
 
   HTTP.on("/module_push", HTTP_GET, []() {
-    
+
     jsonWrite(configSetup, "module_push", HTTP.arg("status"));
     saveConfig();
 
     HTTP.send(200, "text/plain", "OK");
   });
 
-   if (jsonRead(configSetup, "module_push") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство_включено");
+  if (jsonRead(configSetup, "module_push") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство_включено");
 
 }
 
 void send_push(String title, String body) {
-  
-  
-  order_push += title + " " + body + ","; //Аналог >100=361,
-  //Serial.print(order_push);  
+
+  if (jsonRead(configSetup, "pushAccessToken") != "") {
+    order_push += title + " " + body + ",";
+  } else {
+    Serial.println("->No date for PUSH connection");
+  }
 
 }
 
@@ -157,7 +159,7 @@ void handle_push() {
         */
         //--------------------------------------------------------------------------------------------------------------------------
         Serial.print(tmp);
-        order_push = deleteBeforeDelimiter(order_push, ",");    
+        order_push = deleteBeforeDelimiter(order_push, ",");
         Serial.println("\" done");
         return;
       }
