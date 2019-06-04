@@ -1,5 +1,6 @@
 # esp8266 + Iot manager modules firmware
-Это модульная прошивка для ESP8266 и приложения IoT Manager. Она позволяет быстро настроить умный дом на базе ESP8266 без программирования.
+Это модульная прошивка для совместного использования модулей ESP8266 и приложения IoT Manager через MQTT. 
+Она позволяет быстро настроить умный дом на базе ESP8266 без программирования.
 
 ## Ссылка для скачивания прошивки: [esp8266_iot-manager_modules_firmware](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/releases/download/v1.0.7%2B/esp8266_iot-manager_modules_firmware.zip)
 
