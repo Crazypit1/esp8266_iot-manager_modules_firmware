@@ -29,19 +29,20 @@ void setup() {
   WebSoket_init ();
   Serial.println("WebSoket_init");
 #endif
-  All_Modules_init();
-  Serial.println("All_Modules_init");
-  Modules_web_page_init();
-  Serial.println("Modules_web_page_init");
+  buttons_init();
+  Serial.println("buttons_init");
   MQTT_init();
   Serial.println("MQTT_init");
-  Sensors_init();
-  Serial.println("Sensors_init");
   Push_init();
   Serial.println("Push_init");
+  handleCMD_ticker();
 
-  //ts.disable(TEST);
-  //ts.enable(TEST);  
+  HTTP.on("/test", HTTP_GET, []() {
+
+
+
+    HTTP.send(200, "text/plain", "OK");
+  });
 
 }
 
@@ -53,10 +54,10 @@ void loop()
   webSocket.loop();
 #endif
   handleMQTT();
-  handleCMD();
+  handleCMD_loop();
   handleButton();
-  handleSwitch();
 
+  //Serial.println(GetTime());
 
   ts.update();
 }

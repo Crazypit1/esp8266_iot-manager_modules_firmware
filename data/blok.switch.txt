@@ -1,5 +1,0 @@
-//SWITCH 1 0 20 2058631-1589487 1 NA NA NA NA NA
-//SWITCH 2 0 20 LOCAL 1 NA NA NA NA NA
-SWITCH 3 0 20 NA NA Светодиод Индикаторы NA NA 5
-//SWITCH 4 0 20 NA NA Свет NA включен выключен NA
-//SWITCH 4 0 20 NA NA Свет NA включен NA NA

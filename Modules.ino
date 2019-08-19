@@ -1,107 +1,78 @@
-void Modules_web_page_init() {
+void buttons_init() {
+  HTTP.on("/all_modules_init", HTTP_GET, []() {
 
-  if (jsonRead(configSetup, "scenario") == "1") scenario = readFile("scenario.all.txt", 1024);
-  //=======================================Сценарии================================================================
+    Modules_init();
+
+    HTTP.send(200, "text/plain", "OK");
+  });
+
   HTTP.on("/scenario", HTTP_GET, []() {
     jsonWrite(configSetup, "scenario", HTTP.arg("status"));
     saveConfig();
-
-    if (jsonRead(configSetup, "scenario") == "1") scenario = readFile("scenario.all.txt", 1024);
-    scenario_();
-
+    Scenario_init();
     HTTP.send(200, "text/plain", "OK");
   });
-  //==========================================Модуль управления реле===================================================
-  HTTP.on("/module_relay", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_relay", HTTP.arg("status"));
+
+  HTTP.on("/timers", HTTP_GET, []() {
+    jsonWrite(configSetup, "timers", HTTP.arg("status"));
     saveConfig();
-
-    All_Modules_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
-  //=========================================Модуль физической кнопки======================================================
-  HTTP.on("/module_switch", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_switch", HTTP.arg("status"));
-    saveConfig();
-
-    All_Modules_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
-  //=========================================Модуль измерения уровня в баке==================================================
-  HTTP.on("/module_tank_level", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_tank_level", HTTP.arg("status"));
-    saveConfig();
-
-    All_Modules_init();
-    Sensors_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
-  //=========================================Модуль аналогового сенсора============================================================
-  HTTP.on("/module_analog", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_analog", HTTP.arg("status"));
-    saveConfig();
-
-    All_Modules_init();
-    Sensors_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
-  //=========================================Модуль температурного сенсора ds18b20==================================================
-  HTTP.on("/module_ds18b20", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_ds18b20", HTTP.arg("status"));
-    saveConfig();
-
-    All_Modules_init();
-    Sensors_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
-  //=========================================Модуль управления ШИМ==================================================
-  HTTP.on("/module_pwm", HTTP_GET, []() {
-    jsonWrite(configSetup, "module_pwm", HTTP.arg("status"));
-    saveConfig();
-
-    All_Modules_init();
-    Sensors_init();
-    //outcoming_date();
-
+    //timers = readFile("timers.all.txt", 1024);
+    Timers_init();
     HTTP.send(200, "text/plain", "OK");
   });
 
+  Modules_init();
+  Scenario_init();
+  Timers_init();
 
-  
-  //===========================================Все модули===========================================================================
-  HTTP.on("/all_modules_init", HTTP_GET, []() {
-
-    All_Modules_init();
-    Sensors_init();
-    //outcoming_date();
-
-    HTTP.send(200, "text/plain", "OK");
-  });
 }
-//====================================================================================================================================
-void All_Modules_init() {
+
+void Modules_init() {
+
+  ts.remove(LEVEL);
+  ts.remove(ANALOG);
+  ts.remove(DS18B20);
 
   all_vigets = "";
-
-  if (jsonRead(configSetup, "module_relay") == "1") txtExecution("blok.relay.txt");
-  if (jsonRead(configSetup, "module_switch") == "1") txtExecution("blok.switch.txt");
-  if (jsonRead(configSetup, "module_tank_level") == "1") txtExecution("blok.tank.level.txt");
-  if (jsonRead(configSetup, "module_analog") == "1") txtExecution("blok.analog.txt");
-  if (jsonRead(configSetup, "module_ds18b20") == "1") txtExecution("blok.ds18b20.txt");
-  if (jsonRead(configSetup, "module_pwm") == "1") txtExecution("blok.pwm.txt");
-  
+  txtExecution("config.all.txt");
 }
-//====================================================================================================
+
+void Scenario_init() {
+  //-------------------------------сценарии-----------------------------------------------------
+  if (jsonRead(configSetup, "scenario") == "1") {
+    Serial.println("scenario: ON");
+    scenario = readFile("scenario.all.txt", 1024);
+    ts.add(SCENARIO, scenario_update_int, [&](void*) {
+      if (client.connected()) {
+        stringExecution(scenario);
+        Serial.println("scenario send date ");
+      }
+    }, nullptr, true);
+  } else {
+    Serial.println("scenario: OFF");
+    ts.remove(SCENARIO);
+  }
+}
+
+void Timers_init() {
+  //------------------------------таймеры------------------------------------------------------
+  if (jsonRead(configSetup, "timers") == "1") {
+    timers = readFile("timers.all.txt", 1024);
+    ts.add(TIMERS, 1000, [&](void*) {
+      current_time = GetTime();
+      Serial.println(current_time);
+      static boolean flag = false;
+      if (flag) stringExecution(timers);
+      flag = true;
+    }, nullptr, true);
+  } else {
+    ts.remove(TIMERS);
+  }
+}
+
+
+//=======================================================================================================================================
+
 void txtExecution(String file) {
 
   String command_all = readFile(file, 1024) + "\r\n";  //"\r\n"
@@ -112,7 +83,8 @@ void txtExecution(String file) {
   while (command_all.length() != 0) {
 
     String tmp = selectToMarker (command_all, "\n");
-    if (tmp.indexOf("//") < 0) sCmd.readStr(tmp);
+    //if (tmp.indexOf("//") < 0)
+    sCmd.readStr(tmp);
     command_all = deleteBeforeDelimiter(command_all, "\n");
   }
 }
@@ -126,9 +98,8 @@ void stringExecution(String str) {
   while (command_all.length() != 0) {
 
     String tmp = selectToMarker (command_all, "\n");
-    if (tmp.indexOf("//") < 0) sCmd.readStr(tmp);
+    //if (tmp.indexOf("//") < 0)
+    sCmd.readStr(tmp);
     command_all = deleteBeforeDelimiter(command_all, "\n");
   }
 }
-
-

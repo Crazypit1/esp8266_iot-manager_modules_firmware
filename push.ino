@@ -1,12 +1,5 @@
 void Push_init() {
 
-  ts.add(PUSH, push_update_int, [&](void*) {
-
-    if (!busy) handle_push();
-
-  }, nullptr, true);
-
-
   HTTP.on("/pushDate", HTTP_GET, []() {
 
     String host_str = HTTP.arg("pushHost");
@@ -38,17 +31,7 @@ void Push_init() {
     jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + result);
     jsonWrite(tmp, "class", "pop-up");
     HTTP.send(200, "application/json", tmp);
-
-    /*if (!client_push.verify(fingerprint, host)) {
-      result = "Fingerprint error";
-      String tmp = "{}";
-      jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + result);
-      jsonWrite(tmp, "class", "pop-up");
-      HTTP.send(200, "application/json", tmp);
-      }*/
-
   });
-
 
   HTTP.on("/module_push", HTTP_GET, []() {
 
@@ -58,30 +41,37 @@ void Push_init() {
     HTTP.send(200, "text/plain", "OK");
   });
 
-  if (jsonRead(configSetup, "module_push") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство_включено");
-
+  if (jsonRead(configSetup, "module_push") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство#включено");
 }
 
+
+
+
+//======================================================================================================================
 void send_push(String title, String body) {
 
   if (jsonRead(configSetup, "pushAccessToken") != "") {
-    order_push += title + " " + body + ",";
-  } else {
-    Serial.println("->No date for PUSH connection");
-  }
 
+    order_ticker += "push " + title + " " + body + ",";
+
+  } else {
+
+    Serial.println("->No date for PUSH connection");
+
+  }
 }
 
 
-void handle_push() {
-  if (WiFi.status() == WL_CONNECTED) {
-    if (client.connected()) {
-      if (order_push != "") {                                                  //test 1,test 2
-        String tmp = selectToMarker(order_push, ",");                          //test 1,
+void pushControl() {
 
-        String title = selectFromMarkerToMarker(tmp, " ", 0);                  //test
-        String body = selectFromMarkerToMarker(tmp, " ", 1);                   //1,
-        body.replace(",", "");                                                 //1
+  if (jsonRead(configSetup, "pushAccessToken") != "") {
+    if (WiFi.status() == WL_CONNECTED) {
+      if (client.connected()) {
+
+        String title = sCmd.next();
+        title.replace("#", " ");
+        String body = sCmd.next();
+        body.replace("#", " ");
 
         //------------------------------------------------------------------
         String host_str = jsonRead(configSetup, "pushHost");
@@ -157,13 +147,7 @@ void handle_push() {
           return;
           }
         */
-        //--------------------------------------------------------------------------------------------------------------------------
-        Serial.print(tmp);
-        order_push = deleteBeforeDelimiter(order_push, ",");
-        Serial.println("\" done");
-        return;
       }
     }
   }
 }
-

@@ -12,15 +12,17 @@ File fsUploadFile;
 //---------------------------------------------------------
 #include <ESP8266HTTPUpdateServer.h>
 ESP8266HTTPUpdateServer httpUpdater;
-//#include <ESP8266HTTPClient.h>
+#include <ESP8266HTTPClient.h>
 //---------------------------------------------------------
 //#include <DNSServer.h>
 //DNSServer dnsServer;
 //---------------------------------------------------------
 //#include <SoftwareSerial.h>
+//SoftwareSerial mySerial(4, 5); //  TX, RX
 //---------------------------------------------------------
 #include <TickerScheduler.h>
 TickerScheduler ts(10);
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, CMD, TIMERS };
 //---------------------------------------------------------
 //#include <WebSocketsServer.h>
 //WebSocketsServer webSocket = WebSocketsServer(81);
@@ -42,7 +44,7 @@ StringCommand sCmd;
 OneWire *oneWire;
 DallasTemperature sensors;
 //---------------------------------------------------------
-#include <Bounce2.h>                 
+#include <Bounce2.h>
 #define NUM_BUTTONS 6
 boolean but[NUM_BUTTONS];
 Bounce * buttons = new Bounce[NUM_BUTTONS];
@@ -50,38 +52,43 @@ Bounce * buttons = new Bounce[NUM_BUTTONS];
 #include "GyverFilters.h" //настраивается в GyverHacks.h - MEDIAN_FILTER_SIZE
 GMedian testFilter;
 //---------------------------------------------------------
+#define led_status
+//---------------------------------------------------------
 #define reconnecting 60000
-#define scenario_update_int 20000
-#define push_update_int 10000
+//---------------------------------------------------------
+#define scenario_update_int 5000
+//---------------------------------------------------------
+#define CMD_update_int 3000   //for push
+//---------------------------------------------------------
+#define analog_update_int 5000
+//---------------------------------------------------------
+#define temp_update_int 5000
 //---------------------------------------------------------
 #define tank_level_shooting_interval 500 //интервал выстрела датчика
 #define tank_level_times_to_send 20 //после скольки выстрелов делать отправку данных
 //---------------------------------------------------------
-#define analog_update_int 20000
-//---------------------------------------------------------
-#define temp_update_int 20000
-//---------------------------------------------------------
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, PUSH , ULTRASONIC, TEST};
+
+
 
 String chipID = "";
 String prefix   = "/IoTmanager";
 String prex;
 String conStatus = "";
 String ids;
+
 String configSetup = "{}";
 String configJson = "{}";
 String optionJson = "{}";
 
 int port = 80;
 
-String order_main;
-String order_switch;
-String order_push;
+String order_loop;
+String order_ticker;
+
+String current_time;
 
 String all_vigets = "";
 String scenario;
+String timers;
 
 boolean busy;
-
-
-

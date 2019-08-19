@@ -19,7 +19,9 @@ void WIFI_init() {
   // Попытка подключения к точке доступа
   WiFi.mode(WIFI_OFF);
   WiFi.mode(WIFI_STA);
+#ifdef led_status
   led_blink(2, 1, "on");
+#endif
   byte tries = 20;
   String _ssid = jsonRead(configSetup, "ssid");
   String _password = jsonRead(configSetup, "password");
@@ -34,6 +36,11 @@ void WIFI_init() {
   // не станет равен нулю или не получим подключение
   while (--tries && WiFi.status() != WL_CONNECTED)
   {
+    if (WiFi.status() == WL_CONNECT_FAILED) {
+      Serial.println("password is not correct");
+      tries = 1;
+      jsonWrite(optionJson, "pass_status", 1);
+    }
     Serial.print(".");
     delay(1000);
   }
@@ -50,7 +57,9 @@ void WIFI_init() {
     // о подключении и выводим адрес IP
     Serial.println("");
     Serial.println("WiFi connected");
+#ifdef led_status
     led_blink(2, 1, "off");
+#endif
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
     jsonWrite(configJson, "ip", WiFi.localIP().toString());
@@ -76,19 +85,24 @@ bool StartAPMode() {
   String _passwordAP = jsonRead(configSetup, "passwordAP");
   WiFi.softAP(_ssidAP.c_str(), _passwordAP.c_str());
   jsonWrite(configJson, "ip", apIP.toString());
+#ifdef led_status
   led_blink(2, 200, "on");
+#endif
 
+  if (jsonReadtoInt(optionJson, "pass_status") == 1) {
 
-  ts.add(WIFI, reconnecting, [&](void*) {
+    ts.add(WIFI, reconnecting, [&](void*) {
 
-    Serial.println("try find router");
-    if (RouterFind(jsonRead(configSetup, "ssid"))) { 
-      ts.remove(WIFI);
-      WIFI_init();                                      //ESP.restart();
-      MQTT_init();
-    }
-  }, nullptr, true);
+      Serial.println("try find router");
+      //Serial.println("try find router");
+      if (RouterFind(jsonRead(configSetup, "ssid"))) {
+        ts.remove(WIFI);
+        WIFI_init();                                      //ESP.restart();
+        MQTT_init();
+      }
 
+    }, nullptr, true);
+  }
   return true;
 }
 
@@ -115,4 +129,3 @@ boolean RouterFind(String ssid) {
     return false;
   }
 }
-

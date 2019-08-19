@@ -1,0 +1,152 @@
+{
+ "configs": [
+
+  "/config.live.json",
+  "/config.option.json",
+  "/config.setup.json"
+
+ ],
+ "class":"col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8",
+ "content": [
+  {
+   "type": "h5",
+   "title": "{{SSDP}}",
+   "class":"alert-warning"
+  },
+{
+   "type": "h4",
+   "title": "Device ID: {{chipID}}"
+  },
+{
+   "type": "h4",
+   "title": "IP address: {{ip}}"
+  },
+{
+   "type": "hr"
+  },
+{
+   "type": "h2",
+"title": "Данные модулей"
+ },
+{
+   "type": "hr"
+ },
+{
+   "type": "hr"
+ },
+{
+   "type": "h5",
+   "title": "Модуль уровня воды (LEVEL)",
+"style": "width:100%"
+  },
+
+ {
+   "type": "h4",
+   "title": "Расстояние от датчика до воды: {{lev_in}} см"
+  },
+{
+   "type": "h4",
+   "title": " Заполнение бака: {{lev_out}} %"
+  },
+{
+   "type": "hr"
+ },
+{
+   "type": "h5",
+   "title": "Модуль аналогового входа (ANALOG)",
+"style": "width:100%"
+  },
+{
+   "type": "h4",
+   "title": "Прочитанное значение: {{ana_in}}"
+  },
+{
+   "type": "h4",
+   "title": "Преобразованное значение: {{ana_out}}"
+  },
+ {
+   "type": "hr"
+ },
+{
+   "type": "h5",
+   "title": "Модуль температурного датчика dallas (TEMP_ds18b20)",
+"style": "width:100%"
+  },
+{
+   "type": "h4",
+   "title": "Текущее значение: {{ds_out}} °C"
+  },
+ {
+   "type": "hr"
+  },
+{
+   "type": "h2",
+   "title": "Конфигурация устройства"
+  },
+ {
+   "type":"file",
+   "state":"config.all.txt",
+   "style":"width:100%;height:250px",
+   "title": "Сохранить",
+   "action": "/all_modules_init",
+   "class":"btn btn-block btn-success"
+  },
+{
+   "type": "h2",
+   "title": "Сценарии"
+  },
+{
+"type": "checkbox",
+"name":"scenario",
+"title": "Включить сценарии",
+"action": "/scenario?status=[[scenario]]",
+"state": "{{scenario}}"
+},
+{
+   "type": "h6",
+   "title": "SCENARIO / Название сенсора / Знак > или < / Значение"
+  },
+{
+   "type":"file",
+   "state":"scenario.all.txt",
+   "style":"width:100%;height:250px",
+   "title": "Сохранить и включить",
+   "action": "/scenario?status=1",
+   "class":"btn btn-block btn-success"
+  },
+{
+   "type": "h2",
+   "title": "Таймеры"
+  },
+{
+"type": "checkbox",
+"name":"timers",
+"title": "Включить таймеры",
+"action": "/timers?status=[[timers]]",
+"state": "{{timers}}"
+},
+{
+   "type": "h6",
+   "title": "TIMER / Номер реле / 1-вкл 0-выкл / Время 00:00:00 / push или NA"
+  },
+{
+   "type":"file",
+   "state":"timers.all.txt",
+   "style":"width:100%;height:250px",
+   "title": "Сохранить и включить",
+   "action": "/timers?status=1",
+   "class":"btn btn-block btn-success"
+  },
+
+{
+   "type": "hr"
+ },
+
+  {
+   "type": "link",
+   "title": "Главная",
+   "action": "/page.htm?index",
+   "class": "btn btn-block btn-danger btn-sm"
+  }
+ ]
+}

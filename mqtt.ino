@@ -17,7 +17,7 @@ void MQTT_init() {
     saveConfig();
 
     client.disconnect();
-    MQTT_Connecting(false);
+    MQTT_Connecting();
 
     String tmp = "{}";
     jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + stateMQTT());
@@ -34,9 +34,11 @@ void MQTT_init() {
       Serial.println("->WiFi-ok");
       if (client.connected()) {
         Serial.println("->MQTT-ok");
+#ifdef led_status
         led_blink(2, 20, "off");
+#endif
       } else {
-        MQTT_Connecting(true);
+        MQTT_Connecting();
       }
     } else {
       Serial.println("->Lost WiFi connection");
@@ -59,13 +61,14 @@ void  handleMQTT() {
   }
 }
 //===============================================ПОДКЛЮЧЕНИЕ========================================================
-void MQTT_Connecting(boolean send_date) {
+void MQTT_Connecting() {
 
   String mqtt_server = jsonRead(configSetup, "mqttServer");
 
   if ((mqtt_server != "")) {
-
+#ifdef led_status
     led_blink(2, 20, "on");
+#endif
     Serial.println("->Lost MQTT connection, start reconnecting");
 
     client.setServer(mqtt_server.c_str(), jsonReadtoInt(configSetup, "mqttPort"));
@@ -77,26 +80,42 @@ void MQTT_Connecting(boolean send_date) {
         busy = true;
 
         if (client.connect(chipID.c_str(), jsonRead(configSetup, "mqttUser").c_str(), jsonRead(configSetup, "mqttPass").c_str())) {
+#ifdef led_status
           led_blink(2, 20, "off");
+#endif
           Serial.println("->Connecting to MQTT server completed");
 
           client.setCallback(callback);
 
           client.subscribe(prefix.c_str());  // Для приема получения HELLOW и подтверждения связи
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
+
+         /* String tmp_line = id_of_other_device;
+
+          while (tmp_line.length() != 0) {
+
+            String id = selectToMarker(tmp_line, ",");  //2058631-1589487 1
+            id = selectFromMarkerToMarker(id, " ", 0);
+            client.subscribe((prefix + "/" + id + "/+/status").c_str(), 0);
+            Serial.println("->subscribed to device, id: " + id);
+
+            tmp_line = deleteBeforeDelimiter(tmp_line, ",");
+          }*/
+
           client.subscribe((prefix + "/ids").c_str()); // Подписываемся на топики ids
           sendMQTT("test", "work");
           Serial.println("->Callback set, subscribe done");
 
           busy = false;
 
-          if (send_date) outcoming_date(); //отправляем данные в виджеты
+          outcoming_date(); //отправляем данные в виджеты
 
         } else {
           //Serial.println(stateMQTT());
-
           Serial.println("try again in " + String(reconnecting / 1000) +  " sec");
+#ifdef led_status
           led_blink(2, 20, "on");
+#endif
         }
       }
     }
@@ -109,38 +128,27 @@ void MQTT_Connecting(boolean send_date) {
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  //Serial.print(topic);
+  Serial.print(topic);
   String topic_str = String(topic);
 
   String str;
   for (int i = 0; i < length; i++) {
     str += (char)payload[i];
   }
-  //Serial.println(" " + str);
+  Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
 
   if (topic_str.indexOf("control") > 0) {                      //IoTmanager/800324-1458415/rel0/control 1
     topic_str = deleteToMarkerLast(topic_str, "/control");     //IoTmanager/799371-1458415/rel0
     topic_str = selectToMarkerLast(topic_str, "/");                                      //rel0
     String t = topic_str.substring(3);                                                      //0
-    topic_str.replace(t, " " + t);                                                      //rel 0
+    topic_str.replace(t, " " + t);
     topic_str += " " + str;
-    order_main += topic_str + ",";
-    Serial.println(order_main);
+    order_loop += topic_str + ",";
+    //Serial.println(order_loop);                             //rel 1 0, pwm 2 50
   }
 }
-//выполнение команд в лупе по очереди из строки order
-void handleCMD() {
 
-  if (order_main != "") {
-
-    String tmp = selectToMarker(order_main, ",");             //выделяем из страки order первую команду rel 5 1
-    sCmd.readStr(tmp);                                          //выполняем первую команду
-    //Serial.println(order_main);
-    order_main = deleteBeforeDelimiter(order_main, ",");    //осекаем выполненную команду
-
-  }
-}
 //данные которые отправляем при подключении или отбновлении страницы
 void outcoming_date() {
 
@@ -241,8 +249,9 @@ void sendAllWigets() {
     } else {
       send_status_str = " failed";
     }
-    Serial.println("videt no " + String(counter) + send_status_str);
+    //Serial.println("videt no " + String(counter) + send_status_str);
     Serial.println(tmp);
+    //Serial.println(all_vigets);
     counter++;
     viget = deleteBeforeDelimiter(viget, "\r\n");
   }
@@ -250,20 +259,24 @@ void sendAllWigets() {
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ========================================================
 void sendAllData() {
 
-  String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
+  String current_config = configJson;                      //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
   current_config.replace("{", "");
-  current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
-  current_config += ",";                                //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
+  current_config.replace("}", "");                         //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
+  current_config += ",";                                   //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
 
   while (current_config.length() != 0) {
 
-    String tmp = selectToMarker (current_config, ",");  //"rel1":"1"
-    String topic =  selectToMarker (tmp, ":");          //"rel1"
-    topic.replace("\"", "");                            //rel1
+    String tmp = selectToMarker (current_config, ",");      //"rel1":"1"
+    String topic =  selectToMarker (tmp, ":");              //"rel1"
+    topic.replace("\"", "");                                //rel1
 
-    String state =  selectToMarkerLast (tmp, ":");      //"1"
-    state.replace("\"", "");                            //1
-    if (topic != "SSDP" && topic != "lang" && topic != "ip") sendSTATUS(topic, state);
+    String state =  selectToMarkerLast (tmp, ":");          //"1"
+    state.replace("\"", "");                                //1
+    if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
+      sendSTATUS(topic, state);
+      //Serial.println("-->" + topic);
+    }
+
     current_config = deleteBeforeDelimiter(current_config, ",");
   }
 }

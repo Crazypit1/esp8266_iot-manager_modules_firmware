@@ -7,7 +7,7 @@ void HTTP_init(void) {
   HTTP.serveStatic("/img/", SPIFFS, "/img/", "max-age=31536000"); // кеширование на 1 год
   
   // ------------------Выполнение команды из запроса
-  HTTP.on("/cmd", HTTP_GET, []() {
+  HTTP.on("/cmd", HTTP_GET, []() {             //http://192.168.88.45/cmd?command=rel 1 1
     String com = HTTP.arg("command");
     //Serial.println(com);
     
@@ -18,16 +18,16 @@ void HTTP_init(void) {
   // --------------------Выдаем данные configJson
   HTTP.on("/config.live.json", HTTP_GET, []() {
 
-    HTTP.send(200, "application/json", configJson);  //config.live.json - создается при загрузке налету для хранения временных данных 
+    HTTP.send(200, "application/json", configJson);  //config.live.json - динамические данные
   });
   // --------------------Выдаем данные optionJson
   HTTP.on("/config.option.json", HTTP_GET, []() {
 
-    HTTP.send(200, "application/json", optionJson);  //config.option.json - не хранится в памяти создается при загрузке налету для хранения временных данных для устройств
+    HTTP.send(200, "application/json", optionJson);  //config.option.json - данные не являющиеся событиями
   });
   // -------------------Выдаем данные configSetup
   HTTP.on("/config.setup.json", HTTP_GET, []() {
-    HTTP.send(200, "application/json", configSetup); //config.setup.json - хранится в памяти, для хранения постоянных данных
+    HTTP.send(200, "application/json", configSetup); //config.setup.json - для хранения постоянных данных
   });
   // --------------------Выдаем данные all_vigets
   HTTP.on("/all.vigets.json", HTTP_GET, []() {
@@ -51,5 +51,3 @@ void HTTP_init(void) {
   // Запускаем HTTP сервер
   HTTP.begin();
 }
-
-

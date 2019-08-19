@@ -10,15 +10,16 @@ void timeSynch(int zone) {
   if (WiFi.status() == WL_CONNECTED) {
     // Настройка соединения с NTP сервером
     configTime(zone * 3600, 0, "pool.ntp.org", "ru.pool.ntp.org");
-    int i = 0;
-    Serial.println("\nWaiting for time");
-    while (!time(nullptr) && i < 10) {
-      Serial.print(".");
-      i++;
-      delay(1000);
-    }
+    // int i = 0;
+    // Serial.println("\nWaiting for time");
+    // while (!time(nullptr) && i < 10) {
+    //   Serial.print(".");
+    //   i++;
+    //   delay(1000);
+    // }
     Serial.println("");
     Serial.println("ITime Ready!");
+    delay(1000);
     Serial.println(GetTime());
     Serial.println(GetDate());
   }
@@ -57,4 +58,33 @@ String GetDate() {
   return Data; // Возврашаем полученную дату
 }
 
+String GetDataDigital() {
+  String date = GetDate();
 
+  date = deleteBeforeDelimiter(date, " ");
+
+  date.replace("Jan", "01");
+  date.replace("Feb", "02");
+  date.replace("Mar", "03");
+  date.replace("Apr", "04");
+  date.replace("May", "05");
+  date.replace("Jun", "06");
+  date.replace("Jul", "07");
+  date.replace("Aug", "08");
+  date.replace("Sep", "09");
+  date.replace("Oct", "10");
+  date.replace("Nov", "11");
+  date.replace("Dec", "12");
+
+  String month = date.substring(0, 2);
+  String day = date.substring(3, 5);
+  String year = date.substring(6, 10);
+
+  String out = day;
+  out += ".";
+  out += month;
+  out += ".";
+  out += year;
+
+  return out;
+}

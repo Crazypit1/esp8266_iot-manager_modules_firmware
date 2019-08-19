@@ -58,6 +58,10 @@ String selectToMarker (String str, String found) {
   int p = str.indexOf(found);
   return str.substring(0, p);
 }
+String selectToMarkerPlus (String str, String found, int plus) {
+  int p = str.indexOf(found);
+  return str.substring(0, p + plus);
+}
 // --------Удаляем все после символа разделителя (вместе с символом разделителя)--------------------------------
 String deleteAfterDelimiter (String str, String found) {
   int p = str.indexOf(found);
@@ -124,9 +128,9 @@ void SoketData (String key, int data, int data_old)  {
   }
 }
 #endif
-/*//============================================URL===================================================================
-  // ----------------------Запрос на удаленный URL
-  String getURL(String urls) {
+//============================================URL===================================================================
+// ----------------------Запрос на удаленный URL
+String getURL(String urls) {
   String answer = "";
   HTTPClient http;
   http.begin(urls); //HTTP
@@ -140,8 +144,8 @@ void SoketData (String key, int data, int data_old)  {
   }
   http.end();
   return answer;
-  }
-*/
+}
+
 //===========================================FILES===================================================================
 
 String safeDataToFile(String data, String Folder)
@@ -229,8 +233,7 @@ void sendCONFIG(String topik, String widgetConfig, String key, String date) {
   yield();
 }
 //=============================================================================================================
-
-
+#ifdef led_status
 void led_blink(int pin, int fq, String blink_satus) {
 
   pinMode(pin, OUTPUT);
@@ -243,6 +246,4 @@ void led_blink(int pin, int fq, String blink_satus) {
 
   }
 }
-
-
-
+#endif

@@ -1,8 +1,11 @@
-SCENARIO LEVEL < 10 NA NA NA Низкий_уровень_в_баке
-SCENARIO LEVEL > 10 NA NA NA Высокий_уровень_в_баке
-//SCENARIO ANALOG > 2 NA NA NA Уровень
-//SCENARIO TEMP_ds18b20 > 27 NA NA NA Температура
-//SCENARIO ANALOG > 29 2768820-1458190 rel1 0 NA
-//SCENARIO ANALOG < 29 2768820-1458190 rel1 1 NA
-//SCENARIO LEVEL > 50 LOCAL rel1 0 NA
-//SCENARIO LEVEL < 50 LOCAL rel1 1 NA
+SCENARIO ANALOG > 20 delAlert_alert1
+SCENARIO ANALOG < 20 addAlert_alert1_Протечка#в#ванной_assertive-bg_1.Ванная_2
+//SCENARIO LEVEL > 20 push_Внимание_Протечка#в#ванной
+//SCENARIO LEVEL < 20 push_Внимание_Протечка#в#ванной#устранена
+//SCENARIO ANALOG > 20 mqtt_9139530-1458400_rel#1#1
+//SCENARIO ANALOG < 20 mqtt_9139530-1458400_rel#1#0
+//SCENARIO ANALOG > 20 mqtt_9139530-1458400_pwm#1#800
+//SCENARIO ANALOG < 20 mqtt_9139530-1458400_pwm#1#400
+//SCENARIO TEMP_ds18b20 > 20 rel_1_1
+//SCENARIO ANALOG > 20 pwm_1_105
+//SCENARIO ANALOG < 20 pwm_1_815
