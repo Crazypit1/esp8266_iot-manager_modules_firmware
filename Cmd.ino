@@ -509,16 +509,17 @@ void Bdw() {
 //=========================================Сценарии для всех модулей============================================================
 
 void handleScenario() {
-  
+
   String module_name = sCmd.next();
   String sign = sCmd.next();
   String value = sCmd.next();
   String order_cmd = sCmd.next();
-  calculateScenario(module_name, sign, value, order_cmd, false);
-  
+  String type = sCmd.next();
+  calculateScenario(module_name, sign, value, order_cmd, type);
+
 }
 
-void calculateScenario(String module_name, String sign, String value, String order_cmd, boolean repeat) {
+void calculateScenario(String module_name, String sign, String value, String order_cmd, String type) {
 
   order_cmd.replace("_", " ");
   static boolean flag_ana_1 = true;
@@ -538,14 +539,14 @@ void calculateScenario(String module_name, String sign, String value, String ord
       value_new = value.toInt();
     }
     if (jsonReadtoInt(configJson, value_name) > value_new) {
-      if (!repeat) {
+      if (type == "repeat-no") {
         if (flag_ana_1) {
           order_loop += order_cmd + ",";
           flag_ana_1 = false;
           flag_ana_2 = true;
-        } else {
-          order_loop += order_cmd + ",";
         }
+      } else {
+        order_loop += order_cmd + ",";
       }
     }
   }
@@ -558,7 +559,7 @@ void calculateScenario(String module_name, String sign, String value, String ord
       value_new = value.toInt();
     }
     if (jsonReadtoInt(configJson, value_name) < value_new) {
-      if (!repeat) {
+      if (type == "repeat-no") {
         if (flag_ana_2) {
           order_loop += order_cmd + ",";
           flag_ana_1 = true;
@@ -570,82 +571,82 @@ void calculateScenario(String module_name, String sign, String value, String ord
     }
   }
 }
-  //=========================================Таймера=================================================================
+//=========================================Таймера=================================================================
 
-  void handleTimers() {
+void handleTimers() {
 
-    String seted_time = sCmd.next();
-    String order = sCmd.next();
-    order.replace("_", " ");
+  String seted_time = sCmd.next();
+  String order = sCmd.next();
+  order.replace("_", " ");
 
-    // Serial.println(seted_time);
+  // Serial.println(seted_time);
 
-    if (seted_time == current_time) {
+  if (seted_time == current_time) {
 
-      if (order.indexOf("ush") > 0) {
-        order_ticker += order + ",";
-      } else {
-        order_loop += order + ",";
+    if (order.indexOf("ush") > 0) {
+      order_ticker += order + ",";
+    } else {
+      order_loop += order + ",";
+    }
+  }
+}
+
+
+
+//======================выполнение команд (в лупе) по очереди из строки order=======================================
+void handleCMD_loop() {
+
+  if (order_loop != "") {
+
+    String tmp = selectToMarker(order_loop, ",");                //выделяем из страки order первую команду rel 5 1,
+    sCmd.readStr(tmp);                                           //выполняем первую команду
+    Serial.println("order_loop => " + order_loop);
+    order_loop = deleteBeforeDelimiter(order_loop, ",");         //осекаем выполненную команду
+  }
+}
+//======================выполнение команд (через период) по очереди из строки order=======================================
+void handleCMD_ticker() {
+
+  ts.add(CMD, CMD_update_int, [&](void*) {
+    if (!busy) {
+      if (order_ticker != "") {
+
+        String tmp = selectToMarker(order_ticker, ",");                //выделяем из страки order первую команду pus title body
+        sCmd.readStr(tmp);                                             //выполняем первую команду
+        Serial.println("order_ticker => " + order_ticker);
+        order_ticker = deleteBeforeDelimiter(order_ticker, ",");       //осекаем выполненную команду
       }
     }
+  }, nullptr, true);
+}
+
+
+
+
+//============разное
+
+/*
+  void delAlert() {
+
+  String alert_id = sCmd.next();
+  delViget(alert_id);
+  sendAllWigets();
   }
 
 
+  void delViget(String text_in_viget) {
+  String viget = all_vigets;
+  while (viget.length() != 0) {
+    String tmp = selectToMarkerPlus (viget, "\r\n", 2);
+    if (tmp.indexOf(text_in_viget) > 0) {
 
-  //======================выполнение команд (в лупе) по очереди из строки order=======================================
-  void handleCMD_loop() {
+      all_vigets.replace(tmp, "");
+      //Serial.println(all_vigets);
 
-    if (order_loop != "") {
-
-      String tmp = selectToMarker(order_loop, ",");                //выделяем из страки order первую команду rel 5 1,
-      sCmd.readStr(tmp);                                           //выполняем первую команду
-      Serial.println("order_loop => " + order_loop);
-      order_loop = deleteBeforeDelimiter(order_loop, ",");         //осекаем выполненную команду
+      viget = deleteBeforeDelimiter(viget, "\r\n");
+    } else {
+      viget = deleteBeforeDelimiter(viget, "\r\n");
     }
   }
-  //======================выполнение команд (через период) по очереди из строки order=======================================
-  void handleCMD_ticker() {
-
-    ts.add(CMD, CMD_update_int, [&](void*) {
-      if (!busy) {
-        if (order_ticker != "") {
-
-          String tmp = selectToMarker(order_ticker, ",");                //выделяем из страки order первую команду pus title body
-          sCmd.readStr(tmp);                                             //выполняем первую команду
-          Serial.println("order_ticker => " + order_ticker);
-          order_ticker = deleteBeforeDelimiter(order_ticker, ",");       //осекаем выполненную команду
-        }
-      }
-    }, nullptr, true);
   }
-
-
-
-
-  //============разное
-
-  /*
-    void delAlert() {
-
-    String alert_id = sCmd.next();
-    delViget(alert_id);
-    sendAllWigets();
-    }
-
-
-    void delViget(String text_in_viget) {
-    String viget = all_vigets;
-    while (viget.length() != 0) {
-      String tmp = selectToMarkerPlus (viget, "\r\n", 2);
-      if (tmp.indexOf(text_in_viget) > 0) {
-
-        all_vigets.replace(tmp, "");
-        //Serial.println(all_vigets);
-
-        viget = deleteBeforeDelimiter(viget, "\r\n");
-      } else {
-        viget = deleteBeforeDelimiter(viget, "\r\n");
-      }
-    }
-    }
-  */
+*/
