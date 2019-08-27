@@ -208,9 +208,9 @@ String readFileString(String fileName, String found)
     return "Failed";
   }
   if (configFile.find(found.c_str())) {
-    return configFile.readStringUntil('\r');
+    return configFile.readStringUntil('\r\n');  //'\r'
   }
-  return "|-|-|";
+  //return "|-|-|";
   configFile.close();
 }
 

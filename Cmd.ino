@@ -408,7 +408,7 @@ void addViget() {
 
   static String viget;
   if (flag) {
-    viget = readFile("viget.alert.json", 1024);
+    viget = readFile("viget.alertsm.json", 1024);
     flag = false;
   }
 
@@ -462,7 +462,7 @@ void setValue_() {
   static boolean flag2 = true;
   static String viget2;
   if (flag2) {
-    viget2 = readFile("viget.alert.json", 1024);
+    viget2 = readFile("viget.alertbg.json", 1024);
     flag2 = false;
   }
   jsonWrite(viget2, "page", page_name);

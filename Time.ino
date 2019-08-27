@@ -78,7 +78,7 @@ String GetDataDigital() {
 
   String month = date.substring(0, 2);
   String day = date.substring(3, 5);
-  String year = date.substring(6, 10);
+  String year = date.substring(8, 10);
 
   String out = day;
   out += ".";

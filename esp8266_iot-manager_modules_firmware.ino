@@ -37,13 +37,22 @@ void setup() {
   Serial.println("Push_init");
   handleCMD_ticker();
 
-  HTTP.on("/test", HTTP_GET, []() {
+  HTTP.on("/select_module", HTTP_GET, []() {
 
+    String settings = "";
+    if (HTTP.arg("module") == "RELAY") settings = "RELAY " + readFileString("descr.txt", "RELAY");
+    if (HTTP.arg("module") == "ANALOG") settings = "ANALOG " + readFileString("descr.txt", "ANALOG");
+    if (HTTP.arg("module") == "SWITCH") settings = "SWITCH " + readFileString("descr.txt", "SWITCH");
+    if (HTTP.arg("module") == "LEVEL") settings = "LEVEL " + readFileString("descr.txt", "LEVEL");
+    if (HTTP.arg("module") == "TEMP_ds18b20") settings = "TEMP_ds18b20 " + readFileString("descr.txt", "TEMP_ds18b20");
+    if (HTTP.arg("module") == "PWM") settings = "PWM " + readFileString("descr.txt", "PWM");
 
+    String tmp = "{}";
+    jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + settings);
+    jsonWrite(tmp, "class", "pop-up");
 
-    HTTP.send(200, "text/plain", "OK");
+    HTTP.send(200, "application/json", tmp);
   });
-
 }
 
 
