@@ -89,27 +89,21 @@ bool StartAPMode() {
   led_blink(2, 200, "on");
 #endif
 
-  if (jsonReadtoInt(optionJson, "pass_status") == 1) {
-
+  if (jsonReadtoInt(optionJson, "pass_status") != 1) {
     ts.add(WIFI, reconnecting, [&](void*) {
-
       Serial.println("try find router");
-      //Serial.println("try find router");
       if (RouterFind(jsonRead(configSetup, "ssid"))) {
         ts.remove(WIFI);
-        WIFI_init();                                      //ESP.restart();
+        WIFI_init();                                      
         MQTT_init();
       }
-
     }, nullptr, true);
   }
   return true;
 }
 
 
-
 boolean RouterFind(String ssid) {
-
   int n = WiFi.scanComplete ();
   if (n == -2) {                       //Сканирование не было запущено, запускаем
     WiFi.scanNetworks (true, false);   //async, show_hidden
