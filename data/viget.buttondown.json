@@ -1,0 +1,18 @@
+     {
+      "id": "",
+      "pageId":"",
+      "page": "",
+      "widget": "simple-btn",
+      "class1": "",
+      "class2": "ballanced",
+      "style2": "font-size:15px;float:left;font-weight:bold;",
+      "topic": "",
+      "class3": "button button-block",
+      "style3": "float:right;",
+      "widgetConfig": {
+        "fill": "#F5F5F5",
+        "fillPressed": "#004333",
+        "title": "Меньше",
+       "delay":1000
+      }
+      }

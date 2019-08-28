@@ -3,9 +3,11 @@
       "page": "",
       "descr": "",
       "widget": "range",
+      "class3": "ballanced",
+      "style3": "font-size:25px;float:left;font-weight:bold;",
       "topic": "",
       "widgetConfig": {
-        "maxValue": 50,
-        "minValue": -50
+        "maxValue": 1023,
+        "minValue": 0
       }
       }

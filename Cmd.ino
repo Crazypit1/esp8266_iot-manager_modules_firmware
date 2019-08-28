@@ -397,7 +397,7 @@ void addViget() {
 
   static boolean flag = true;
 
-  String viget_topic = sCmd.next();
+  String number = sCmd.next();
   String viget_text_color = sCmd.next();
   viget_text_color.replace("#", " ");
   String viget_text_topic = sCmd.next();
@@ -412,29 +412,26 @@ void addViget() {
     flag = false;
   }
 
-
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "class2", viget_text_color);      //"calm-bg"  "assertive-bg"
   jsonWrite(viget, "descr", viget_text_topic);
-  jsonWrite(viget, "topic", prex + "/" + viget_topic);
+  jsonWrite(viget, "topic", prex + "/swi" + number);
   all_vigets += viget + "\r\n";
 
-  //sendSTATUS(viget_topic, viget_text);
-  //jsonWrite(configJson, viget_topic, viget_text);
 }
 
 void fillViget() {
 
-  String viget_topic = sCmd.next();
+  String number = sCmd.next();
   String viget_text = sCmd.next();
   viget_text.replace("#", " ");
   String date_time = sCmd.next();
   String time_ = GetTime();
   time_.replace(":", ".");
   if (date_time == "yes") viget_text = viget_text + " " + GetDataDigital() + " " + time_;
-  sendSTATUS(viget_topic, viget_text);
-  jsonWrite(configJson, viget_topic, viget_text);
+  sendSTATUS("swi" + number, viget_text);
+  jsonWrite(configJson, "swi" + number , viget_text);
 
 }
 
