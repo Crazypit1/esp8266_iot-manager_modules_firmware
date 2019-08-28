@@ -90,7 +90,7 @@ bool StartAPMode() {
 #endif
 
   if (jsonReadtoInt(optionJson, "pass_status") != 1) {
-    ts.add(WIFI, reconnecting, [&](void*) {
+    ts.add(WIFI, reconnecting_wifi, [&](void*) {
       Serial.println("try find router");
       if (RouterFind(jsonRead(configSetup, "ssid"))) {
         ts.remove(WIFI);

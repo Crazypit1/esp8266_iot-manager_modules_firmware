@@ -29,7 +29,7 @@ void MQTT_init() {
   jsonWrite(configSetup, "chipID", chipID);
 
   //проверка подключения к серверу
-  ts.add(MQTT_WIFI, reconnecting, [&](void*) {
+  ts.add(MQTT_WIFI, reconnecting_mqtt, [&](void*) {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("->WiFi-ok");
       if (client.connected()) {
@@ -112,7 +112,7 @@ void MQTT_Connecting() {
 
         } else {
           //Serial.println(stateMQTT());
-          Serial.println("try again in " + String(reconnecting / 1000) +  " sec");
+          Serial.println("try again in " + String(reconnecting_mqtt / 1000) +  " sec");
 #ifdef led_status
           led_blink(2, 20, "on");
 #endif

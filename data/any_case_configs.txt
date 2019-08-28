@@ -1,0 +1,7 @@
+=======конфигурация охраны дверей===============================
+addViget 1 calm Коредор Двери 1
+SWITCH 1 0 20 1 fillViget_1_открыта_yes 0 fillViget_1_закрыта_yes
+SWITCH 2 0 20 1 push_Коредор_открыто 0 push_Коредор_закрыто
+addViget 2 calm Гостинная Двери 2
+SWITCH 3 12 20 1 fillViget_2_открыта_yes 0 fillViget_2_закрыта_yes
+SWITCH 4 12 20 1 push_Гостинная_открыто 0 push_Гостинная_закрыто

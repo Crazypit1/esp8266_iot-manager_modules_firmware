@@ -1,5 +1,4 @@
 void CMD_init() {
-
   sCmd.addCommand("RELAY",  relayInit);
   sCmd.addCommand("rel",  relayControl);
 
@@ -29,7 +28,6 @@ void CMD_init() {
 
   sCmd.addCommand("SCENARIO",  handleScenario);
   sCmd.addCommand("TIMER",  handleTimers);
-
 }
 
 //==========================================Модуль управления реле===================================================
