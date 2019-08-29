@@ -1,37 +1,32 @@
 void CMD_init() {
-  sCmd.addCommand("RELAY",  relayInit);
-  sCmd.addCommand("rel",  relayControl);
 
-  sCmd.addCommand("PWM",  pwmInit);
-  sCmd.addCommand("pwm",  pwmControl);
+  sCmd.addCommand("relay",  relay);
+  sCmd.addCommand("relaySet",  relaySet);
 
-  sCmd.addCommand("SWITCH",  switch_Init);
-  sCmd.addCommand("swi",  switchControl);
+  sCmd.addCommand("pwm",  pwm);
+  sCmd.addCommand("pwmSet",  pwmSet);
 
-  sCmd.addCommand("LEVEL",  tank_levelInit);
+  sCmd.addCommand("switch",  switch_);
+  sCmd.addCommand("switchSet",  switchSet);
 
-  sCmd.addCommand("ANALOG",  analogInit);
+  sCmd.addCommand("analog",  analog);
+  sCmd.addCommand("level",  level);
+  sCmd.addCommand("dallas",  dallas);
 
-  sCmd.addCommand("TEMP_ds18b20",  ds18b20Init);
+  sCmd.addCommand("input",  input);
+  sCmd.addCommand("valueUpSet",  valueUpSet);
+  sCmd.addCommand("valueDownSet",  valueDownSet);
+
+  sCmd.addCommand("scenario",  scenario_);
+  sCmd.addCommand("timer",  timer);
 
   sCmd.addCommand("mqtt",  mqttOrderSend);
   sCmd.addCommand("http",  httpOrderSend);
   sCmd.addCommand("push",  pushControl);
-
-  sCmd.addCommand("addViget",  addViget);
-  sCmd.addCommand("fillViget",  fillViget);
-
-  sCmd.addCommand("setValue",  setValue_);
-  sCmd.addCommand("Bup",  Bup);
-  sCmd.addCommand("Bdw",  Bdw);
-
-
-  sCmd.addCommand("SCENARIO",  handleScenario);
-  sCmd.addCommand("TIMER",  handleTimers);
 }
 
 //==========================================Модуль управления реле===================================================
-void relayInit() {
+void relay() {
 
   static boolean flag = true;
   String relay_number = sCmd.next();
@@ -47,7 +42,7 @@ void relayInit() {
   jsonWrite(optionJson, "relay_pin" + relay_number, relay_pin);
   pinMode(relay_pin_int, OUTPUT);
   digitalWrite(relay_pin_int, start_state.toInt());
-  jsonWrite(configJson, "rel" + relay_number, start_state);
+  jsonWrite(configJson, "relaySet" + relay_number, start_state);
 
   static String viget;
   if (flag) {
@@ -58,11 +53,11 @@ void relayInit() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/rel" + relay_number);
+  jsonWrite(viget, "topic", prex + "/relaySet" + relay_number);
   all_vigets += viget + "\r\n";
 }
 
-void relayControl() {
+void relaySet() {
 
   String relay_number = sCmd.next();
   String relay_state = sCmd.next();
@@ -71,25 +66,76 @@ void relayControl() {
   int pin = jsonReadtoInt(optionJson, "relay_pin" + relay_number);
   digitalWrite(pin, relay_state_int);
 
-  //send_push("Дом", "Реле" + relay_number);
-
-  jsonWrite(configJson, "rel" + relay_number, relay_state);
-  sendSTATUS("rel" + relay_number, relay_state);
+  jsonWrite(configJson, "relaySet" + relay_number, relay_state);
+  sendSTATUS("relaySet" + relay_number, relay_state);
 }
-//=========================================Модуль физической кнопки(2 команды)================================================================
-void switch_Init() {
+
+//==========================================Модуль управления ШИМ===================================================
+void pwm() {
 
   static boolean flag = true;
+  String pwm_number = sCmd.next();
+  String pwm_pin = sCmd.next();
+  String viget_name = sCmd.next();
+  viget_name.replace("#", " ");
+  String page_name = sCmd.next();
+  String start_state = sCmd.next();
+  String page_number = sCmd.next();
+
+
+  uint8_t pwm_pin_int = pwm_pin.toInt();
+  jsonWrite(optionJson, "pwm_pin" + pwm_number, pwm_pin);
+  pinMode(pwm_pin_int, INPUT);
+  analogWrite(pwm_pin_int, start_state.toInt());
+  jsonWrite(configJson, "pwmSet" + pwm_number, start_state);
+
+  static String viget;
+  if (flag) {
+    viget = readFile("viget.range.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/pwmSet" + pwm_number);
+  all_vigets += viget + "\r\n";
+}
+
+void pwmSet() {
+
+  String pwm_number = sCmd.next();
+  String pwm_state = sCmd.next();
+  int pwm_state_int = pwm_state.toInt();
+
+  int pin = jsonReadtoInt(optionJson, "pwm_pin" + pwm_number);
+  analogWrite(pin, pwm_state_int);
+
+  jsonWrite(configJson, "pwmSet" + pwm_number, pwm_state);
+  sendSTATUS("pwmSet" + pwm_number, pwm_state);
+}
+//=========================================Модуль физической кнопки(2 команды)================================================================
+void switch_ () {
 
   String switch_number = sCmd.next();
   String switch_pin = sCmd.next();
   String switch_delay = sCmd.next();
 
   String on_off_1 = sCmd.next();
+  on_off_1.replace("on:", "1");
+  on_off_1.replace("off:", "0");
   String order_cmd_1 = sCmd.next();
 
   String on_off_2 = sCmd.next();
+  on_off_2.replace("on:", "1");
+  on_off_2.replace("off:", "0");
   String order_cmd_2 = sCmd.next();
+
+  String viget_name = sCmd.next();
+  viget_name.replace("#", " ");
+  String page_name = sCmd.next();
+  String page_number = sCmd.next();
+
 
   jsonWrite(optionJson, "switch" + switch_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
 
@@ -97,9 +143,26 @@ void switch_Init() {
   buttons[switch_number.toInt()].interval(switch_delay.toInt());
   but[switch_number.toInt()] = true;
 
+  //=============================================================
+  if (viget_name != "") {
+
+    static boolean flag = true;
+    static String viget;
+    if (flag) {
+      viget = readFile("viget.alertsm.json", 1024);
+      flag = false;
+    }
+
+    jsonWrite(viget, "page", page_name);
+    jsonWrite(viget, "pageId", page_number);
+    jsonWrite(viget, "descr", viget_name);
+    jsonWrite(viget, "topic", prex + "/switchSet" + switch_number);
+    all_vigets += viget + "\r\n";
+
+  }
 }
 
-void switchControl() {
+void switchSet() {
 
   String switch_number = sCmd.next();
   String order = sCmd.next();
@@ -112,21 +175,34 @@ void switchControl() {
   String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
   String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
 
-  order_cmd_1.replace("_", " ");
-  order_cmd_2.replace("_", " ");
+  if (order_cmd_1.indexOf("_") > 0) {
 
-  if (order == on_off_1) {
-    if (order_cmd_1.indexOf("ush") > 0) {
-      order_ticker += order_cmd_1 + ",";
-    } else {
-      order_loop += order_cmd_1 + ",";
+    order_cmd_1.replace("_", " ");
+    order_cmd_2.replace("_", " ");
+
+    if (order == on_off_1) {
+      if (order_cmd_1.indexOf("ush") > 0) {
+        order_ticker += order_cmd_1 + ",";
+      } else {
+        order_loop += order_cmd_1 + ",";
+      }
     }
-  }
-  if (order == on_off_2) {
-    if (order_cmd_2.indexOf("ush") > 0) {
-      order_ticker += order_cmd_2 + ",";
-    } else {
-      order_loop += order_cmd_2 + ",";
+    if (order == on_off_2) {
+      if (order_cmd_2.indexOf("ush") > 0) {
+        order_ticker += order_cmd_2 + ",";
+      } else {
+        order_loop += order_cmd_2 + ",";
+      }
+    }
+  } else {
+
+    if (order == on_off_1) {
+      sendSTATUS("switchSet" + switch_number, order_cmd_1);
+      jsonWrite(configJson, "switchSet" + switch_number , order_cmd_1);
+    }
+    if (order == on_off_2) {
+      sendSTATUS("switchSet" + switch_number, order_cmd_2);
+      jsonWrite(configJson, "switchSet" + switch_number , order_cmd_2);
     }
   }
 }
@@ -139,24 +215,70 @@ void handleButton()  {
     buttons[switch_number].update();
 
     if (buttons[switch_number].fell()) {
-      order_loop += "swi " + String(switch_number) + " 1,";   //swi 1 1,
-      jsonWrite(configJson, "swi" + String(switch_number), "1");
-      //Serial.println("ON");
+      order_loop += "switchSet " + String(switch_number) + " 1,";   //orders-switchSet 1 1,
     }
 
     if (buttons[switch_number].rose()) {
-      order_loop += "swi " + String(switch_number) + " 0,";   //swi 1 0,
-      jsonWrite(configJson, "swi" + String(switch_number), "0");
-      //Serial.println("OFF");
+      order_loop += "switchSet " + String(switch_number) + " 0,";   //orders-switchSet 1 0,
     }
   }
   switch_number++;
   if (switch_number == NUM_BUTTONS) switch_number = 0;
 }
 
+//=========================================Модуль аналогового сенсора============================================================
+void analog() {
+
+  static boolean flag = true;
+  String viget_name = sCmd.next();
+  viget_name.replace("#", " ");
+  String page_name = sCmd.next();
+  String start_value = sCmd.next();
+  String end_value = sCmd.next();
+  String start_value_out = sCmd.next();
+  String end_value_out = sCmd.next();
+  String page_number = sCmd.next();
+
+  jsonWrite(optionJson, "analog_values", start_value + " " + end_value + " " + start_value_out + " " + end_value_out);
+
+  static String viget;
+  if (flag) {
+    viget = readFile("viget.fillgauge.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/ana_out");
+  all_vigets += viget + "\r\n";
+
+  ts.add(ANALOG, analog_update_int, [&](void*) {
+
+    static int analog_out_old;
+    int analog = analogRead(A0);
+    jsonWrite(configJson, "ana_in", analog);
+
+#ifdef debug_mode_web_sokets
+    SoketData("module_analog_s", analog, 1);
+#endif
+
+    String analog_values = jsonRead(optionJson, "analog_values");
+    int analog_out = map(analog, selectFromMarkerToMarker(analog_values, " ", 0).toInt(), selectFromMarkerToMarker(analog_values, " ", 1).toInt(), selectFromMarkerToMarker(analog_values, " ", 2).toInt(), selectFromMarkerToMarker(analog_values, " ", 3).toInt());
+    jsonWrite(configJson, "ana_out", analog_out);
+
+    if (analog_out_old != analog_out) {
+      sendSTATUS("ana_out", String(analog_out));
+      Serial.println("sensor analog send date " + String(analog_out));
+    }
+
+    analog_out_old = analog_out;
+
+  }, nullptr, true);
+}
 
 //=========================================Модуль измерения уровня в баке============================================================
-void tank_levelInit() {
+void level() {
 
   static boolean flag = true;
   String viget_name = sCmd.next();
@@ -224,60 +346,9 @@ void tank_levelInit() {
   }, nullptr, true);
 }
 
-//=========================================Модуль аналогового сенсора============================================================
-void analogInit() {
 
-  static boolean flag = true;
-  String viget_name = sCmd.next();
-  viget_name.replace("#", " ");
-  String page_name = sCmd.next();
-  String start_value = sCmd.next();
-  String end_value = sCmd.next();
-  String start_value_out = sCmd.next();
-  String end_value_out = sCmd.next();
-  String page_number = sCmd.next();
-
-  jsonWrite(optionJson, "analog_values", start_value + " " + end_value + " " + start_value_out + " " + end_value_out);
-
-  static String viget;
-  if (flag) {
-    viget = readFile("viget.fillgauge.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/ana_out");
-  all_vigets += viget + "\r\n";
-
-  ts.add(ANALOG, analog_update_int, [&](void*) {
-
-    static int analog_out_old;
-    int analog = analogRead(A0);
-    jsonWrite(configJson, "ana_in", analog);
-
-#ifdef debug_mode_web_sokets
-    SoketData("module_analog_s", analog, 1);
-#endif
-
-    String analog_values = jsonRead(optionJson, "analog_values");
-    int analog_out = map(analog, selectFromMarkerToMarker(analog_values, " ", 0).toInt(), selectFromMarkerToMarker(analog_values, " ", 1).toInt(), selectFromMarkerToMarker(analog_values, " ", 2).toInt(), selectFromMarkerToMarker(analog_values, " ", 3).toInt());
-    jsonWrite(configJson, "ana_out", analog_out);
-
-    if (analog_out_old != analog_out) {
-
-      sendSTATUS("ana_out", String(analog_out));
-      Serial.println("sensor analog send date " + String(analog_out));
-
-    }
-
-    analog_out_old = analog_out;
-
-  }, nullptr, true);
-}
 //=========================================Модуль температурного сенсора ds18b20============================================================
-void ds18b20Init() {
+void dallas() {
 
   static boolean flag = true;
   String pin = sCmd.next();
@@ -327,51 +398,80 @@ void ds18b20Init() {
 
   }, nullptr, true);
 }
-//==========================================Модуль управления ШИМ===================================================
-void pwmInit() {
 
-  static boolean flag = true;
-  String pwm_number = sCmd.next();
-  String pwm_pin = sCmd.next();
-  String viget_name = sCmd.next();
-  viget_name.replace("#", " ");
+//=========================================Добавление окна ввода и переменной============================================================
+void input() {
+
+  String name_ = sCmd.next();
+  String number = name_.substring(5);
+  String start_value = sCmd.next();
+  String step_ = sCmd.next();
+  String value_name = sCmd.next();
   String page_name = sCmd.next();
-  String start_state = sCmd.next();
   String page_number = sCmd.next();
 
-
-  uint8_t pwm_pin_int = pwm_pin.toInt();
-  jsonWrite(optionJson, "pwm_pin" + pwm_number, pwm_pin);
-  pinMode(pwm_pin_int, INPUT);
-  analogWrite(pwm_pin_int, start_state.toInt());
-  jsonWrite(configJson, "pwm" + pwm_number, start_state);
-
-  static String viget;
-  if (flag) {
-    viget = readFile("viget.range.json", 1024);
-    flag = false;
+  static boolean flag1 = true;
+  static String viget1;
+  if (flag1) {
+    viget1 = readFile("viget.buttonup.json", 1024);
+    flag1 = false;
   }
+  jsonWrite(viget1, "page", page_name);
+  jsonWrite(viget1, "pageId", page_number);
+  jsonWrite(viget1, "topic", prex + "/valueUpSet" + number);
+  all_vigets += viget1 + "\r\n";
 
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/pwm" + pwm_number);
-  all_vigets += viget + "\r\n";
+  static boolean flag2 = true;
+  static String viget2;
+  if (flag2) {
+    viget2 = readFile("viget.alertbg.json", 1024);
+    flag2 = false;
+  }
+  jsonWrite(viget2, "page", page_name);
+  page_number = String(page_number.toInt() + 1);
+  jsonWrite(viget2, "pageId", page_number);
+  value_name.replace("#", " ");
+  jsonWrite(viget2, "descr", value_name);
+  jsonWrite(viget2, "topic", prex + "/" + name_);
+  sendSTATUS(name_, start_value);
+  jsonWrite(configJson, name_, start_value);
+  jsonWrite(configJson, name_ + "step", step_);
+  all_vigets += viget2 + "\r\n";
+
+  static boolean flag3 = true;
+  static String viget3;
+  if (flag3) {
+    viget3 = readFile("viget.buttondown.json", 1024);
+    flag3 = false;
+  }
+  jsonWrite(viget3, "page", page_name);
+  page_number = String(page_number.toInt() + 1);
+  jsonWrite(viget3, "pageId", page_number);
+  jsonWrite(viget3, "topic", prex + "/valueDownSet" + number);
+  all_vigets += viget3 + "\r\n";
 }
 
-void pwmControl() {
-
-  String pwm_number = sCmd.next();
-  String pwm_state = sCmd.next();
-  int pwm_state_int = pwm_state.toInt();
-
-  int pin = jsonReadtoInt(optionJson, "pwm_pin" + pwm_number);
-  analogWrite(pin, pwm_state_int);
-
-  jsonWrite(configJson, "pwm" + pwm_number, pwm_state);
-  sendSTATUS("pwm" + pwm_number, pwm_state);
+void valueUpSet() {
+  String number = sCmd.next();
+  float val = jsonRead(configJson, "value" + number).toFloat();
+  float step_ = jsonRead(configJson, "value" + number + "step").toFloat();
+  val = val + step_;
+  String val_str = String(val);
+  val_str = selectToMarkerPlus (val_str, ".", 2);
+  jsonWrite(configJson, "value" + number, val_str);
+  sendSTATUS("value" + number, val_str);
 }
 
+void valueDownSet() {
+  String number = sCmd.next();
+  float val = jsonRead(configJson, "value" + number).toFloat();
+  float step_ = jsonRead(configJson, "value" + number + "step").toFloat();
+  val = val - step_;
+  String val_str = String(val);
+  val_str = selectToMarkerPlus (val_str, ".", 2);
+  jsonWrite(configJson, "value" + number, val_str);
+  sendSTATUS("value" + number, val_str);
+}
 
 //=================================================команды удаленного управления===========================================================
 void mqttOrderSend() {   //mqtt 9139530-1458400 rel#1#1
@@ -390,120 +490,9 @@ void httpOrderSend() {
 
 }
 
-//================================================команды отображения виджетов==========================================
-void addViget() {
-
-  static boolean flag = true;
-
-  String number = sCmd.next();
-  String viget_text_color = sCmd.next();
-  viget_text_color.replace("#", " ");
-  String viget_text_topic = sCmd.next();
-  viget_text_topic.replace("#", " ");
-  String page_name = sCmd.next();
-  String page_number = sCmd.next();
-
-
-  static String viget;
-  if (flag) {
-    viget = readFile("viget.alertsm.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "class2", viget_text_color);      //"calm-bg"  "assertive-bg"
-  jsonWrite(viget, "descr", viget_text_topic);
-  jsonWrite(viget, "topic", prex + "/swi" + number);
-  all_vigets += viget + "\r\n";
-
-}
-
-void fillViget() {
-
-  String number = sCmd.next();
-  String viget_text = sCmd.next();
-  viget_text.replace("#", " ");
-  String date_time = sCmd.next();
-  String time_ = GetTime();
-  time_.replace(":", ".");
-  if (date_time == "yes") viget_text = viget_text + " " + GetDataDigital() + " " + time_;
-  sendSTATUS("swi" + number, viget_text);
-  jsonWrite(configJson, "swi" + number , viget_text);
-
-}
-
-void setValue_() {
-
-  String name_ = sCmd.next();   //val1
-  String number = name_.substring(3);
-  String start_value = sCmd.next();
-  String step_ = sCmd.next();
-  String value_name = sCmd.next();
-  String page_name = sCmd.next();
-  String page_number = sCmd.next();
-
-  static boolean flag1 = true;
-  static String viget1;
-  if (flag1) {
-    viget1 = readFile("viget.buttonup.json", 1024);
-    flag1 = false;
-  }
-  jsonWrite(viget1, "page", page_name);
-  jsonWrite(viget1, "pageId", page_number);
-  jsonWrite(viget1, "topic", prex + "/Bup" + number);
-  all_vigets += viget1 + "\r\n";
-
-  static boolean flag2 = true;
-  static String viget2;
-  if (flag2) {
-    viget2 = readFile("viget.alertbg.json", 1024);
-    flag2 = false;
-  }
-  jsonWrite(viget2, "page", page_name);
-  page_number = String(page_number.toInt() + 1);
-  jsonWrite(viget2, "pageId", page_number);
-  value_name.replace("#", " ");
-  jsonWrite(viget2, "descr", value_name);
-  jsonWrite(viget2, "topic", prex + "/" + name_);
-  sendSTATUS(name_, start_value);
-  jsonWrite(configJson, name_, start_value);
-  all_vigets += viget2 + "\r\n";
-
-  static boolean flag3 = true;
-  static String viget3;
-  if (flag3) {
-    viget3 = readFile("viget.buttondown.json", 1024);
-    flag3 = false;
-  }
-  jsonWrite(viget3, "page", page_name);
-  page_number = String(page_number.toInt() + 1);
-  jsonWrite(viget3, "pageId", page_number);
-  jsonWrite(viget3, "topic", prex + "/Bdw" + number);
-  all_vigets += viget3 + "\r\n";
-}
-
-void Bup() {
-  String number = sCmd.next();
-  int val = jsonReadtoInt(configJson, "val" + number);
-  val++;
-  jsonWrite(configJson, "val" + number, String(val));
-  sendSTATUS("val" + number, String(val));
-}
-
-void Bdw() {
-  String number = sCmd.next();
-  int val = jsonReadtoInt(configJson, "val" + number);
-  val--;
-  jsonWrite(configJson, "val" + number, String(val));
-  sendSTATUS("val" + number, String(val));
-}
-
-
-
 //=========================================Сценарии для всех модулей============================================================
 
-void handleScenario() {
+void scenario_() {
 
   String module_name = sCmd.next();
   String sign = sCmd.next();
@@ -522,8 +511,9 @@ void calculateScenario(String module_name, String sign, String value, String ord
   int value_new;
   String value_name;
 
-  if (module_name == "ANALOG") value_name = "ana_out";
-  if (module_name == "LEVEL") value_name = "lev_out";
+  if (module_name.indexOf("analog") >= 0) value_name = "ana_out";
+  if (module_name.indexOf("level") >= 0) value_name = "lev_out";
+  if (module_name.indexOf("dallas") >= 0) value_name = "ds_out";
 
   if (sign == ">") {
     if (value.indexOf("val") >= 0) {
@@ -568,7 +558,7 @@ void calculateScenario(String module_name, String sign, String value, String ord
 }
 //=========================================Таймера=================================================================
 
-void handleTimers() {
+void timer() {
 
   String seted_time = sCmd.next();
   String order = sCmd.next();

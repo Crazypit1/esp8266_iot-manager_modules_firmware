@@ -90,17 +90,17 @@ void MQTT_Connecting() {
           client.subscribe(prefix.c_str());  // Для приема получения HELLOW и подтверждения связи
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
 
-         /* String tmp_line = id_of_other_device;
+          /* String tmp_line = id_of_other_device;
 
-          while (tmp_line.length() != 0) {
+            while (tmp_line.length() != 0) {
 
-            String id = selectToMarker(tmp_line, ",");  //2058631-1589487 1
-            id = selectFromMarkerToMarker(id, " ", 0);
-            client.subscribe((prefix + "/" + id + "/+/status").c_str(), 0);
-            Serial.println("->subscribed to device, id: " + id);
+             String id = selectToMarker(tmp_line, ",");  //2058631-1589487 1
+             id = selectFromMarkerToMarker(id, " ", 0);
+             client.subscribe((prefix + "/" + id + "/+/status").c_str(), 0);
+             Serial.println("->subscribed to device, id: " + id);
 
-            tmp_line = deleteBeforeDelimiter(tmp_line, ",");
-          }*/
+             tmp_line = deleteBeforeDelimiter(tmp_line, ",");
+            }*/
 
           client.subscribe((prefix + "/ids").c_str()); // Подписываемся на топики ids
           sendMQTT("test", "work");
@@ -138,14 +138,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
 
-  if (topic_str.indexOf("control") > 0) {                      //IoTmanager/800324-1458415/rel0/control 1
-    topic_str = deleteToMarkerLast(topic_str, "/control");     //IoTmanager/799371-1458415/rel0
-    topic_str = selectToMarkerLast(topic_str, "/");                                      //rel0
-    String t = topic_str.substring(3);                                                      //0
-    topic_str.replace(t, " " + t);
-    topic_str += " " + str;
-    order_loop += topic_str + ",";
-    //Serial.println(order_loop);                             //rel 1 0, pwm 2 50
+  if (topic_str.indexOf("control") > 0) {                        //IoTmanager/800324-1458415/RelaySet1/control 1   /IoTmanager/9139530-1458400/RelaySet1/control -> 1
+    Serial.println(topic_str);
+    String topic = selectFromMarkerToMarker(topic_str, "/", 3);  //RelaySet1
+    String number = selectToMarkerLast(topic, "Set");            //1
+    topic.replace(number, "");                                   //RelaySet
+    String final_line = topic + " " + number + " " + str;        //RelaySet 1 1
+    Serial.println(final_line);
+    order_loop += final_line + ",";
+
   }
 }
 
