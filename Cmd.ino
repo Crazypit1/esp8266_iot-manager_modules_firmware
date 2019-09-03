@@ -23,6 +23,8 @@ void CMD_init() {
   sCmd.addCommand("mqtt",  mqttOrderSend);
   sCmd.addCommand("http",  httpOrderSend);
   sCmd.addCommand("push",  pushControl);
+
+  sCmd.addCommand("jsonWrite",  json_Write);
 }
 
 //==========================================Модуль управления реле===================================================
@@ -488,6 +490,17 @@ void mqttOrderSend() {   //mqtt 9139530-1458400 rel#1#1
 
 void httpOrderSend() {
 
+}
+
+void json_Write() {
+
+  String file_name = sCmd.next();
+  String name_ = sCmd.next();
+  String msg = sCmd.next();
+
+  if (file_name == "configSetup") jsonWrite(configSetup, name_, msg);
+  if (file_name == "configJson") jsonWrite(configJson, name_, msg);
+  if (file_name == "optionJson") jsonWrite(optionJson, name_, msg);
 }
 
 //=========================================Сценарии для всех модулей============================================================

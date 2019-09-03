@@ -35,6 +35,7 @@ void Modules_init() {
 
   all_vigets = "";
   txtExecution("config.all.txt");
+  outcoming_date();
 }
 
 void Scenario_init() {
