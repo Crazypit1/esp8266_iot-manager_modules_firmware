@@ -69,6 +69,8 @@ GMedian testFilter;
 #define tank_level_shooting_interval 500 //интервал выстрела датчика
 #define tank_level_times_to_send 20 //после скольки выстрелов делать отправку данных
 //---------------------------------------------------------
+#define push_pushbullet
+//#define push_onesignal
 
 
 

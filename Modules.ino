@@ -76,7 +76,7 @@ void Timers_init() {
 
 void txtExecution(String file) {
 
-  String command_all = readFile(file, 1024) + "\r\n";  //"\r\n"
+  String command_all = readFile(file, 2048) + "\r\n";  //2048
 
   command_all.replace("\r\n", "\n");
   command_all.replace("\r", "\n");

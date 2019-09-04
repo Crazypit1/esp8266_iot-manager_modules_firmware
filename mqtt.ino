@@ -137,7 +137,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
-  if (str == "work") outcoming_date(); //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
+  //if (str == "work") outcoming_date(); //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
 
   if (topic_str.indexOf("control") > 0) {                        //IoTmanager/800324-1458415/RelaySet1/control 1   /IoTmanager/9139530-1458400/RelaySet1/control -> 1
     Serial.println(topic_str);

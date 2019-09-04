@@ -1,3 +1,5 @@
+#ifdef push_pushbullet
+
 void Push_init() {
 
   HTTP.on("/pushDate", HTTP_GET, []() {
@@ -33,15 +35,15 @@ void Push_init() {
     HTTP.send(200, "application/json", tmp);
   });
 
-  HTTP.on("/module_push", HTTP_GET, []() {
+  HTTP.on("/startPush", HTTP_GET, []() {
 
-    jsonWrite(configSetup, "module_push", HTTP.arg("status"));
+    jsonWrite(configSetup, "startPush", HTTP.arg("status"));
     saveConfig();
 
     HTTP.send(200, "text/plain", "OK");
   });
 
-  if (jsonRead(configSetup, "module_push") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство#включено");
+  if (jsonRead(configSetup, "startPush") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство#включено");
 }
 
 
@@ -151,3 +153,4 @@ void pushControl() {
     }
   }
 }
+#endif

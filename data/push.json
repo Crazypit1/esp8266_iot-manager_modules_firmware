@@ -68,10 +68,10 @@
   },
 {
 "type": "checkbox",
-"name":"module-push",
+"name":"start-push",
 "title": "Отправлять push при включении устройства",
-"action": "module_push?status=[[module-push]]",
-"state": "{{module_push}}"
+"action": "startPush?status=[[start-push]]",
+"state": "{{startPush}}"
 },
 {
    "type": "hr"

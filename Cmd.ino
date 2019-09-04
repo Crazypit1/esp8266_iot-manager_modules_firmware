@@ -1,7 +1,7 @@
 void CMD_init() {
 
-  sCmd.addCommand("relay",  relay);
-  sCmd.addCommand("relaySet",  relaySet);
+  sCmd.addCommand("button",  button);
+  sCmd.addCommand("buttonSet",  buttonSet);
 
   sCmd.addCommand("pwm",  pwm);
   sCmd.addCommand("pwmSet",  pwmSet);
@@ -28,11 +28,11 @@ void CMD_init() {
 }
 
 //==========================================Модуль управления реле===================================================
-void relay() {
+void button() {
 
   static boolean flag = true;
-  String relay_number = sCmd.next();
-  String relay_pin = sCmd.next();
+  String button_number = sCmd.next();
+  String button_pin = sCmd.next();
   String viget_name = sCmd.next();
   viget_name.replace("#", " ");
   String page_name = sCmd.next();
@@ -40,13 +40,32 @@ void relay() {
   String page_number = sCmd.next();
 
 
-  uint8_t relay_pin_int = relay_pin.toInt();
-  jsonWrite(optionJson, "relay_pin" + relay_number, relay_pin);
-  pinMode(relay_pin_int, OUTPUT);
-  digitalWrite(relay_pin_int, start_state.toInt());
-  jsonWrite(configJson, "relaySet" + relay_number, start_state);
+  if (button_pin == "n/a") {
 
+    String on_off_1 = sCmd.next();
+    String order_cmd_1 = sCmd.next();
+    String on_off_2 = sCmd.next();
+    String order_cmd_2 = sCmd.next();
+
+    on_off_1.replace("on:", "1");
+    on_off_1.replace("off:", "0");
+
+    on_off_2.replace("on:", "1");
+    on_off_2.replace("off:", "0");
+
+    jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
+
+  } else {
+
+    pinMode(button_pin.toInt(), OUTPUT);
+    digitalWrite(button_pin.toInt(), start_state.toInt());
+    uint8_t button_pin_int = button_pin.toInt();
+  }
+
+  jsonWrite(optionJson, "button_pin" + button_number, button_pin);
+  jsonWrite(configJson, "buttonSet" + button_number, start_state);
   static String viget;
+
   if (flag) {
     viget = readFile("viget.toggle.json", 1024);
     flag = false;
@@ -55,21 +74,49 @@ void relay() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/relaySet" + relay_number);
+  jsonWrite(viget, "topic", prex + "/buttonSet" + button_number);
   all_vigets += viget + "\r\n";
 }
 
-void relaySet() {
+void buttonSet() {
 
-  String relay_number = sCmd.next();
-  String relay_state = sCmd.next();
-  int relay_state_int = relay_state.toInt();
+  String button_number = sCmd.next();
+  String button_state = sCmd.next();
+  String button_pin = jsonRead(optionJson, "button_pin" + button_number);
 
-  int pin = jsonReadtoInt(optionJson, "relay_pin" + relay_number);
-  digitalWrite(pin, relay_state_int);
+  String all_line = jsonRead(optionJson, "buttonDate" + String(button_number));
 
-  jsonWrite(configJson, "relaySet" + relay_number, relay_state);
-  sendSTATUS("relaySet" + relay_number, relay_state);
+  String on_off_1 = selectFromMarkerToMarker(all_line, " ", 0);
+  String order_cmd_1 = selectFromMarkerToMarker(all_line, " ", 1);
+
+  String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
+  String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
+
+  order_cmd_1.replace("_", " ");
+  order_cmd_2.replace("_", " ");
+
+  if (button_pin == "n/a") {
+
+    if (button_state == on_off_1) {
+      if (order_cmd_1.indexOf("ush") > 0) {
+        order_ticker += order_cmd_1 + ",";
+      } else {
+        order_loop += order_cmd_1 + ",";
+      }
+    }
+    if (button_state == on_off_2) {
+      if (order_cmd_2.indexOf("ush") > 0) {
+        order_ticker += order_cmd_2 + ",";
+      } else {
+        order_loop += order_cmd_2 + ",";
+      }
+    }
+  } else {
+    digitalWrite(button_pin.toInt(), button_state.toInt());
+  }
+
+  jsonWrite(configJson, "buttonSet" + button_number, button_state);
+  sendSTATUS("buttonSet" + button_number, button_state);
 }
 
 //==========================================Модуль управления ШИМ===================================================
@@ -489,6 +536,12 @@ void mqttOrderSend() {   //mqtt 9139530-1458400 rel#1#1
 }
 
 void httpOrderSend() {
+
+  String ip = sCmd.next();
+  String order = sCmd.next();
+  order.replace("#", "%20");
+  String url = "http://" + ip + "/cmd?command=" + order;
+  getURL(url);
 
 }
 

@@ -1,3 +1,3 @@
-SCENARIO ANALOG > val1 rel_1_1 repeat-no
-SCENARIO ANALOG < val1 rel_1_0 repeat-no
-//SCENARIO LEVEL > 20 rel_2_1 repeat-no
+//scenario analog > value1 relaySet_1_1 repeat-no
+//scenario analog < value1 relaySet_1_0 repeat-no
+scenario analog > 20 http_192.168.88.10_buttonSet#1#1 repeat-no

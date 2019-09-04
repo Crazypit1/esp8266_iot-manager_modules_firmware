@@ -177,6 +177,7 @@ String readFile(String fileName, size_t len ) {
   configFile.close();
   return temp;
 }
+
 // ------------- Запись строки в файл
 String writeFile(String fileName, String strings ) {
   File configFile = SPIFFS.open("/" + fileName, "w");

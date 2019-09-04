@@ -6,7 +6,7 @@
   "/config.setup.json"
 
  ],
- "class":"col-sm-offset-1 col-sm-10",
+ "class":"col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8",
  "content": [
   {
    "type": "h5",
@@ -24,68 +24,6 @@
 {
    "type": "hr"
   },
-{
-   "type": "h2",
-"title": "Данные модулей"
- },
-{
-   "type": "hr"
- },
-{
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль уровня воды (LEVEL)",
-"style": "width:100%"
-  },
-
- {
-   "type": "h4",
-   "title": "Расстояние от датчика до воды: {{lev_in}} см"
-  },
-{
-   "type": "h4",
-   "title": " Заполнение бака: {{lev_out}} %"
-  },
-{
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль аналогового входа (ANALOG)",
-"style": "width:100%"
-  },
-{
-   "type": "h4",
-   "title": "Прочитанное значение: {{ana_in}}"
-  },
-{
-   "type": "h4",
-   "title": "Преобразованное значение: {{ana_out}}"
-  },
- {
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль температурного датчика dallas (TEMP_ds18b20)",
-"style": "width:100%"
-  },
-{
-   "type": "h4",
-   "title": "Текущее значение: {{ds_out}} °C"
-  },
-{
-  "type":"h6",
-  "name":"my-block",
-"style":"position:fixed;top:10%;left:20%;width:1500px;margin-left:-200px;text-align:center;",
-  "class":"hidden"
- },
-
- {
-   "type": "hr"
-  },
 
 {
    "type": "h2",
@@ -95,15 +33,18 @@
 "type": "select",
 "state": "en",
 "name":"mod",
-"title": {"relay":"Модуль управления реле","pwm":"Модуль широтно импульстной модуляции (регулятор яркости)","ANALOG":"Модуль аналогового входа","SWITCH":"Модуль физической кнопки","LEVEL":"Модуль уровня жидкости","TEMP_ds18b20":"Модуль температурного сенсора dallas","setValue":"Команда добавляющая окно ввода числового значения (для термостатов и тд)","addViget":"Команда добавления виджета, который выводит заданный текст по нажатию/отжатию кнопки","fillViget":"Подкоманда заполнения виджета текстом"},
+"title": {"RELAY":"Модуль управления реле","ANALOG":"Модуль аналогового входа","SWITCH":"Модуль физической кнопки","LEVEL":"Модуль уровня жидкости","TEMP_ds18b20":"Модуль температурного сенсора dallas","PWM":"Модуль широтно импульстной модуляции (регулятор яркости)","setValue":"Команда добавляющая окно ввода числового значения (для термостатов и тд)","addViget":"Команда добавления виджета, который выводит заданный текст по нажатию/отжатию кнопки","fillViget":"Подкоманда заполнения виджета текстом"},
 "response":"[[my-block]]",
 "action": "select_module?module=[[mod]]"
 },
-
+{
+"type": "input",
+"state": "123"
+},
  {
    "type":"file",
    "state":"config.all.txt",
-   "style":"width:100%;height:500px",
+   "style":"width:100%;height:300px",
    "title": "Сохранить",
    "action": "/all_modules_init",
    "class":"btn btn-block btn-success"
