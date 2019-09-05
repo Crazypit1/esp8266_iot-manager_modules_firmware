@@ -42,6 +42,9 @@ void MQTT_init() {
       }
     } else {
       Serial.println("->Lost WiFi connection");
+#ifdef date_logging
+      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Lost WiFi connection");
+#endif
       ts.remove(MQTT_WIFI);
       StartAPMode();
     }
@@ -70,7 +73,9 @@ void MQTT_Connecting() {
     led_blink(2, 20, "on");
 #endif
     Serial.println("->Lost MQTT connection, start reconnecting");
-
+#ifdef date_logging
+    addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Lost MQTT connection, start reconnecting");
+#endif
     client.setServer(mqtt_server.c_str(), jsonReadtoInt(configSetup, "mqttPort"));
     // подключаемся к MQTT серверу
     if (WiFi.status() == WL_CONNECTED) {
@@ -84,6 +89,9 @@ void MQTT_Connecting() {
           led_blink(2, 20, "off");
 #endif
           Serial.println("->Connecting to MQTT server completed");
+#ifdef date_logging
+          addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Connecting to MQTT server completed");
+#endif
 
           client.setCallback(callback);
 
@@ -135,7 +143,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     str += (char)payload[i];
   }
-  Serial.println(" -> " + str);
+  //Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
   //if (str == "work") outcoming_date(); //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
 

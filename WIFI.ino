@@ -68,6 +68,9 @@ void WIFI_init() {
 
 bool StartAPMode() {
   Serial.println("WiFi up AP");
+#ifdef date_logging
+      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->WiFi up AP");
+#endif
   IPAddress apIP(192, 168, 4, 1);
   IPAddress staticGateway(192, 168, 4, 1);
   IPAddress staticSubnet(255, 255, 255, 0);

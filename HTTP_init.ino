@@ -40,9 +40,11 @@ void HTTP_init(void) {
     String restart = HTTP.arg("device");          // Получаем значение device из запроса
     if (restart == "ok") {                         // Если значение равно Ок
       HTTP.send(200, "text / plain", "Reset OK"); // Oтправляем ответ Reset OK
+#ifdef date_logging
+      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device restarted by user");
+#endif 
       ESP.restart();                                // перезагружаем модуль
-    }
-    else {                                        // иначе
+    } else {                                        // иначе
       HTTP.send(200, "text / plain", "No Reset"); // Oтправляем ответ No Reset
     }
   });

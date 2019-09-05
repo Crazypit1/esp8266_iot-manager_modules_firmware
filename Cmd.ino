@@ -18,7 +18,13 @@ void CMD_init() {
   sCmd.addCommand("valueDownSet",  valueDownSet);
 
   sCmd.addCommand("scenario",  scenario_);
+  sCmd.addCommand("scenarioSet",  scenarioSet);
+  //sCmd.addCommand("scenarioEdit",  scenarioEdit);
+
   sCmd.addCommand("timer",  timer);
+  sCmd.addCommand("timerSet",  timerSet);
+  sCmd.addCommand("timerStart",  timerStart);
+  sCmd.addCommand("timerStop",  timerStop);
 
   sCmd.addCommand("mqtt",  mqttOrderSend);
   sCmd.addCommand("http",  httpOrderSend);
@@ -27,7 +33,7 @@ void CMD_init() {
   sCmd.addCommand("jsonWrite",  json_Write);
 }
 
-//==========================================Модуль управления реле===================================================
+//==========================================Модуль кнопок===================================================
 void button() {
 
   static boolean flag = true;
@@ -39,13 +45,19 @@ void button() {
   String start_state = sCmd.next();
   String page_number = sCmd.next();
 
+  String on_off_1 = sCmd.next();
+  String order_cmd_1 = sCmd.next();
+  String on_off_2 = sCmd.next();
+  String order_cmd_2 = sCmd.next();
 
-  if (button_pin == "n/a") {
+  if (on_off_1 == "") { //тип 1 - только кнопка привязанная к пину
 
-    String on_off_1 = sCmd.next();
-    String order_cmd_1 = sCmd.next();
-    String on_off_2 = sCmd.next();
-    String order_cmd_2 = sCmd.next();
+    pinMode(button_pin.toInt(), OUTPUT);
+    digitalWrite(button_pin.toInt(), start_state.toInt());
+    uint8_t button_pin_int = button_pin.toInt();
+  }
+
+  if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
 
     on_off_1.replace("on:", "1");
     on_off_1.replace("off:", "0");
@@ -55,11 +67,22 @@ void button() {
 
     jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
 
-  } else {
+  }
+
+  if (button_pin != "na" && on_off_1 != "") {  //тип 3 - кнопка выполняющая 2 команды с пином
 
     pinMode(button_pin.toInt(), OUTPUT);
     digitalWrite(button_pin.toInt(), start_state.toInt());
     uint8_t button_pin_int = button_pin.toInt();
+
+    on_off_1.replace("on:", "1");
+    on_off_1.replace("off:", "0");
+
+    on_off_2.replace("on:", "1");
+    on_off_2.replace("off:", "0");
+
+    jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
+
   }
 
   jsonWrite(optionJson, "button_pin" + button_number, button_pin);
@@ -95,7 +118,13 @@ void buttonSet() {
   order_cmd_1.replace("_", " ");
   order_cmd_2.replace("_", " ");
 
-  if (button_pin == "n/a") {
+  if (on_off_1 == "") { //тип 1 - только кнопка привязанная к пину
+
+    digitalWrite(button_pin.toInt(), button_state.toInt());
+
+  }
+
+  if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
 
     if (button_state == on_off_1) {
       if (order_cmd_1.indexOf("ush") > 0) {
@@ -111,9 +140,29 @@ void buttonSet() {
         order_loop += order_cmd_2 + ",";
       }
     }
-  } else {
-    digitalWrite(button_pin.toInt(), button_state.toInt());
   }
+
+  if (button_pin != "na" && on_off_1 != "") { //тип 3 - кнопка выполняющая 2 команды с пином
+
+    digitalWrite(button_pin.toInt(), button_state.toInt());
+
+    if (button_state == on_off_1) {
+      if (order_cmd_1.indexOf("ush") > 0) {
+        order_ticker += order_cmd_1 + ",";
+      } else {
+        order_loop += order_cmd_1 + ",";
+      }
+    }
+    if (button_state == on_off_2) {
+      if (order_cmd_2.indexOf("ush") > 0) {
+        order_ticker += order_cmd_2 + ",";
+      } else {
+        order_loop += order_cmd_2 + ",";
+      }
+    }
+  }
+
+
 
   jsonWrite(configJson, "buttonSet" + button_number, button_state);
   sendSTATUS("buttonSet" + button_number, button_state);
@@ -582,10 +631,10 @@ void calculateScenario(String module_name, String sign, String value, String ord
   if (module_name.indexOf("dallas") >= 0) value_name = "ds_out";
 
   if (sign == ">") {
-    if (value.indexOf("val") >= 0) {
+    if (value.indexOf("value") >= 0) {
       String nubmer = value;
-      nubmer.replace("val", "");
-      value_new = jsonReadtoInt(configJson, "val" + nubmer);
+      nubmer.replace("value", "");
+      value_new = jsonReadtoInt(configJson, "value" + nubmer);
     } else {
       value_new = value.toInt();
     }
@@ -602,10 +651,10 @@ void calculateScenario(String module_name, String sign, String value, String ord
     }
   }
   if (sign == "<") {
-    if (value.indexOf("val") >= 0) {
+    if (value.indexOf("value") >= 0) {
       String nubmer = value;
-      nubmer.replace("val", "");
-      value_new = jsonReadtoInt(configJson, "val" + nubmer);
+      nubmer.replace("value", "");
+      value_new = jsonReadtoInt(configJson, "value" + nubmer);
     } else {
       value_new = value.toInt();
     }
@@ -621,6 +670,40 @@ void calculateScenario(String module_name, String sign, String value, String ord
       }
     }
   }
+}
+/*
+  void scenarioEdit() {
+
+  String line_for_add = sCmd.next();
+  String type = sCmd.next();
+  line_for_add.replace("_", " ");
+
+  if (type == "add") {
+
+    addFile("scenario.all.txt", line_for_add);
+    Scenario_init();
+
+  }
+
+  if (type == "change") {
+
+    writeFile("scenario.all.txt", line_for_add);
+    Scenario_init();
+  }
+  }
+*/
+void scenarioSet() {
+
+  String type = sCmd.next();
+  String tmp;
+
+  if (type == "on") tmp = "1";
+  if (type == "off") tmp = "0";
+
+  jsonWrite(configSetup, "scenario", tmp);
+  saveConfig();
+  Scenario_init();
+
 }
 //=========================================Таймера=================================================================
 
@@ -642,7 +725,102 @@ void timer() {
   }
 }
 
+void timerSet() {
 
+  String type = sCmd.next();
+  String tmp;
+
+  if (type == "on") tmp = "1";
+  if (type == "off") tmp = "0";
+
+  jsonWrite(configSetup, "timers", tmp);
+  saveConfig();
+  Scenario_init();
+
+}
+
+void timerStart() {
+
+  String number = sCmd.next();
+  String period_of_time = sCmd.next();
+  String order = sCmd.next();
+
+  flagTimer1 = true;
+  flagTimer2 = true;
+
+  if (period_of_time.indexOf("value") >= 0) period_of_time = jsonReadtoInt(configJson, "value" + number);
+
+  jsonWrite(optionJson, "timerDate" + number, order + " " + period_of_time);
+
+  if (number == "1") {
+    ts.add(10, 1000, [&](void*) {
+      
+      static String timerDate;
+      static String order;
+      static String period_of_time;
+      static int period_of_time_int;
+      
+      if (flagTimer1) {
+        timerDate = jsonRead(optionJson, "timerDate1");
+        order = selectFromMarkerToMarker(timerDate, " ", 0);
+        order.replace("#", " ");
+        period_of_time = selectFromMarkerToMarker(timerDate, " ", 1);
+        period_of_time_int = period_of_time.toInt();
+      }
+
+      flagTimer1 = false;
+
+      period_of_time_int--;
+      Serial.println(period_of_time_int);
+
+      if (period_of_time_int <= 0) {
+        order_loop += order + ",";
+        Serial.println("done1");
+        ts.remove(10);
+      }
+    }, nullptr, true);
+  }
+}
+/*
+   void timerStart() {
+
+  String number = sCmd.next();
+  String period_of_time = sCmd.next();
+  String order = sCmd.next();
+
+  if (period_of_time.indexOf("value") >= 0) period_of_time = jsonReadtoInt(configJson, "value" + number);
+
+  jsonWrite(optionJson, "timerDate" + number, order);
+
+  if (number == "1") {
+    ts.add(10, period_of_time.toInt() * 1000 * 60, [&](void*) {
+
+      String order = jsonRead(optionJson, "timerDate1");
+      order.replace("#", " ");
+      order_loop += order + ",";
+      Serial.println("done1");
+      ts.remove(10);
+
+    }, nullptr, false);
+  }
+  if (number == "2") {
+    ts.add(11, period_of_time.toInt() * 1000 * 60, [&](void*) {
+
+      String order = jsonRead(optionJson, "timerDate2");
+      order.replace("#", " ");
+      order_loop += order + ",";
+      Serial.println("done2");
+      ts.remove(11);
+
+    }, nullptr, false);
+  }
+  }*/
+void timerStop() {
+
+  String number = sCmd.next();
+  ts.remove(number.toInt() + 9);
+
+}
 
 //======================выполнение команд (в лупе) по очереди из строки order=======================================
 void handleCMD_loop() {

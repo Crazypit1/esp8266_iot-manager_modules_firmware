@@ -37,6 +37,10 @@ void setup() {
   Serial.println("Push_init");
   handleCMD_ticker();
 
+#ifdef date_logging      
+      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
+#endif
+
   HTTP.on("/select_module", HTTP_GET, []() {
 
     String settings = "";

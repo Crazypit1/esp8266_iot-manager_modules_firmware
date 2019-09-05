@@ -21,7 +21,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 //SoftwareSerial mySerial(4, 5); //  TX, RX
 //---------------------------------------------------------
 #include <TickerScheduler.h>
-TickerScheduler ts(10);
+TickerScheduler ts(20);
 enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, CMD, TIMERS };
 //---------------------------------------------------------
 //#include <WebSocketsServer.h>
@@ -71,6 +71,8 @@ GMedian testFilter;
 //---------------------------------------------------------
 #define push_pushbullet
 //#define push_onesignal
+//---------------------------------------------------------
+#define date_logging
 
 
 
@@ -96,3 +98,6 @@ String scenario;
 String timers;
 
 boolean busy;
+
+boolean flagTimer1;
+boolean flagTimer2;
