@@ -6,7 +6,7 @@
 
 ### Ссылка для скачивания IOT manager: [IOT manager](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/raw/master/iot_manager/IoT%20Manager%201.5.5.apk)
 
-### Ссылка на подробную ниструкцию [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
+### Ссылка на подробную ниструкцию: [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
 
 
 Видео инструкции:
