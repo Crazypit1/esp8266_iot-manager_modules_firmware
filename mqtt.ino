@@ -88,9 +88,9 @@ void MQTT_Connecting() {
 #ifdef led_status
           led_blink(2, 20, "off");
 #endif
-          Serial.println("->Connecting to MQTT server completed");
+          Serial.println("->MQTT connected");
 #ifdef date_logging
-          addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Connecting to MQTT server completed");
+          addFile("log.txt", GetDataDigital() + " " + GetTime() + "->MQTT connected");
 #endif
 
           client.setCallback(callback);

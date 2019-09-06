@@ -295,12 +295,18 @@ void switchSet() {
   } else {
 
     if (order == on_off_1) {
-      sendSTATUS("switchSet" + switch_number, order_cmd_1);
-      jsonWrite(configJson, "switchSet" + switch_number , order_cmd_1);
+      String time_point = GetTime();
+      time_point.replace(":",".");
+      String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_1;
+      sendSTATUS("switchSet" + switch_number, tmp);
+      jsonWrite(configJson, "switchSet" + switch_number , tmp);
     }
     if (order == on_off_2) {
-      sendSTATUS("switchSet" + switch_number, order_cmd_2);
-      jsonWrite(configJson, "switchSet" + switch_number , order_cmd_2);
+      String time_point = GetTime();
+      time_point.replace(":",".");
+      String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_2;
+      sendSTATUS("switchSet" + switch_number, tmp);
+      jsonWrite(configJson, "switchSet" + switch_number , tmp);
     }
   }
 }
@@ -511,12 +517,12 @@ void input() {
   static boolean flag1 = true;
   static String viget1;
   if (flag1) {
-    viget1 = readFile("viget.buttonup.json", 1024);
+    viget1 = readFile("viget.buttondown.json", 1024);
     flag1 = false;
   }
   jsonWrite(viget1, "page", page_name);
   jsonWrite(viget1, "pageId", page_number);
-  jsonWrite(viget1, "topic", prex + "/valueUpSet" + number);
+  jsonWrite(viget1, "topic", prex + "/valueDownSet" + number);
   all_vigets += viget1 + "\r\n";
 
   static boolean flag2 = true;
@@ -539,13 +545,13 @@ void input() {
   static boolean flag3 = true;
   static String viget3;
   if (flag3) {
-    viget3 = readFile("viget.buttondown.json", 1024);
+    viget3 = readFile("viget.buttonup.json", 1024);
     flag3 = false;
   }
   jsonWrite(viget3, "page", page_name);
   page_number = String(page_number.toInt() + 1);
   jsonWrite(viget3, "pageId", page_number);
-  jsonWrite(viget3, "topic", prex + "/valueDownSet" + number);
+  jsonWrite(viget3, "topic", prex + "/valueUpSet" + number);
   all_vigets += viget3 + "\r\n";
 }
 
@@ -743,82 +749,78 @@ void timerStart() {
 
   String number = sCmd.next();
   String period_of_time = sCmd.next();
+  String type = sCmd.next();
   String order = sCmd.next();
 
   flagTimer1 = true;
   flagTimer2 = true;
 
   if (period_of_time.indexOf("value") >= 0) period_of_time = jsonReadtoInt(configJson, "value" + number);
-
-  jsonWrite(optionJson, "timerDate" + number, order + " " + period_of_time);
+  jsonWrite(optionJson, "timerDate" + number, order + " " + period_of_time + " " + type);
 
   if (number == "1") {
-    ts.add(10, 1000, [&](void*) {
-      
+    ts.add(11, 1000, [&](void*) {
       static String timerDate;
       static String order;
       static String period_of_time;
       static int period_of_time_int;
-      
+      static String type;
+      static int type_int;
       if (flagTimer1) {
         timerDate = jsonRead(optionJson, "timerDate1");
         order = selectFromMarkerToMarker(timerDate, " ", 0);
         order.replace("#", " ");
         period_of_time = selectFromMarkerToMarker(timerDate, " ", 1);
         period_of_time_int = period_of_time.toInt();
+        type = selectFromMarkerToMarker(timerDate, " ", 2);
+        type_int = type.toInt();
+        period_of_time_int = period_of_time_int * type_int;
       }
-
       flagTimer1 = false;
-
       period_of_time_int--;
       Serial.println(period_of_time_int);
-
       if (period_of_time_int <= 0) {
         order_loop += order + ",";
         Serial.println("done1");
-        ts.remove(10);
+        ts.remove(11);
+      }
+    }, nullptr, true);
+  }
+
+  if (number == "2") {
+    ts.add(12, 1000, [&](void*) {
+      static String timerDate;
+      static String order;
+      static String period_of_time;
+      static int period_of_time_int;
+      static String type;
+      static int type_int;
+      if (flagTimer2) {
+        timerDate = jsonRead(optionJson, "timerDate2");
+        order = selectFromMarkerToMarker(timerDate, " ", 0);
+        order.replace("#", " ");
+        period_of_time = selectFromMarkerToMarker(timerDate, " ", 1);
+        period_of_time_int = period_of_time.toInt();
+        type = selectFromMarkerToMarker(timerDate, " ", 2);
+        type_int = type.toInt();
+        period_of_time_int = period_of_time_int * type_int;
+      }
+      flagTimer2 = false;
+      period_of_time_int--;
+      Serial.println(period_of_time_int);
+      if (period_of_time_int <= 0) {
+        order_loop += order + ",";
+        Serial.println("done2");
+        ts.remove(12);
       }
     }, nullptr, true);
   }
 }
-/*
-   void timerStart() {
 
-  String number = sCmd.next();
-  String period_of_time = sCmd.next();
-  String order = sCmd.next();
-
-  if (period_of_time.indexOf("value") >= 0) period_of_time = jsonReadtoInt(configJson, "value" + number);
-
-  jsonWrite(optionJson, "timerDate" + number, order);
-
-  if (number == "1") {
-    ts.add(10, period_of_time.toInt() * 1000 * 60, [&](void*) {
-
-      String order = jsonRead(optionJson, "timerDate1");
-      order.replace("#", " ");
-      order_loop += order + ",";
-      Serial.println("done1");
-      ts.remove(10);
-
-    }, nullptr, false);
-  }
-  if (number == "2") {
-    ts.add(11, period_of_time.toInt() * 1000 * 60, [&](void*) {
-
-      String order = jsonRead(optionJson, "timerDate2");
-      order.replace("#", " ");
-      order_loop += order + ",";
-      Serial.println("done2");
-      ts.remove(11);
-
-    }, nullptr, false);
-  }
-  }*/
 void timerStop() {
 
   String number = sCmd.next();
-  ts.remove(number.toInt() + 9);
+  ts.remove(number.toInt() + 10);
 
 }
 

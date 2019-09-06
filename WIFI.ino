@@ -56,7 +56,10 @@ void WIFI_init() {
     // Иначе удалось подключиться отправляем сообщение
     // о подключении и выводим адрес IP
     Serial.println("");
-    Serial.println("WiFi connected");
+    Serial.println("->WiFi connected");
+#ifdef date_logging
+    addFile("log.txt", GetDataDigital() + " " + GetTime() + "=>WiFi connected");
+#endif
 #ifdef led_status
     led_blink(2, 1, "off");
 #endif
@@ -69,7 +72,7 @@ void WIFI_init() {
 bool StartAPMode() {
   Serial.println("WiFi up AP");
 #ifdef date_logging
-      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->WiFi up AP");
+  addFile("log.txt", GetDataDigital() + " " + GetTime() + "->WiFi up AP");
 #endif
   IPAddress apIP(192, 168, 4, 1);
   IPAddress staticGateway(192, 168, 4, 1);
@@ -94,10 +97,13 @@ bool StartAPMode() {
 
   if (jsonReadtoInt(optionJson, "pass_status") != 1) {
     ts.add(WIFI, reconnecting_wifi, [&](void*) {
-      Serial.println("try find router");
+      Serial.println("->try find router");
+#ifdef date_logging
+      addFile("log.txt", GetDataDigital() + " " + GetTime() + "->try find router");
+#endif
       if (RouterFind(jsonRead(configSetup, "ssid"))) {
         ts.remove(WIFI);
-        WIFI_init();                                      
+        WIFI_init();
         MQTT_init();
       }
     }, nullptr, true);
