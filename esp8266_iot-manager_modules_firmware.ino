@@ -41,27 +41,6 @@ void setup() {
       addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
 #endif
 
-  HTTP.on("/select_module", HTTP_GET, []() {
-
-    String settings = "";
-    
-    if (HTTP.arg("module") == "relay") settings = "relay " + readFileString("descr.txt", "relay");
-    if (HTTP.arg("module") == "pwm") settings = "pwm " + readFileString("descr.txt", "pwm");
-    
-    //if (HTTP.arg("module") == "ANALOG") settings = "ANALOG " + readFileString("descr.txt", "ANALOG");
-    //if (HTTP.arg("module") == "SWITCH") settings = "SWITCH " + readFileString("descr.txt", "SWITCH");
-    //if (HTTP.arg("module") == "LEVEL") settings = "LEVEL " + readFileString("descr.txt", "LEVEL");
-    //if (HTTP.arg("module") == "TEMP_ds18b20") settings = "TEMP_ds18b20 " + readFileString("descr.txt", "TEMP_ds18b20");
-    //if (HTTP.arg("module") == "addViget") settings = "addViget " + readFileString("descr.txt", "addViget");
-    //if (HTTP.arg("module") == "fillViget") settings = "fillViget " + readFileString("descr.txt", "fillViget");
-    //if (HTTP.arg("module") == "setValue") settings = "setValue " + readFileString("descr.txt", "setValue");
-    
-    String tmp = "{}";
-    jsonWrite(tmp, "title", "<button class=\"close\" onclick=\"toggle('my-block')\">×</button>" + settings);
-    jsonWrite(tmp, "class", "pop-up");
-
-    HTTP.send(200, "application/json", tmp);
-  });
 }
 
 

@@ -60,7 +60,7 @@ GMedian testFilter;
 //---------------------------------------------------------
 #define scenario_update_int 5000
 //---------------------------------------------------------
-#define CMD_update_int 3000   //for push
+#define CMD_update_int 3000   
 //---------------------------------------------------------
 #define analog_update_int 5000
 //---------------------------------------------------------
@@ -72,7 +72,7 @@ GMedian testFilter;
 #define push_pushbullet
 //#define push_onesignal
 //---------------------------------------------------------
-#define date_logging
+//#define date_logging
 
 
 

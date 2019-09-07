@@ -2,7 +2,6 @@
  "configs": [
 
   "/config.live.json",
-  "/config.option.json",
   "/config.setup.json"
 
  ],
@@ -21,67 +20,6 @@
    "type": "h4",
    "title": "IP address: {{ip}}"
   },
-{
-   "type": "hr"
-  },
-{
-   "type": "h2",
-"title": "Данные модулей"
- },
-{
-   "type": "hr"
- },
-{
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль уровня воды (LEVEL)",
-"style": "width:100%"
-  },
-
- {
-   "type": "h4",
-   "title": "Расстояние от датчика до воды: {{lev_in}} см"
-  },
-{
-   "type": "h4",
-   "title": " Заполнение бака: {{lev_out}} %"
-  },
-{
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль аналогового входа (ANALOG)",
-"style": "width:100%"
-  },
-{
-   "type": "h4",
-   "title": "Прочитанное значение: {{ana_in}}"
-  },
-{
-   "type": "h4",
-   "title": "Преобразованное значение: {{ana_out}}"
-  },
- {
-   "type": "hr"
- },
-{
-   "type": "h5",
-   "title": "Модуль температурного датчика dallas (TEMP_ds18b20)",
-"style": "width:100%"
-  },
-{
-   "type": "h4",
-   "title": "Текущее значение: {{ds_out}} °C"
-  },
-{
-  "type":"h6",
-  "name":"my-block",
-"style":"position:fixed;top:10%;left:20%;width:1500px;margin-left:-200px;text-align:center;",
-  "class":"hidden"
- },
 
  {
    "type": "hr"
@@ -91,45 +29,19 @@
    "type": "h2",
    "title": "Конфигурация устройства"
   },
-{
-"type": "select",
-"state": "en",
-"name":"mod",
-"title": {"relay":"Модуль управления реле","pwm":"Модуль широтно импульстной модуляции (регулятор яркости)","ANALOG":"Модуль аналогового входа","SWITCH":"Модуль физической кнопки","LEVEL":"Модуль уровня жидкости","TEMP_ds18b20":"Модуль температурного сенсора dallas","setValue":"Команда добавляющая окно ввода числового значения (для термостатов и тд)","addViget":"Команда добавления виджета, который выводит заданный текст по нажатию/отжатию кнопки","fillViget":"Подкоманда заполнения виджета текстом"},
-"response":"[[my-block]]",
-"action": "select_module?module=[[mod]]"
-},
-
  {
    "type":"file",
    "state":"config.all.txt",
-   "style":"width:100%;height:500px",
+   "style":"width:100%;height:250px",
    "title": "Сохранить",
    "action": "/all_modules_init",
    "class":"btn btn-block btn-success"
   },
-{
-   "type": "h6",
-   "title": "rel_1_1 подкоманда включения выключения реле"
-  },
-{
-   "type": "h6",
-   "title": "pwm_1_1023 подкоманда установки значения pwm"
-  },
-{
-   "type": "h6",
-   "title": "swi_1_1 подкоманда включения кнопки"
-  },
-{
-   "type": "h6",
-   "title": "mqtt_9139530-1458400_rel#1#0 пример отправки любой подкоманды на другое устройство по mqtt"
-  },
-{
-   "type": "h6",
-   "title": "http_192.168.88.10_rel#1#1 пример отправки любой подкоманды на другое устройство по http"
-  },
-{
-   "type": "h6", "title":"push_Внимание_Протечка#в#ванной#устранена подкоманда отправки push"
+ {
+   "type": "link",
+   "title": "Инструкция",
+   "action": "https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction",
+   "class": "btn btn-block btn-primary"
   },
 {
    "type": "h2",
@@ -177,8 +89,57 @@
    "action": "/timers?status=1",
    "class":"btn btn-block btn-success"
   },
-
 {
+   "type": "h2",
+"title": "Данные модулей"
+ },
+{
+   "type": "hr"
+ },
+{
+   "type": "h4",
+   "title": "Модуль уровня воды (level)",
+"style": "width:100%"
+  },
+
+ {
+   "type": "h6",
+   "title": "Расстояние от датчика до воды: {{lev_in}} см"
+  },
+{
+   "type": "h6",
+   "title": " Заполнение бака: {{lev_out}} %"
+  },
+{
+   "type": "hr"
+ },
+{
+   "type": "h4",
+   "title": "Модуль аналогового входа (analog)",
+"style": "width:100%"
+  },
+{
+   "type": "h6",
+   "title": "Прочитанное значение: {{ana_in}}"
+  },
+{
+   "type": "h6",
+   "title": "Преобразованное значение: {{ana_out}}"
+  },
+ {
+   "type": "hr"
+ },
+{
+   "type": "h4",
+   "title": "Модуль температурного датчика dallas",
+"style": "width:100%"
+  },
+{
+   "type": "h6",
+   "title": "Текущее значение: {{ds_out}} °C"
+  },
+{
+
    "type": "hr"
  },
 

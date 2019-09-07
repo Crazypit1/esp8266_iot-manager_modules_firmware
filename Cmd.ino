@@ -22,7 +22,6 @@ void CMD_init() {
   //sCmd.addCommand("scenarioEdit",  scenarioEdit);
 
   sCmd.addCommand("timer",  timer);
-  sCmd.addCommand("timerSet",  timerSet);
   sCmd.addCommand("timerStart",  timerStart);
   sCmd.addCommand("timerStop",  timerStop);
 
@@ -127,18 +126,14 @@ void buttonSet() {
   if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
 
     if (button_state == on_off_1) {
-      if (order_cmd_1.indexOf("ush") > 0) {
-        order_ticker += order_cmd_1 + ",";
-      } else {
-        order_loop += order_cmd_1 + ",";
-      }
+
+      order_loop += order_cmd_1 + ",";
+
     }
     if (button_state == on_off_2) {
-      if (order_cmd_2.indexOf("ush") > 0) {
-        order_ticker += order_cmd_2 + ",";
-      } else {
-        order_loop += order_cmd_2 + ",";
-      }
+
+      order_loop += order_cmd_2 + ",";
+
     }
   }
 
@@ -147,22 +142,16 @@ void buttonSet() {
     digitalWrite(button_pin.toInt(), button_state.toInt());
 
     if (button_state == on_off_1) {
-      if (order_cmd_1.indexOf("ush") > 0) {
-        order_ticker += order_cmd_1 + ",";
-      } else {
-        order_loop += order_cmd_1 + ",";
-      }
+
+      order_loop += order_cmd_1 + ",";
+
     }
     if (button_state == on_off_2) {
-      if (order_cmd_2.indexOf("ush") > 0) {
-        order_ticker += order_cmd_2 + ",";
-      } else {
-        order_loop += order_cmd_2 + ",";
-      }
+
+      order_loop += order_cmd_2 + ",";
+
     }
   }
-
-
 
   jsonWrite(configJson, "buttonSet" + button_number, button_state);
   sendSTATUS("buttonSet" + button_number, button_state);
@@ -273,37 +262,33 @@ void switchSet() {
   String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
   String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
 
-  if (order_cmd_1.indexOf("_") > 0) {
+  if (order_cmd_1.indexOf("_") > 0) {  //если там команда
 
     order_cmd_1.replace("_", " ");
     order_cmd_2.replace("_", " ");
 
     if (order == on_off_1) {
-      if (order_cmd_1.indexOf("ush") > 0) {
-        order_ticker += order_cmd_1 + ",";
-      } else {
-        order_loop += order_cmd_1 + ",";
-      }
+
+      order_loop += order_cmd_1 + ",";
+
     }
     if (order == on_off_2) {
-      if (order_cmd_2.indexOf("ush") > 0) {
-        order_ticker += order_cmd_2 + ",";
-      } else {
-        order_loop += order_cmd_2 + ",";
-      }
+
+      order_loop += order_cmd_2 + ",";
+
     }
-  } else {
+  } else {                               //если там текст
 
     if (order == on_off_1) {
       String time_point = GetTime();
-      time_point.replace(":",".");
+      time_point.replace(":", ".");
       String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_1;
       sendSTATUS("switchSet" + switch_number, tmp);
       jsonWrite(configJson, "switchSet" + switch_number , tmp);
     }
     if (order == on_off_2) {
       String time_point = GetTime();
-      time_point.replace(":",".");
+      time_point.replace(":", ".");
       String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_2;
       sendSTATUS("switchSet" + switch_number, tmp);
       jsonWrite(configJson, "switchSet" + switch_number , tmp);
@@ -723,27 +708,11 @@ void timer() {
 
   if (seted_time == current_time) {
 
-    if (order.indexOf("ush") > 0) {
-      order_ticker += order + ",";
-    } else {
-      order_loop += order + ",";
-    }
+    order_loop += order + ",";
+
   }
 }
 
-void timerSet() {
-
-  String type = sCmd.next();
-  String tmp;
-
-  if (type == "on") tmp = "1";
-  if (type == "off") tmp = "0";
-
-  jsonWrite(configSetup, "timers", tmp);
-  saveConfig();
-  Scenario_init();
-
-}
 
 void timerStart() {
 
