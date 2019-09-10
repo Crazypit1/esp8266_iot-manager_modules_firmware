@@ -10,3 +10,5 @@ analog Влажность#пола: Сенсор 2 856 0 100 7
 input value1 1.0 1 Минуты Таймер 10
 button 4 na Кнопка1 Таймер 0 13 on: timerStart_1_value1_60_buttonSet#4#0 off: timerStop_1
 button 5 na Кнопка2 Таймер 0 14 on: timerStart_2_10_1_buttonSet#5#0 off: timerStop_2
+button 6 na Сценарии Настройки 0 15 on: scenarioSet_on off: scenarioSet_off
+button 7 na Таймеры Настройки 0 16 on: timerSet_on off: timerSet_off

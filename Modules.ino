@@ -16,7 +16,6 @@ void buttons_init() {
   HTTP.on("/timers", HTTP_GET, []() {
     jsonWrite(configSetup, "timers", HTTP.arg("status"));
     saveConfig();
-    //timers = readFile("timers.all.txt", 1024);
     Timers_init();
     HTTP.send(200, "text/plain", "OK");
   });

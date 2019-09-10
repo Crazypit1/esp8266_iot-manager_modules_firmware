@@ -1,4 +1,8 @@
+#ifdef ESP8266
 #include <ESP8266WiFi.h>
+#elif defined ESP32
+#include <WiFi.h>
+#endif
 //---------------------------------------------------------
 #include <ESP8266WebServer.h>
 ESP8266WebServer HTTP(80);
@@ -72,7 +76,7 @@ GMedian testFilter;
 #define push_pushbullet
 //#define push_onesignal
 //---------------------------------------------------------
-//#define date_logging
+#define date_logging
 
 
 

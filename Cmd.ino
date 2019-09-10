@@ -8,6 +8,8 @@ void CMD_init() {
 
   sCmd.addCommand("switch",  switch_);
   sCmd.addCommand("switchSet",  switchSet);
+  sCmd.addCommand("switchText", switchText);
+
 
   sCmd.addCommand("analog",  analog);
   sCmd.addCommand("level",  level);
@@ -24,6 +26,7 @@ void CMD_init() {
   sCmd.addCommand("timer",  timer);
   sCmd.addCommand("timerStart",  timerStart);
   sCmd.addCommand("timerStop",  timerStop);
+  sCmd.addCommand("timerSet",  timerSet);
 
   sCmd.addCommand("mqtt",  mqttOrderSend);
   sCmd.addCommand("http",  httpOrderSend);
@@ -48,6 +51,7 @@ void button() {
   String order_cmd_1 = sCmd.next();
   String on_off_2 = sCmd.next();
   String order_cmd_2 = sCmd.next();
+  //Serial.println(order_cmd_2);
 
   if (on_off_1 == "") { //тип 1 - только кнопка привязанная к пину
 
@@ -81,7 +85,7 @@ void button() {
     on_off_2.replace("off:", "0");
 
     jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
-
+     
   }
 
   jsonWrite(optionJson, "button_pin" + button_number, button_pin);
@@ -113,7 +117,7 @@ void buttonSet() {
 
   String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
   String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
-
+ 
   order_cmd_1.replace("_", " ");
   order_cmd_2.replace("_", " ");
 
@@ -126,31 +130,27 @@ void buttonSet() {
   if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
 
     if (button_state == on_off_1) {
-
       order_loop += order_cmd_1 + ",";
-
     }
+    
     if (button_state == on_off_2) {
-
       order_loop += order_cmd_2 + ",";
-
     }
   }
 
   if (button_pin != "na" && on_off_1 != "") { //тип 3 - кнопка выполняющая 2 команды с пином
 
-    digitalWrite(button_pin.toInt(), button_state.toInt());
+
 
     if (button_state == on_off_1) {
-
       order_loop += order_cmd_1 + ",";
-
     }
+    
     if (button_state == on_off_2) {
-
       order_loop += order_cmd_2 + ",";
-
     }
+    
+    digitalWrite(button_pin.toInt(), button_state.toInt());
   }
 
   jsonWrite(configJson, "buttonSet" + button_number, button_state);
@@ -220,6 +220,7 @@ void switch_ () {
 
   String viget_name = sCmd.next();
   viget_name.replace("#", " ");
+
   String page_name = sCmd.next();
   String page_number = sCmd.next();
 
@@ -242,7 +243,7 @@ void switch_ () {
 
     jsonWrite(viget, "page", page_name);
     jsonWrite(viget, "pageId", page_number);
-    jsonWrite(viget, "descr", viget_name);
+    if (viget_name != "nil") jsonWrite(viget, "descr", viget_name);
     jsonWrite(viget, "topic", prex + "/switchSet" + switch_number);
     all_vigets += viget + "\r\n";
 
@@ -281,15 +282,27 @@ void switchSet() {
 
     if (order == on_off_1) {
       String time_point = GetTime();
+      String tmp;
       time_point.replace(":", ".");
-      String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_1;
+      if (order_cmd_1.indexOf("+") > 0) {
+        tmp = GetDataDigital() + " " + time_point + " " + order_cmd_1;
+        tmp.replace("time+", "");
+      } else {
+        tmp = order_cmd_1;
+      }
       sendSTATUS("switchSet" + switch_number, tmp);
       jsonWrite(configJson, "switchSet" + switch_number , tmp);
     }
     if (order == on_off_2) {
       String time_point = GetTime();
+      String tmp;
       time_point.replace(":", ".");
-      String tmp = GetDataDigital() + " " + time_point + " " + order_cmd_2;
+      if (order_cmd_2.indexOf("+") > 0) {
+        tmp = GetDataDigital() + " " + time_point + " " + order_cmd_2;
+        tmp.replace("time+", "");
+      } else {
+        tmp = order_cmd_2;
+      }
       sendSTATUS("switchSet" + switch_number, tmp);
       jsonWrite(configJson, "switchSet" + switch_number , tmp);
     }
@@ -313,6 +326,16 @@ void handleButton()  {
   }
   switch_number++;
   if (switch_number == NUM_BUTTONS) switch_number = 0;
+}
+
+void switchText() {
+
+  String number = sCmd.next();
+  String text = sCmd.next();
+  text.replace("#", " ");
+
+  jsonWrite(configJson, "switchSet" + number, text);
+  sendSTATUS("switchSet" + number, text);
 }
 
 //=========================================Модуль аналогового сенсора============================================================
@@ -520,7 +543,7 @@ void input() {
   page_number = String(page_number.toInt() + 1);
   jsonWrite(viget2, "pageId", page_number);
   value_name.replace("#", " ");
-  jsonWrite(viget2, "descr", value_name);
+  if (value_name != "nil") jsonWrite(viget2, "descr", value_name);
   jsonWrite(viget2, "topic", prex + "/" + name_);
   sendSTATUS(name_, start_value);
   jsonWrite(configJson, name_, start_value);
@@ -595,6 +618,8 @@ void json_Write() {
   if (file_name == "configJson") jsonWrite(configJson, name_, msg);
   if (file_name == "optionJson") jsonWrite(optionJson, name_, msg);
 }
+
+
 
 //=========================================Сценарии для всех модулей============================================================
 
@@ -790,6 +815,20 @@ void timerStop() {
 
   String number = sCmd.next();
   ts.remove(number.toInt() + 10);
+
+}
+
+void timerSet() {
+
+  String type = sCmd.next();
+  String tmp;
+
+  if (type == "on") tmp = "1";
+  if (type == "off") tmp = "0";
+
+  jsonWrite(configSetup, "timers", tmp);
+  saveConfig();
+  Timers_init();
 
 }
 
