@@ -20,6 +20,11 @@ void buttons_init() {
     HTTP.send(200, "text/plain", "OK");
   });
 
+  HTTP.on("/cleanlog", HTTP_GET, []() {
+    SPIFFS.remove("/log.analog.txt");
+    HTTP.send(200, "text/plain", "OK");
+  });
+
   Modules_init();
   Scenario_init();
   Timers_init();

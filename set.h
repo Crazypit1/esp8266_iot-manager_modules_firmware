@@ -26,7 +26,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 //---------------------------------------------------------
 #include <TickerScheduler.h>
 TickerScheduler ts(20);
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, CMD, TIMERS };
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, CMD, TIMERS, ANALOG_LOG };
 //---------------------------------------------------------
 //#include <WebSocketsServer.h>
 //WebSocketsServer webSocket = WebSocketsServer(81);
@@ -105,3 +105,5 @@ boolean busy;
 
 boolean flagTimer1;
 boolean flagTimer2;
+
+boolean flagLoggingAnalog = false;

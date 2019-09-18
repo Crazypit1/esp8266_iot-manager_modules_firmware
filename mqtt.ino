@@ -97,7 +97,7 @@ void MQTT_Connecting() {
 
           client.subscribe(prefix.c_str());  // Для приема получения HELLOW и подтверждения связи
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
-          client.subscribe((prefix + "/" + chipID + "/test").c_str());  //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
+          //client.subscribe((prefix + "/" + chipID + "/test").c_str());  //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
           /* String tmp_line = id_of_other_device;
 
             while (tmp_line.length() != 0) {
@@ -166,6 +166,7 @@ void outcoming_date() {
 
   sendAllWigets();
   sendAllData();
+  if (flagLoggingAnalog) sendLogData("log.analog.txt", "loganalog");
   Serial.println("->Sending all date to iot manager completed");
 
   busy = false;
@@ -288,6 +289,22 @@ void sendAllData() {
     }
 
     current_config = deleteBeforeDelimiter(current_config, ",");
+  }
+}
+
+void sendLogData(String file, String topic) {
+
+  String log_date = readFile(file, 2048) + "\r\n";  //2048
+
+  log_date.replace("\r\n", "\n");
+  log_date.replace("\r", "\n");
+
+  while (log_date.length() != 0) {
+    String tmp = selectToMarker (log_date, "\n");
+
+    sendSTATUS(topic, selectFromMarkerToMarker(tmp, " ", 2));
+
+    log_date = deleteBeforeDelimiter(log_date, "\n");
   }
 }
 

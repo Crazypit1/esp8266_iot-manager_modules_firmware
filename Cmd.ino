@@ -15,6 +15,8 @@ void CMD_init() {
   sCmd.addCommand("level",  level);
   sCmd.addCommand("dallas",  dallas);
 
+  sCmd.addCommand("logging",  logging);
+
   sCmd.addCommand("input",  input);
   sCmd.addCommand("valueUpSet",  valueUpSet);
   sCmd.addCommand("valueDownSet",  valueDownSet);
@@ -85,7 +87,7 @@ void button() {
     on_off_2.replace("off:", "0");
 
     jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
-     
+
   }
 
   jsonWrite(optionJson, "button_pin" + button_number, button_pin);
@@ -117,7 +119,7 @@ void buttonSet() {
 
   String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
   String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
- 
+
   order_cmd_1.replace("_", " ");
   order_cmd_2.replace("_", " ");
 
@@ -132,7 +134,7 @@ void buttonSet() {
     if (button_state == on_off_1) {
       order_loop += order_cmd_1 + ",";
     }
-    
+
     if (button_state == on_off_2) {
       order_loop += order_cmd_2 + ",";
     }
@@ -145,11 +147,11 @@ void buttonSet() {
     if (button_state == on_off_1) {
       order_loop += order_cmd_1 + ",";
     }
-    
+
     if (button_state == on_off_2) {
       order_loop += order_cmd_2 + ",";
     }
-    
+
     digitalWrite(button_pin.toInt(), button_state.toInt());
   }
 
@@ -354,9 +356,26 @@ void analog() {
   jsonWrite(optionJson, "analog_values", start_value + " " + end_value + " " + start_value_out + " " + end_value_out);
 
   static String viget;
-  if (flag) {
-    viget = readFile("viget.fillgauge.json", 1024);
-    flag = false;
+  if (viget_name.indexOf("-text") >= 0) {
+    viget_name.replace("-text", "");
+    if (flag) {
+      viget = readFile("viget.alertsm.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-gauge") >= 0) {
+    viget_name.replace("-gauge", "");
+    if (flag) {
+      viget = readFile("viget.fillgauge.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-term") >= 0) {
+    viget_name.replace("-term", "");
+    if (flag) {
+      viget = readFile("viget.termometr.json", 1024);
+      flag = false;
+    }
   }
 
   jsonWrite(viget, "page", page_name);
@@ -406,9 +425,26 @@ void level() {
   pinMode(12, INPUT);
 
   static String viget;
-  if (flag) {
-    viget = readFile("viget.fillgauge.json", 1024);
-    flag = false;
+  if (viget_name.indexOf("-text") >= 0) {
+    viget_name.replace("-text", "");
+    if (flag) {
+      viget = readFile("viget.alertsm.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-gauge") >= 0) {
+    viget_name.replace("-gauge", "");
+    if (flag) {
+      viget = readFile("viget.fillgauge.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-term") >= 0) {
+    viget_name.replace("-term", "");
+    if (flag) {
+      viget = readFile("viget.termometr.json", 1024);
+      flag = false;
+    }
   }
 
   jsonWrite(viget, "page", page_name);
@@ -476,14 +512,38 @@ void dallas() {
 
 
   static String viget;
-  if (flag) {
-    viget = readFile("viget.termometr.json", 1024);
-    flag = false;
+  if (viget_name.indexOf("-chart") >= 0) {
+    viget_name.replace("-chart", "");
+    if (flag) {
+      viget = readFile("viget.chart.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-text") >= 0) {
+    viget_name.replace("-text", "");
+    if (flag) {
+      viget = readFile("viget.alertsm.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-gauge") >= 0) {
+    viget_name.replace("-gauge", "");
+    if (flag) {
+      viget = readFile("viget.fillgauge.json", 1024);
+      flag = false;
+    }
+  }
+  if (viget_name.indexOf("-term") >= 0) {
+    viget_name.replace("-term", "");
+    if (flag) {
+      viget = readFile("viget.termometr.json", 1024);
+      flag = false;
+    }
   }
 
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
-
+  jsonWrite(viget, "descr", viget_name);
   jsonWrite(viget, "topic", prex + "/ds_out");
   all_vigets += viget + "\r\n";
 
@@ -511,6 +571,72 @@ void dallas() {
   }, nullptr, true);
 }
 
+//=========================================Логирование============================================================
+void logging() {
+
+  static boolean flag = true;
+
+  String sensor_name = sCmd.next();
+  String period_min = sCmd.next();
+  String maxCount = sCmd.next();
+  String viget_name = sCmd.next();
+  viget_name.replace("#", " ");
+  String page_name = sCmd.next();
+  String page_number = sCmd.next();
+
+  if (sensor_name == "analog") {
+    jsonWrite(optionJson, "analog_logging_count", maxCount);
+  }
+
+  static String viget;
+
+  if (flag) {
+    viget = readFile("viget.chart.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/loganalog");
+  all_vigets += viget + "\r\n";
+
+  if (sensor_name == "analog") {
+    
+    flagLoggingAnalog = true;
+    
+    ts.remove(ANALOG_LOG);
+    
+    ts.add(ANALOG_LOG, period_min.toInt() * 1000 * 60, [&](void*) {
+
+      deleteOldDate("log.analog.txt", jsonReadtoInt(optionJson, "analog_logging_count"), jsonRead(configJson, "ana_out"));
+
+    }, nullptr, true);
+  }
+}
+
+void deleteOldDate(String file, int seted_number_of_lines, String date_to_add) {
+
+  String log_date = readFile(file, 2048);// + "\r\n"
+
+  log_date.replace("\r\n", "\n");
+  log_date.replace("\r", "\n");
+  int current_number_of_lines = count(log_date, "\n");
+
+  if (current_number_of_lines > seted_number_of_lines + 1) {
+    SPIFFS.remove("/" + file);
+    current_number_of_lines = 0;
+  }
+
+  if (current_number_of_lines > seted_number_of_lines) {
+    log_date = deleteBeforeDelimiter(log_date, "\n");
+    log_date += GetDataDigital() + " " + GetTime() + " " +  date_to_add + "\n";
+    writeFile(file, log_date);
+
+  } else {
+    addFile(file, GetDataDigital() + " " + GetTime() + " " +  date_to_add);
+  }
+}
 //=========================================Добавление окна ввода и переменной============================================================
 void input() {
 
@@ -838,7 +964,7 @@ void handleCMD_loop() {
   if (order_loop != "") {
 
     String tmp = selectToMarker(order_loop, ",");                //выделяем из страки order первую команду rel 5 1,
-    sCmd.readStr(tmp);                                           //выполняем первую команду
+    if (tmp != "no_command") sCmd.readStr(tmp);                                           //выполняем первую команду
     Serial.println("order_loop => " + order_loop);
     order_loop = deleteBeforeDelimiter(order_loop, ",");         //осекаем выполненную команду
   }
@@ -851,7 +977,7 @@ void handleCMD_ticker() {
       if (order_ticker != "") {
 
         String tmp = selectToMarker(order_ticker, ",");                //выделяем из страки order первую команду pus title body
-        sCmd.readStr(tmp);                                             //выполняем первую команду
+        if (tmp != "no_command") sCmd.readStr(tmp);                                             //выполняем первую команду
         Serial.println("order_ticker => " + order_ticker);
         order_ticker = deleteBeforeDelimiter(order_ticker, ",");       //осекаем выполненную команду
       }

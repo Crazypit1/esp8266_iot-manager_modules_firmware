@@ -69,7 +69,7 @@ void pushControl() {
   if (jsonRead(configSetup, "pushAccessToken") != "") {
     if (WiFi.status() == WL_CONNECTED) {
       if (client.connected()) {
-
+        Serial.print("TRY");
         String title = sCmd.next();
         title.replace("#", " ");
         String body = sCmd.next();
@@ -99,11 +99,12 @@ void pushControl() {
           return;
         }
 
-        /*if (client_push.verify(fingerprint, host)) {
+        if (client_push.verify(fingerprint, host)) {
           Serial.println("certificate matches");
-          } else {
+        } else {
           Serial.println("certificate doesn't match");
-          }*/
+          return;
+        }
         String final_line = "{\"body\":\"";
         final_line += body;
         final_line += "\",\"title\":\"";
