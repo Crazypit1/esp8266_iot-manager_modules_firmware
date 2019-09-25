@@ -46,6 +46,15 @@ String GetTime() {
   return Time; // Возврашаем полученное время
 }
 
+String GetTimeWOsec() {
+  time_t now = time(nullptr); // получаем время с помощью библиотеки time.h
+  String Time = ""; // Строка для результатов времени
+  Time += ctime(&now); // Преобразуем время в строку формата Thu Jan 19 00:55:35 2017
+  int i = Time.indexOf(":"); //Ишем позицию первого символа :
+  Time = Time.substring(i - 2, i + 3); // Выделяем из строки 2 символа перед символом : и 6 символов после
+  return Time; // Возврашаем полученное время
+}
+
 // Получение даты
 String GetDate() {
   time_t now = time(nullptr); // получаем время с помощью библиотеки time.h

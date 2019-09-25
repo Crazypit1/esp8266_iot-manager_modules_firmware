@@ -136,7 +136,7 @@ void MQTT_Connecting() {
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  Serial.print(topic);
+  // Serial.print(topic);
   String topic_str = String(topic);
 
   String str;
@@ -145,10 +145,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   //Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
-  //if (str == "work") outcoming_date(); //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
-
+  //if (str == "work") outcoming_date();     //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
+                                             //превращает название топика в команду, а значение в параметр команды
   if (topic_str.indexOf("control") > 0) {                        //IoTmanager/800324-1458415/RelaySet1/control 1   /IoTmanager/9139530-1458400/RelaySet1/control -> 1
-    Serial.println(topic_str);
+    //Serial.println(topic_str);
     String topic = selectFromMarkerToMarker(topic_str, "/", 3);  //RelaySet1
     String number = selectToMarkerLast(topic, "Set");            //1
     topic.replace(number, "");                                   //RelaySet
@@ -167,6 +167,8 @@ void outcoming_date() {
   sendAllWigets();
   sendAllData();
   if (flagLoggingAnalog) sendLogData("log.analog.txt", "loganalog");
+  if (flagLoggingDallas) sendLogData("log.dallas.txt", "logdallas");
+  if (flagLoggingLevel) sendLogData("log.level.txt", "loglevel");
   Serial.println("->Sending all date to iot manager completed");
 
   busy = false;
@@ -268,7 +270,7 @@ void sendAllWigets() {
   }
 }
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ========================================================
-void sendAllData() {
+void sendAllData() {   //берет строку json и ключи превращает в топики а значения колючей в них посылает
 
   String current_config = configJson;                      //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
   current_config.replace("{", "");
@@ -277,12 +279,12 @@ void sendAllData() {
 
   while (current_config.length() != 0) {
 
-    String tmp = selectToMarker (current_config, ",");      //"rel1":"1"
-    String topic =  selectToMarker (tmp, ":");              //"rel1"
-    topic.replace("\"", "");                                //rel1
+    String tmp = selectToMarker (current_config, ",");      
+    String topic =  selectToMarker (tmp, ":");              
+    topic.replace("\"", "");                                
 
-    String state =  selectToMarkerLast (tmp, ":");          //"1"
-    state.replace("\"", "");                                //1
+    String state =  selectToMarkerLast (tmp, ":");          
+    state.replace("\"", "");                                
     if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
       sendSTATUS(topic, state);
       //Serial.println("-->" + topic);
@@ -294,7 +296,7 @@ void sendAllData() {
 
 void sendLogData(String file, String topic) {
 
-  String log_date = readFile(file, 2048) + "\r\n";  //2048
+  String log_date = readFile(file, 5000) + "\r\n";
 
   log_date.replace("\r\n", "\n");
   log_date.replace("\r", "\n");
@@ -302,7 +304,8 @@ void sendLogData(String file, String topic) {
   while (log_date.length() != 0) {
     String tmp = selectToMarker (log_date, "\n");
 
-    sendSTATUS(topic, selectFromMarkerToMarker(tmp, " ", 2));
+    //sendSTATUS(topic, selectFromMarkerToMarker(tmp, " ", 2));
+    if (tmp != "") sendSTATUS(topic, tmp);
 
     log_date = deleteBeforeDelimiter(log_date, "\n");
   }

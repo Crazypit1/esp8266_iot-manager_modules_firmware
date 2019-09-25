@@ -58,10 +58,6 @@ String selectToMarker (String str, String found) {
   int p = str.indexOf(found);
   return str.substring(0, p);
 }
-String selectToMarkerPlus (String str, String found, int plus) {
-  int p = str.indexOf(found);
-  return str.substring(0, p + plus);
-}
 // --------Удаляем все после символа разделителя (вместе с символом разделителя)--------------------------------
 String deleteAfterDelimiter (String str, String found) {
   int p = str.indexOf(found);
@@ -84,7 +80,10 @@ String deleteToMarkerLast (String str, String found) {
   int p = str.lastIndexOf(found);
   return str.substring(0, p);
 }
-
+String selectToMarkerPlus (String str, String found, int plus) {
+  int p = str.indexOf(found);
+  return str.substring(0, p + plus);
+}
 //--------------------Выделяем строку от маркера до маркера
 String selectFromMarkerToMarker(String str, String found, int number) {
   if (str.indexOf(found) == -1) return "not found"; // если строки поиск нет сразу выход
@@ -108,26 +107,36 @@ int count(String str, String found) {
   }
   return i; // Достигли пустой строки и ничего не нашли
 }
+
+boolean isDigitStr (String str) {
+
+  if (str == "0" || str == "1" || str == "2" || str == "3" || str == "4" || str == "5" || str == "6" || str == "7" || str == "8" || str == "9") {
+    return true;
+  } else {
+    return false;
+  }
+}
 //============================================WEB SOKET==========================================================
-#ifdef debug_mode_web_sokets
-void SoketData (String key, String data, String data_old)  {
+
+/*
+  void SoketData (String key, String data, String data_old)  {
 
   if (data_old != data) {
     String broadcast = "{}";
     jsonWrite(broadcast, key, data);
     webSocket.broadcastTXT(broadcast);
   }
-}
+  }
 
-void SoketData (String key, int data, int data_old)  {
+  void SoketData (String key, int data, int data_old)  {
 
   if (data_old != data) {
     String broadcast = "{}";
     jsonWrite(broadcast, key, data);
     webSocket.broadcastTXT(broadcast);
   }
-}
-#endif
+  }
+*/
 //============================================URL===================================================================
 // ----------------------Запрос на удаленный URL
 String getURL(String urls) {
@@ -176,6 +185,16 @@ String readFile(String fileName, size_t len ) {
   String temp = configFile.readString();
   configFile.close();
   return temp;
+}
+
+String sizeFile(String fileName) {
+  File configFile = SPIFFS.open("/" + fileName, "r");
+  if (!configFile) {
+    return "Failed";
+  }
+  size_t size = configFile.size();
+  configFile.close();
+  return String(size);
 }
 
 // ------------- Запись строки в файл

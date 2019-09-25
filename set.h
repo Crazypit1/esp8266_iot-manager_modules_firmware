@@ -25,18 +25,17 @@ ESP8266HTTPUpdateServer httpUpdater;
 //SoftwareSerial mySerial(4, 5); //  TX, RX
 //---------------------------------------------------------
 #include <TickerScheduler.h>
-TickerScheduler ts(20);
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DS18B20, SCENARIO, CMD, TIMERS, ANALOG_LOG };
+TickerScheduler ts(30);
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DALLAS, ANALOG_LOG, LEVEL_LOG, DALLAS_LOG, CMD, TIMERS , TEST};
 //---------------------------------------------------------
 //#include <WebSocketsServer.h>
 //WebSocketsServer webSocket = WebSocketsServer(81);
-//#define debug_mode_web_sokets
 //---------------------------------------------------------
 #include <PubSubClient.h>
 WiFiClient espClient;
 PubSubClient client(espClient);
 //---------------------------------------------------------
-#include <WiFiClientSecure.h>
+//#include <WiFiClientSecure.h>
 //---------------------------------------------------------
 #include <StringCommand.h>
 StringCommand sCmd;
@@ -73,7 +72,7 @@ GMedian testFilter;
 #define tank_level_shooting_interval 500 //интервал выстрела датчика
 #define tank_level_times_to_send 20 //после скольки выстрелов делать отправку данных
 //---------------------------------------------------------
-#define push_pushbullet
+//#define push_pushbullet
 //#define push_onesignal
 //---------------------------------------------------------
 #define date_logging
@@ -94,6 +93,8 @@ int port = 80;
 
 String order_loop;
 String order_ticker;
+String order_timer;
+String order_timer_new;
 
 String current_time;
 
@@ -107,3 +108,5 @@ boolean flagTimer1;
 boolean flagTimer2;
 
 boolean flagLoggingAnalog = false;
+boolean flagLoggingLevel = false;
+boolean flagLoggingDallas = false;

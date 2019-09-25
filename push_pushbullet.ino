@@ -1,4 +1,4 @@
-#ifdef push_pushbullet
+/*
 
 void Push_init() {
 
@@ -43,7 +43,7 @@ void Push_init() {
     HTTP.send(200, "text/plain", "OK");
   });
 
-  if (jsonRead(configSetup, "startPush") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство#включено");
+  //if (jsonRead(configSetup, "startPush") == "1") send_push(jsonRead(configSetup, "SSDP"), "устройство#включено");
 }
 
 
@@ -129,15 +129,15 @@ void pushControl() {
                           final_line
                          );
 
-        /* while (client_push.connected()) {
+         while (client_push.connected()) {
            String line = client_push.readStringUntil('\n');
            if (line == "\r") {
              Serial.println("headers received");
              break;
            }
-          }*/
+          }
 
-        /*
+        
           //String line = client_push.readStringUntil('\n');
           String line = client_push.readString(); // this line is good for debugging error messages more then a single line
 
@@ -149,9 +149,9 @@ void pushControl() {
           Serial.println("=>sending push failed");
           return;
           }
-        */
+        
       }
     }
   }
 }
-#endif
+*/

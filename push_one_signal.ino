@@ -1,4 +1,4 @@
-#ifdef push_onesignal
+/*
 
 void push(String push_msg)
 {
@@ -19,4 +19,4 @@ void push(String push_msg)
   push_client.println(push_data);
 }
 
-#endif
+*/

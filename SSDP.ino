@@ -25,9 +25,9 @@ void SSDP_init(void) {
     SSDP.setModelNumber(chipID + "/" + jsonRead(configSetup, "SSDP"));
 
 
-    SSDP.setModelURL("http://esp8266-arduinoide.ru/step12-graf-dht/");
-    SSDP.setManufacturer("Tretyakov Sergey");
-    SSDP.setManufacturerURL("http://www.esp8266-arduinoide.ru");
+    SSDP.setModelURL("https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware");
+    SSDP.setManufacturer("Borisenko Dmitry");
+    SSDP.setManufacturerURL("https://www.instagram.com/rriissee3");
     SSDP.begin();
   }
 }

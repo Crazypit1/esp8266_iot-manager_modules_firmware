@@ -139,10 +139,14 @@
    "title": "Текущее значение: {{ds_out}} °C"
   },
 {
-
    "type": "hr"
  },
-
+ {
+   "type": "link",
+   "title": "Очистить все логи",
+   "action": "/cleanlog",
+   "class": "btn btn-block btn-success"
+  },
   {
    "type": "link",
    "title": "Главная",

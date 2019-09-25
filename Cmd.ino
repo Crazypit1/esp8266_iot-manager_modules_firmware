@@ -1,5 +1,6 @@
 void CMD_init() {
 
+
   sCmd.addCommand("button",  button);
   sCmd.addCommand("buttonSet",  buttonSet);
 
@@ -7,9 +8,6 @@ void CMD_init() {
   sCmd.addCommand("pwmSet",  pwmSet);
 
   sCmd.addCommand("switch",  switch_);
-  sCmd.addCommand("switchSet",  switchSet);
-  sCmd.addCommand("switchText", switchText);
-
 
   sCmd.addCommand("analog",  analog);
   sCmd.addCommand("level",  level);
@@ -21,22 +19,21 @@ void CMD_init() {
   sCmd.addCommand("valueUpSet",  valueUpSet);
   sCmd.addCommand("valueDownSet",  valueDownSet);
 
-  sCmd.addCommand("scenario",  scenario_);
-  sCmd.addCommand("scenarioSet",  scenarioSet);
-  //sCmd.addCommand("scenarioEdit",  scenarioEdit);
+  sCmd.addCommand("text",  text);
+  sCmd.addCommand("textSet",  textSet);
 
   sCmd.addCommand("timer",  timer);
   sCmd.addCommand("timerStart",  timerStart);
   sCmd.addCommand("timerStop",  timerStop);
-  sCmd.addCommand("timerSet",  timerSet);
 
   sCmd.addCommand("mqtt",  mqttOrderSend);
   sCmd.addCommand("http",  httpOrderSend);
   sCmd.addCommand("push",  pushControl);
 
-  sCmd.addCommand("jsonWrite",  json_Write);
+  handleCMD_ticker();
 }
 
+//==========================================================================================================
 //==========================================Модуль кнопок===================================================
 void button() {
 
@@ -49,45 +46,10 @@ void button() {
   String start_state = sCmd.next();
   String page_number = sCmd.next();
 
-  String on_off_1 = sCmd.next();
-  String order_cmd_1 = sCmd.next();
-  String on_off_2 = sCmd.next();
-  String order_cmd_2 = sCmd.next();
-  //Serial.println(order_cmd_2);
-
-  if (on_off_1 == "") { //тип 1 - только кнопка привязанная к пину
-
+  if (button_pin != "na") {
     pinMode(button_pin.toInt(), OUTPUT);
     digitalWrite(button_pin.toInt(), start_state.toInt());
     uint8_t button_pin_int = button_pin.toInt();
-  }
-
-  if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
-
-    on_off_1.replace("on:", "1");
-    on_off_1.replace("off:", "0");
-
-    on_off_2.replace("on:", "1");
-    on_off_2.replace("off:", "0");
-
-    jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
-
-  }
-
-  if (button_pin != "na" && on_off_1 != "") {  //тип 3 - кнопка выполняющая 2 команды с пином
-
-    pinMode(button_pin.toInt(), OUTPUT);
-    digitalWrite(button_pin.toInt(), start_state.toInt());
-    uint8_t button_pin_int = button_pin.toInt();
-
-    on_off_1.replace("on:", "1");
-    on_off_1.replace("off:", "0");
-
-    on_off_2.replace("on:", "1");
-    on_off_2.replace("off:", "0");
-
-    jsonWrite(optionJson, "buttonDate" + button_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
-
   }
 
   jsonWrite(optionJson, "button_pin" + button_number, button_pin);
@@ -112,53 +74,18 @@ void buttonSet() {
   String button_state = sCmd.next();
   String button_pin = jsonRead(optionJson, "button_pin" + button_number);
 
-  String all_line = jsonRead(optionJson, "buttonDate" + String(button_number));
-
-  String on_off_1 = selectFromMarkerToMarker(all_line, " ", 0);
-  String order_cmd_1 = selectFromMarkerToMarker(all_line, " ", 1);
-
-  String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
-  String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
-
-  order_cmd_1.replace("_", " ");
-  order_cmd_2.replace("_", " ");
-
-  if (on_off_1 == "") { //тип 1 - только кнопка привязанная к пину
-
-    digitalWrite(button_pin.toInt(), button_state.toInt());
-
-  }
-
-  if (button_pin == "na") {  //тип 2 - кнопка выполняющая 2 команды без пина
-
-    if (button_state == on_off_1) {
-      order_loop += order_cmd_1 + ",";
-    }
-
-    if (button_state == on_off_2) {
-      order_loop += order_cmd_2 + ",";
-    }
-  }
-
-  if (button_pin != "na" && on_off_1 != "") { //тип 3 - кнопка выполняющая 2 команды с пином
-
-
-
-    if (button_state == on_off_1) {
-      order_loop += order_cmd_1 + ",";
-    }
-
-    if (button_state == on_off_2) {
-      order_loop += order_cmd_2 + ",";
-    }
-
+  if (button_pin != "na") {
     digitalWrite(button_pin.toInt(), button_state.toInt());
   }
+
+  String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+  jsonWrite(optionJson, "scenario_status", tmp + "buttonSet" + button_number + ",");
 
   jsonWrite(configJson, "buttonSet" + button_number, button_state);
   sendSTATUS("buttonSet" + button_number, button_state);
 }
 
+//==================================================================================================================
 //==========================================Модуль управления ШИМ===================================================
 void pwm() {
 
@@ -200,115 +127,25 @@ void pwmSet() {
   int pin = jsonReadtoInt(optionJson, "pwm_pin" + pwm_number);
   analogWrite(pin, pwm_state_int);
 
+  String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+  jsonWrite(optionJson, "scenario_status", tmp + "pwmSet" + pwm_number + ",");
+
   jsonWrite(configJson, "pwmSet" + pwm_number, pwm_state);
   sendSTATUS("pwmSet" + pwm_number, pwm_state);
 }
-//=========================================Модуль физической кнопки(2 команды)================================================================
+//==================================================================================================================
+//==========================================Модуль физической кнопки================================================
 void switch_ () {
 
   String switch_number = sCmd.next();
   String switch_pin = sCmd.next();
   String switch_delay = sCmd.next();
 
-  String on_off_1 = sCmd.next();
-  on_off_1.replace("on:", "1");
-  on_off_1.replace("off:", "0");
-  String order_cmd_1 = sCmd.next();
-
-  String on_off_2 = sCmd.next();
-  on_off_2.replace("on:", "1");
-  on_off_2.replace("off:", "0");
-  String order_cmd_2 = sCmd.next();
-
-  String viget_name = sCmd.next();
-  viget_name.replace("#", " ");
-
-  String page_name = sCmd.next();
-  String page_number = sCmd.next();
-
-
-  jsonWrite(optionJson, "switch" + switch_number, on_off_1 + " " + order_cmd_1 + " " + on_off_2 + " " + order_cmd_2);
-
   buttons[switch_number.toInt()].attach(switch_pin.toInt());
   buttons[switch_number.toInt()].interval(switch_delay.toInt());
   but[switch_number.toInt()] = true;
 
-  //=============================================================
-  if (viget_name != "") {
 
-    static boolean flag = true;
-    static String viget;
-    if (flag) {
-      viget = readFile("viget.alertsm.json", 1024);
-      flag = false;
-    }
-
-    jsonWrite(viget, "page", page_name);
-    jsonWrite(viget, "pageId", page_number);
-    if (viget_name != "nil") jsonWrite(viget, "descr", viget_name);
-    jsonWrite(viget, "topic", prex + "/switchSet" + switch_number);
-    all_vigets += viget + "\r\n";
-
-  }
-}
-
-void switchSet() {
-
-  String switch_number = sCmd.next();
-  String order = sCmd.next();
-
-  String all_line = jsonRead(optionJson, "switch" + String(switch_number));
-
-  String on_off_1 = selectFromMarkerToMarker(all_line, " ", 0);
-  String order_cmd_1 = selectFromMarkerToMarker(all_line, " ", 1);
-
-  String on_off_2 = selectFromMarkerToMarker(all_line, " ", 2);
-  String order_cmd_2 = selectFromMarkerToMarker(all_line, " ", 3);
-
-  if (order_cmd_1.indexOf("_") > 0) {  //если там команда
-
-    order_cmd_1.replace("_", " ");
-    order_cmd_2.replace("_", " ");
-
-    if (order == on_off_1) {
-
-      order_loop += order_cmd_1 + ",";
-
-    }
-    if (order == on_off_2) {
-
-      order_loop += order_cmd_2 + ",";
-
-    }
-  } else {                               //если там текст
-
-    if (order == on_off_1) {
-      String time_point = GetTime();
-      String tmp;
-      time_point.replace(":", ".");
-      if (order_cmd_1.indexOf("+") > 0) {
-        tmp = GetDataDigital() + " " + time_point + " " + order_cmd_1;
-        tmp.replace("time+", "");
-      } else {
-        tmp = order_cmd_1;
-      }
-      sendSTATUS("switchSet" + switch_number, tmp);
-      jsonWrite(configJson, "switchSet" + switch_number , tmp);
-    }
-    if (order == on_off_2) {
-      String time_point = GetTime();
-      String tmp;
-      time_point.replace(":", ".");
-      if (order_cmd_2.indexOf("+") > 0) {
-        tmp = GetDataDigital() + " " + time_point + " " + order_cmd_2;
-        tmp.replace("time+", "");
-      } else {
-        tmp = order_cmd_2;
-      }
-      sendSTATUS("switchSet" + switch_number, tmp);
-      jsonWrite(configJson, "switchSet" + switch_number , tmp);
-    }
-  }
 }
 
 void handleButton()  {
@@ -317,29 +154,22 @@ void handleButton()  {
 
   if (but[switch_number]) {
     buttons[switch_number].update();
-
     if (buttons[switch_number].fell()) {
-      order_loop += "switchSet " + String(switch_number) + " 1,";   //orders-switchSet 1 1,
+      String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+      jsonWrite(optionJson, "scenario_status", tmp + "switchSet" + String(switch_number) + ",");
+      jsonWrite(configJson, "switchSet" + String(switch_number), "1");
     }
-
     if (buttons[switch_number].rose()) {
-      order_loop += "switchSet " + String(switch_number) + " 0,";   //orders-switchSet 1 0,
+      String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+      jsonWrite(optionJson, "scenario_status", tmp + "switchSet" + String(switch_number) + ",");
+      jsonWrite(configJson, "switchSet" + String(switch_number), "0");
     }
   }
   switch_number++;
   if (switch_number == NUM_BUTTONS) switch_number = 0;
 }
 
-void switchText() {
-
-  String number = sCmd.next();
-  String text = sCmd.next();
-  text.replace("#", " ");
-
-  jsonWrite(configJson, "switchSet" + number, text);
-  sendSTATUS("switchSet" + number, text);
-}
-
+//===============================================================================================================================
 //=========================================Модуль аналогового сенсора============================================================
 void analog() {
 
@@ -381,33 +211,38 @@ void analog() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/ana_out");
+  jsonWrite(viget, "topic", prex + "/analog");
   all_vigets += viget + "\r\n";
 
   ts.add(ANALOG, analog_update_int, [&](void*) {
 
-    static int analog_out_old;
-    int analog = analogRead(A0);
-    jsonWrite(configJson, "ana_in", analog);
-
-#ifdef debug_mode_web_sokets
-    SoketData("module_analog_s", analog, 1);
-#endif
+    static int analog_old;
+    int analog_in = analogRead(A0);
+    jsonWrite(configJson, "analog_in", analog_in);
 
     String analog_values = jsonRead(optionJson, "analog_values");
-    int analog_out = map(analog, selectFromMarkerToMarker(analog_values, " ", 0).toInt(), selectFromMarkerToMarker(analog_values, " ", 1).toInt(), selectFromMarkerToMarker(analog_values, " ", 2).toInt(), selectFromMarkerToMarker(analog_values, " ", 3).toInt());
-    jsonWrite(configJson, "ana_out", analog_out);
 
-    if (analog_out_old != analog_out) {
-      sendSTATUS("ana_out", String(analog_out));
-      Serial.println("sensor analog send date " + String(analog_out));
+    int analog = map(analog_in, selectFromMarkerToMarker(analog_values, " ", 0).toInt(),
+                     selectFromMarkerToMarker(analog_values, " ", 1).toInt(),
+                     selectFromMarkerToMarker(analog_values, " ", 2).toInt(),
+                     selectFromMarkerToMarker(analog_values, " ", 3).toInt());
+
+    jsonWrite(configJson, "analog", analog);
+
+    if (analog_old != analog) {
+
+      String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+      jsonWrite(optionJson, "scenario_status", tmp + "analog,");
+
+      sendSTATUS("analog", String(analog));
+      Serial.println("sensor analog send date " + String(analog));
     }
 
-    analog_out_old = analog_out;
+    analog_old = analog;
 
   }, nullptr, true);
 }
-
+//===================================================================================================================================
 //=========================================Модуль измерения уровня в баке============================================================
 void level() {
 
@@ -419,7 +254,7 @@ void level() {
   String full_level = sCmd.next();
   String page_number = sCmd.next();
 
-  jsonWrite(optionJson, "levels", empty_level + " " + full_level);
+  jsonWrite(optionJson, "level_values", empty_level + " " + full_level);
 
   pinMode(14, OUTPUT);
   pinMode(12, INPUT);
@@ -450,15 +285,15 @@ void level() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/lev_out");
+  jsonWrite(viget, "topic", prex + "/level");
   all_vigets += viget + "\r\n";
 
   ts.add(LEVEL, tank_level_shooting_interval, [&](void*) {
 
     long duration_;
     int distance_cm;
-    int level_persent;
-    static int level_persent_old; //переменная static сохраняет свое значение между вызовами функции
+    int level;
+    static int level_old; //переменная static сохраняет свое значение между вызовами функции
     static int counter;
 
     digitalWrite(14, LOW);
@@ -469,32 +304,32 @@ void level() {
     duration_ = pulseIn(12, HIGH, 30000); // 3000 µs = 50cm // 30000 µs = 5 m
     distance_cm = duration_ / 29 / 2;
     distance_cm = testFilter.filtered(distance_cm);//отсечение промахов медианным фильтром
-#ifdef debug_mode_web_sokets
-    SoketData("module_tank_level_s", distance_cm, 1);
-#endif
 
     counter++;
 
     if (counter > tank_level_times_to_send) {
       counter = 0;
-      jsonWrite(configJson, "lev_in", distance_cm);
+      jsonWrite(configJson, "level_in", distance_cm);
 
-      String levels = jsonRead(optionJson, "levels");
-      level_persent = map(distance_cm, selectFromMarkerToMarker(levels, " ", 0).toInt(), selectFromMarkerToMarker(levels, " ", 1).toInt(), 0, 100);
-      jsonWrite(configJson, "lev_out", level_persent);
+      String level_values = jsonRead(optionJson, "level_values");
+      level = map(distance_cm, selectFromMarkerToMarker(level_values, " ", 0).toInt(), selectFromMarkerToMarker(level_values, " ", 1).toInt(), 0, 100);
+      jsonWrite(configJson, "level", level);
 
-      if (level_persent_old != level_persent) {
+      if (level_old != level) {
 
-        sendSTATUS("lev_out", String(level_persent));
-        Serial.println("sensor tank level send date " + String(level_persent));
+        String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+        jsonWrite(optionJson, "scenario_status", tmp + "level,");
+
+        sendSTATUS("level", String(level));
+        Serial.println("sensor tank level send date " + String(level));
 
       }
-      level_persent_old = level_persent;
+      level_old = level;
     }
   }, nullptr, true);
 }
 
-
+//==========================================================================================================================================
 //=========================================Модуль температурного сенсора ds18b20============================================================
 void dallas() {
 
@@ -508,7 +343,7 @@ void dallas() {
   oneWire = new OneWire((uint8_t) pin.toInt());
   sensors.setOneWire(oneWire);
   sensors.begin();
-  sensors.setResolution(1);
+  sensors.setResolution(12);
 
 
   static String viget;
@@ -544,24 +379,23 @@ void dallas() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/ds_out");
+  jsonWrite(viget, "topic", prex + "/dallas");
   all_vigets += viget + "\r\n";
 
-  ts.add(DS18B20, temp_update_int, [&](void*) {
+  ts.add(DALLAS, temp_update_int, [&](void*) {
 
     float temp = 0;
     static float temp_old;
     sensors.requestTemperatures();
     temp = sensors.getTempCByIndex(0);
-    jsonWrite(configJson, "ds_out", String(temp));
-
-#ifdef debug_mode_web_sokets
-    SoketData("module_ds18b20_s", String(temp), "1");
-#endif
+    jsonWrite(configJson, "dallas", String(temp));
 
     if (temp_old != temp) {
 
-      sendSTATUS("ds_out", String(temp));
+      String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+      jsonWrite(optionJson, "scenario_status", tmp + "dallas,");
+
+      sendSTATUS("dallas", String(temp));
       Serial.println("sensor ds18b20 send date " + String(temp));
 
     }
@@ -571,7 +405,9 @@ void dallas() {
   }, nullptr, true);
 }
 
-//=========================================Логирование============================================================
+//======================================================================================================================
+//===============================================Логирование============================================================
+
 void logging() {
 
   static boolean flag = true;
@@ -584,9 +420,9 @@ void logging() {
   String page_name = sCmd.next();
   String page_number = sCmd.next();
 
-  if (sensor_name == "analog") {
-    jsonWrite(optionJson, "analog_logging_count", maxCount);
-  }
+  if (sensor_name == "analog") jsonWrite(optionJson, "analog_logging_count", maxCount);
+  if (sensor_name == "level") jsonWrite(optionJson, "level_logging_count", maxCount);
+  if (sensor_name == "dallas") jsonWrite(optionJson, "dallas_logging_count", maxCount);
 
   static String viget;
 
@@ -598,46 +434,80 @@ void logging() {
   jsonWrite(viget, "page", page_name);
   jsonWrite(viget, "pageId", page_number);
   jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/loganalog");
+
+  if (sensor_name == "analog") jsonWrite(viget, "topic", prex + "/loganalog");
+  if (sensor_name == "level") jsonWrite(viget, "topic", prex + "/loglevel");
+  if (sensor_name == "dallas") jsonWrite(viget, "topic", prex + "/logdallas");
+
   all_vigets += viget + "\r\n";
 
   if (sensor_name == "analog") {
-    
     flagLoggingAnalog = true;
-    
     ts.remove(ANALOG_LOG);
-    
     ts.add(ANALOG_LOG, period_min.toInt() * 1000 * 60, [&](void*) {
+      deleteOldDate("log.analog.txt", jsonReadtoInt(optionJson, "analog_logging_count"), jsonRead(configJson, "analog"), false);
+    }, nullptr, true);
+  }
 
-      deleteOldDate("log.analog.txt", jsonReadtoInt(optionJson, "analog_logging_count"), jsonRead(configJson, "ana_out"));
+  if (sensor_name == "level") {
+    flagLoggingLevel = true;
+    ts.remove(LEVEL_LOG);
+    ts.add(LEVEL_LOG, period_min.toInt() * 1000 * 60, [&](void*) {
+      deleteOldDate("log.level.txt", jsonReadtoInt(optionJson, "level_logging_count"), jsonRead(configJson, "level"), false);
+    }, nullptr, true);
+  }
 
+  if (sensor_name == "dallas") {
+    flagLoggingDallas = true;
+    ts.remove(DALLAS_LOG);
+    ts.add(DALLAS_LOG, period_min.toInt() * 1000 * 60, [&](void*) {
+      deleteOldDate("log.dallas.txt", jsonReadtoInt(optionJson, "dallas_logging_count"), jsonRead(configJson, "dallas"), false);
     }, nullptr, true);
   }
 }
 
-void deleteOldDate(String file, int seted_number_of_lines, String date_to_add) {
+void deleteOldDate(String file, int seted_number_of_lines, String date_to_add, boolean date_time) {
 
-  String log_date = readFile(file, 2048);// + "\r\n"
+  String current_time;
+
+  if (date_time) {
+    current_time = GetDataDigital() + " " + GetTimeWOsec();
+    current_time.replace(".", "");
+    current_time.replace(":", "");
+  } else {
+    current_time = "";
+  }
+
+  String log_date = readFile(file, 5000);
+
+  //предел количества строк 255
 
   log_date.replace("\r\n", "\n");
   log_date.replace("\r", "\n");
+
   int current_number_of_lines = count(log_date, "\n");
+  Serial.println("->in log file " + file + " " + current_number_of_lines + " lines");
 
   if (current_number_of_lines > seted_number_of_lines + 1) {
     SPIFFS.remove("/" + file);
     current_number_of_lines = 0;
   }
-
+  if (current_number_of_lines == 0) {
+    SPIFFS.remove("/" + file);
+    current_number_of_lines = 0;
+  }
   if (current_number_of_lines > seted_number_of_lines) {
     log_date = deleteBeforeDelimiter(log_date, "\n");
-    log_date += GetDataDigital() + " " + GetTime() + " " +  date_to_add + "\n";
+    log_date += current_time + " " +  date_to_add + "\n";
     writeFile(file, log_date);
 
   } else {
-    addFile(file, GetDataDigital() + " " + GetTime() + " " +  date_to_add);
+    addFile(file, current_time + " " +  date_to_add);
   }
 }
-//=========================================Добавление окна ввода и переменной============================================================
+
+//=====================================================================================================================================
+//=========================================Добавление окна ввода переменной============================================================
 void input() {
 
   String name_ = sCmd.next();
@@ -711,17 +581,68 @@ void valueDownSet() {
   sendSTATUS("value" + number, val_str);
 }
 
+//=====================================================================================================================================
+//=========================================Добавление текстового виджета============================================================
+void text() {
+
+  String number = sCmd.next();
+  String viget_name = sCmd.next();
+  viget_name.replace("#", " ");
+  String page_name = sCmd.next();
+  String page_number = sCmd.next();
+
+  static boolean flag = true;
+  static String viget;
+  if (flag) {
+    viget = readFile("viget.alertsm.json", 1024);
+    flag = false;
+  }
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  if (viget_name != "nil") jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/textSet" + number);
+  all_vigets += viget + "\r\n";
+}
+
+
+void textSet() {
+
+  String number = sCmd.next();
+  String text = sCmd.next();
+  text.replace("_", " ");
+
+  if (text.indexOf("-time") >= 0) {
+    text.replace("-time", "");
+    String time = GetTime();
+    time.replace(":", ".");
+    text = GetDataDigital() + " " + time + " " + text;
+  }
+
+  if (text == "countdown-1") {
+
+  }
+  if (text == "countdown-2") {
+
+  }
+
+  jsonWrite(configJson, "textSet" + number, text);
+  sendSTATUS("textSet" + number, text);
+
+}
+
 //=================================================команды удаленного управления===========================================================
+
 void mqttOrderSend() {   //mqtt 9139530-1458400 rel#1#1
 
   String id = sCmd.next();
   String order = sCmd.next();
+
   String topik = selectFromMarkerToMarker(order, "#", 0) + selectFromMarkerToMarker(order, "#", 1);
   String state = selectFromMarkerToMarker(order, "#", 2);
 
   String  all_line = prefix + "/" + id + "/" + topik + "/control";
   int send_status = client.publish (all_line.c_str(), state.c_str(), false);
-
 }
 
 void httpOrderSend() {
@@ -731,122 +652,8 @@ void httpOrderSend() {
   order.replace("#", "%20");
   String url = "http://" + ip + "/cmd?command=" + order;
   getURL(url);
-
 }
 
-void json_Write() {
-
-  String file_name = sCmd.next();
-  String name_ = sCmd.next();
-  String msg = sCmd.next();
-
-  if (file_name == "configSetup") jsonWrite(configSetup, name_, msg);
-  if (file_name == "configJson") jsonWrite(configJson, name_, msg);
-  if (file_name == "optionJson") jsonWrite(optionJson, name_, msg);
-}
-
-
-
-//=========================================Сценарии для всех модулей============================================================
-
-void scenario_() {
-
-  String module_name = sCmd.next();
-  String sign = sCmd.next();
-  String value = sCmd.next();
-  String order_cmd = sCmd.next();
-  String type = sCmd.next();
-  calculateScenario(module_name, sign, value, order_cmd, type);
-
-}
-
-void calculateScenario(String module_name, String sign, String value, String order_cmd, String type) {
-
-  order_cmd.replace("_", " ");
-  static boolean flag_ana_1 = true;
-  static boolean flag_ana_2 = true;
-  int value_new;
-  String value_name;
-
-  if (module_name.indexOf("analog") >= 0) value_name = "ana_out";
-  if (module_name.indexOf("level") >= 0) value_name = "lev_out";
-  if (module_name.indexOf("dallas") >= 0) value_name = "ds_out";
-
-  if (sign == ">") {
-    if (value.indexOf("value") >= 0) {
-      String nubmer = value;
-      nubmer.replace("value", "");
-      value_new = jsonReadtoInt(configJson, "value" + nubmer);
-    } else {
-      value_new = value.toInt();
-    }
-    if (jsonReadtoInt(configJson, value_name) > value_new) {
-      if (type == "repeat-no") {
-        if (flag_ana_1) {
-          order_loop += order_cmd + ",";
-          flag_ana_1 = false;
-          flag_ana_2 = true;
-        }
-      } else {
-        order_loop += order_cmd + ",";
-      }
-    }
-  }
-  if (sign == "<") {
-    if (value.indexOf("value") >= 0) {
-      String nubmer = value;
-      nubmer.replace("value", "");
-      value_new = jsonReadtoInt(configJson, "value" + nubmer);
-    } else {
-      value_new = value.toInt();
-    }
-    if (jsonReadtoInt(configJson, value_name) < value_new) {
-      if (type == "repeat-no") {
-        if (flag_ana_2) {
-          order_loop += order_cmd + ",";
-          flag_ana_1 = true;
-          flag_ana_2 = false;
-        }
-      } else {
-        order_loop += order_cmd + ",";
-      }
-    }
-  }
-}
-/*
-  void scenarioEdit() {
-
-  String line_for_add = sCmd.next();
-  String type = sCmd.next();
-  line_for_add.replace("_", " ");
-
-  if (type == "add") {
-
-    addFile("scenario.all.txt", line_for_add);
-    Scenario_init();
-
-  }
-
-  if (type == "change") {
-
-    writeFile("scenario.all.txt", line_for_add);
-    Scenario_init();
-  }
-  }
-*/
-void scenarioSet() {
-
-  String type = sCmd.next();
-  String tmp;
-
-  if (type == "on") tmp = "1";
-  if (type == "off") tmp = "0";
-
-  jsonWrite(configSetup, "scenario", tmp);
-  saveConfig();
-  Scenario_init();
-
-}
 //=========================================Таймера=================================================================
 
 void timer() {
@@ -854,16 +661,13 @@ void timer() {
   String seted_time = sCmd.next();
   String order = sCmd.next();
   order.replace("_", " ");
-
   // Serial.println(seted_time);
-
   if (seted_time == current_time) {
 
     order_loop += order + ",";
 
   }
 }
-
 
 void timerStart() {
 
@@ -879,7 +683,7 @@ void timerStart() {
   jsonWrite(optionJson, "timerDate" + number, order + " " + period_of_time + " " + type);
 
   if (number == "1") {
-    ts.add(11, 1000, [&](void*) {
+    ts.add(21, 1000, [&](void*) {
       static String timerDate;
       static String order;
       static String period_of_time;
@@ -889,7 +693,7 @@ void timerStart() {
       if (flagTimer1) {
         timerDate = jsonRead(optionJson, "timerDate1");
         order = selectFromMarkerToMarker(timerDate, " ", 0);
-        order.replace("#", " ");
+        order.replace("_", " ");
         period_of_time = selectFromMarkerToMarker(timerDate, " ", 1);
         period_of_time_int = period_of_time.toInt();
         type = selectFromMarkerToMarker(timerDate, " ", 2);
@@ -899,16 +703,17 @@ void timerStart() {
       flagTimer1 = false;
       period_of_time_int--;
       Serial.println(period_of_time_int);
+      jsonWrite(optionJson, "period1", period_of_time_int);
       if (period_of_time_int <= 0) {
         order_loop += order + ",";
         Serial.println("done1");
-        ts.remove(11);
+        ts.remove(21);
       }
     }, nullptr, true);
   }
 
   if (number == "2") {
-    ts.add(12, 1000, [&](void*) {
+    ts.add(22, 1000, [&](void*) {
       static String timerDate;
       static String order;
       static String period_of_time;
@@ -918,7 +723,7 @@ void timerStart() {
       if (flagTimer2) {
         timerDate = jsonRead(optionJson, "timerDate2");
         order = selectFromMarkerToMarker(timerDate, " ", 0);
-        order.replace("#", " ");
+        order.replace("_", " ");
         period_of_time = selectFromMarkerToMarker(timerDate, " ", 1);
         period_of_time_int = period_of_time.toInt();
         type = selectFromMarkerToMarker(timerDate, " ", 2);
@@ -928,10 +733,11 @@ void timerStart() {
       flagTimer2 = false;
       period_of_time_int--;
       Serial.println(period_of_time_int);
+      jsonWrite(optionJson, "period2", period_of_time_int);
       if (period_of_time_int <= 0) {
         order_loop += order + ",";
         Serial.println("done2");
-        ts.remove(12);
+        ts.remove(22);
       }
     }, nullptr, true);
   }
@@ -940,23 +746,10 @@ void timerStart() {
 void timerStop() {
 
   String number = sCmd.next();
-  ts.remove(number.toInt() + 10);
+  ts.remove(number.toInt() + 20);
 
 }
 
-void timerSet() {
-
-  String type = sCmd.next();
-  String tmp;
-
-  if (type == "on") tmp = "1";
-  if (type == "off") tmp = "0";
-
-  jsonWrite(configSetup, "timers", tmp);
-  saveConfig();
-  Timers_init();
-
-}
 
 //======================выполнение команд (в лупе) по очереди из строки order=======================================
 void handleCMD_loop() {

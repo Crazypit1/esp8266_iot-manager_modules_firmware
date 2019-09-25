@@ -43,7 +43,7 @@
 		{
 			"type": "link",
 			"title": "Конфигурация push",
-			"action": "/page.htm?push",
+			"action": "/page.htm?pushingbox",
 			"class": "btn btn-block btn-success"
 		},
 		{
