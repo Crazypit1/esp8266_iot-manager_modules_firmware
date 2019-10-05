@@ -1,8 +1,10 @@
-scenario analog > 10 buttonSet_1_1 repeat-no
-scenario analog < 10 buttonSet_1_0 repeat-no
-//scenario analog > value1 buttonSet_1_1 repeat-no
-//scenario analog < value1 buttonSet_1_0 repeat-no
-//scenario analog > 20 http_192.168.88.11_buttonSet#1#1 repeat-no
-//scenario analog < 20 http_192.168.88.11_buttonSet#1#0 repeat-no
-//scenario analog > 20 mqtt_2768820-1458190_buttonSet#1#1 repeat-yes
-//scenario analog < 20 mqtt_2768820-1458190_buttonSet#1#0 repeat-yes
+switch1 = 1
+timerStart 1 20 sec
+timerStart 2 30 sec
+end
+timer1 = 0
+buttonSet 1 1
+end
+timer2 = 0
+buttonSet 1 0
+end

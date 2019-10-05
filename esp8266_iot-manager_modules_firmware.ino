@@ -21,7 +21,7 @@ void setup() {
   HTTP_init();
   Serial.println("HTTP_init");
   //--------------------------------------------------------------
-  buttons_init();
+  All_init();
   Serial.println("buttons_init");
   //--------------------------------------------------------------
   WIFI_init();
@@ -47,34 +47,6 @@ void setup() {
   addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
 #endif
 
-  order_timer = "1:60,2:120,3:200,";
-
-  ts.add(TEST, 1000, [&](void*) {
-
-    while (order_timer.length() != 0) {
-
-      String tmp = selectToMarker (order_timer, ",");
-
-      int num = selectFromMarkerToMarker(tmp, ":" , 0).toInt();
-      int sec = selectFromMarkerToMarker(tmp, ":" , 1).toInt();
-      sec--;
-      
-      order_timer_new += num;
-      order_timer_new += ":";
-      order_timer_new += sec;
-      order_timer_new += ",";
-      if (sec <= 0) order_timer_new = "";
-
-      order_timer = deleteBeforeDelimiter(order_timer, ",");
-      //Serial.println(order_timer);
-    }
-
-    order_timer = order_timer_new;
-    order_timer_new = "";
-    Serial.println(order_timer);
-
-  }, nullptr, true);
-
 }
 
 
@@ -87,10 +59,8 @@ void loop()
   handleMQTT();
   handleCMD_loop();
   handleButton();
-
+  
   handleScenario();
-
-  //Serial.println(GetTime());
 
   ts.update();
 }

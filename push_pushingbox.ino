@@ -3,7 +3,7 @@ void Push_init() {
   HTTP.on("/pushingboxDate", HTTP_GET, []() {
 
     String pushingbox_id = HTTP.arg("pushingbox_id");
-       
+
     jsonWrite(configSetup, "pushingbox_id", pushingbox_id);
 
     saveConfig();
@@ -18,6 +18,8 @@ void pushControl() {
   title.replace("#", " ");
   String body = sCmd.next();
   body.replace("#", " ");
+
+  static String body_old;
 
   const char* logServer = "api.pushingbox.com";
   String deviceId = jsonRead(configSetup, "pushingbox_id");

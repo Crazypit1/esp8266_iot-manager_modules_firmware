@@ -75,7 +75,7 @@ GMedian testFilter;
 //#define push_pushbullet
 //#define push_onesignal
 //---------------------------------------------------------
-#define date_logging
+//#define date_logging
 
 
 
@@ -93,8 +93,8 @@ int port = 80;
 
 String order_loop;
 String order_ticker;
-String order_timer;
-String order_timer_new;
+String order_timer = "";
+
 
 String current_time;
 
@@ -110,3 +110,5 @@ boolean flagTimer2;
 boolean flagLoggingAnalog = false;
 boolean flagLoggingLevel = false;
 boolean flagLoggingDallas = false;
+
+boolean by_button;
