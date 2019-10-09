@@ -146,7 +146,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   //Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
   //if (str == "work") outcoming_date();     //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
-                                             //превращает название топика в команду, а значение в параметр команды
+  //превращает название топика в команду, а значение в параметр команды
   if (topic_str.indexOf("control") > 0) {                        //IoTmanager/800324-1458415/RelaySet1/control 1   /IoTmanager/9139530-1458400/RelaySet1/control -> 1
     //Serial.println(topic_str);
     String topic = selectFromMarkerToMarker(topic_str, "/", 3);  //RelaySet1
@@ -166,9 +166,12 @@ void outcoming_date() {
 
   sendAllWigets();
   sendAllData();
+  
   if (flagLoggingAnalog) sendLogData("log.analog.txt", "loganalog");
+  if (flagLoggingPh) sendLogData("log.ph.txt", "logph");
   if (flagLoggingDallas) sendLogData("log.dallas.txt", "logdallas");
   if (flagLoggingLevel) sendLogData("log.level.txt", "loglevel");
+
   Serial.println("->Sending all date to iot manager completed");
 
   busy = false;
@@ -279,12 +282,12 @@ void sendAllData() {   //берет строку json и ключи превра
 
   while (current_config.length() != 0) {
 
-    String tmp = selectToMarker (current_config, ",");      
-    String topic =  selectToMarker (tmp, ":");              
-    topic.replace("\"", "");                                
+    String tmp = selectToMarker (current_config, ",");
+    String topic =  selectToMarker (tmp, ":");
+    topic.replace("\"", "");
 
-    String state =  selectToMarkerLast (tmp, ":");          
-    state.replace("\"", "");                                
+    String state =  selectToMarkerLast (tmp, ":");
+    state.replace("\"", "");
     if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
       sendSTATUS(topic, state);
       //Serial.println("-->" + topic);

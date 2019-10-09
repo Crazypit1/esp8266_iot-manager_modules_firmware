@@ -48,6 +48,10 @@ void timerStart() {
   String period_of_time = sCmd.next();
   String type = sCmd.next();
 
+  if (period_of_time.indexOf("value") != -1) {
+    period_of_time = jsonRead(configJson, period_of_time);
+  }
+
   if (type == "sec") period_of_time = period_of_time;
   if (type == "min") period_of_time = String(period_of_time.toInt() * 60);
   if (type == "hours") period_of_time = String(period_of_time.toInt() * 60 * 60);
@@ -66,14 +70,9 @@ void addTimer(String number, String time) {
     int psn2 = tmp.indexOf(",", psn1);           //4    от этой позиции находим позицию запятой
 
     String timer = tmp.substring(psn1, psn2);    //1:60  выделяем таймер который надо заменить
-    //Serial.print(timer);
-    //Serial.print("=>");
-    //Serial.println(new_timer);
-    ///tmp.replace(timer, new_timer);               //заменяем таймер на новый (во всей стороке)
+    ///tmp.replace(timer, new_timer);            //заменяем таймер на новый (во всей стороке)
     tmp.replace(timer + ",", "");
     tmp += new_timer + ",";
-    //Serial.print("=>");
-    // Serial.println(tmp);
 
   } else {                                       //если его нет
     tmp += new_timer + ",";
@@ -118,15 +117,14 @@ int readTimer(int number) {
   return timer.toInt();
 }
 
-void timer() {
+/*void timer() {
 
   String seted_time = sCmd.next();
   String order = sCmd.next();
   order.replace("_", " ");
-  // Serial.println(seted_time);
   if (seted_time == current_time) {
 
     order_loop += order + ",";
 
   }
-}
+}*/

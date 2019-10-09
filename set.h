@@ -26,7 +26,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 //---------------------------------------------------------
 #include <TickerScheduler.h>
 TickerScheduler ts(30);
-enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, DALLAS, ANALOG_LOG, LEVEL_LOG, DALLAS_LOG, CMD, TIMERS , TEST};
+enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, PH, DALLAS, ANALOG_LOG, LEVEL_LOG, DALLAS_LOG, PH_LOG, CMD, TIMERS , TEST};
 //---------------------------------------------------------
 //#include <WebSocketsServer.h>
 //WebSocketsServer webSocket = WebSocketsServer(81);
@@ -53,7 +53,7 @@ boolean but[NUM_BUTTONS];
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 //---------------------------------------------------------
 #include "GyverFilters.h" //настраивается в GyverHacks.h - MEDIAN_FILTER_SIZE
-GMedian testFilter;
+GMedian medianFilter;
 //---------------------------------------------------------
 #define led_status
 //---------------------------------------------------------
@@ -63,9 +63,12 @@ GMedian testFilter;
 //---------------------------------------------------------
 #define scenario_update_int 5000
 //---------------------------------------------------------
-#define CMD_update_int 3000   
+#define CMD_update_int 3000
 //---------------------------------------------------------
 #define analog_update_int 5000
+//---------------------------------------------------------
+#define ph_shooting_interval 500 //интервал выстрела датчика
+#define ph_times_to_send 10      //после скольки выстрелов делать отправку данных
 //---------------------------------------------------------
 #define temp_update_int 5000
 //---------------------------------------------------------
@@ -95,7 +98,6 @@ String order_loop;
 String order_ticker;
 String order_timer = "";
 
-
 String current_time;
 
 String all_vigets = "";
@@ -104,11 +106,11 @@ String timers;
 
 boolean busy;
 
-boolean flagTimer1;
-boolean flagTimer2;
-
 boolean flagLoggingAnalog = false;
 boolean flagLoggingLevel = false;
 boolean flagLoggingDallas = false;
+boolean flagLoggingPh = false;
 
 boolean by_button;
+
+int scenario_line_status [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};

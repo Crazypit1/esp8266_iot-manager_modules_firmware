@@ -13,7 +13,7 @@ void handleScenario() {
         if (tmp == "") return;
         i++;
 
-      //  if (i != 1) {
+        if (scenario_line_status[i] == 1) {
           //Serial.println(i);
           String condition = selectToMarker (tmp, "\n");                        //выделяем первую строку самого сценария  button1 = 1
           String param_name = selectFromMarkerToMarker(condition, " " , 0);     //из первой страки берем имя параметра  button1
@@ -59,7 +59,7 @@ void handleScenario() {
               stringExecution(tmp);                                                   //выполняем все команды
             }
           }
-       // }
+        }
         str = deleteBeforeDelimiter(str, "end\n");                                     //удаляем первый сценарий
         //-----------------------------------------------------------------------------------------------------------------------
       }

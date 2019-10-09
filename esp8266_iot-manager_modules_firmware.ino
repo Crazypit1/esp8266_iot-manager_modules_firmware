@@ -2,7 +2,7 @@
 
 void setup() {
 
-  chipID = String( ESP.getChipId() ) + "-" + String( ESP.getFlashChipId() );
+  chipID = String( ESP.getChipId() ) + "-" + String( ESP.getFlashChipId());
   prex = prefix + "/" + chipID;
 
   Serial.begin(115200);

@@ -1,17 +1,17 @@
-button 1 12 Спальня Освещение 0 1
+button 1 na Включить#все Освещение 0 1
 button 2 13 Прихожая Освещение 0 2
-input value1 1.0 1 Минуты Таймер 3
-button 4 na Кнопка1 Таймер 0 6 on: timerStart_1_value1_60_buttonSet#4#0 off: timerStop_1
-button 5 na Кнопка2 Таймер 0 7 on: timerStart_2_10_1_buttonSet#5#0 off: timerStop_2
-button 6 na Сценарии Настройки 0 8 on: scenarioSet_on off: scenarioSet_off
-button 7 na Таймеры Настройки 0 9 on: timerSet_on off: timerSet_off
-//button 3 14 Кухня Освещение 1 10
-pwm 1 3 Яркость#коредор: Освещение 1023 11
-pwm 2 4 Яркость#ванная: Освещение 510 12
-//pwm 3 5 Яркость#туалет: Освещение 510 13
-switch 1 0 20 on: time+закрыто off: time+открыто Гостинная Двери 14
-switch 2 0 20 on: time+закрыто off: time+открыто Спальня Двери 15
-analog Влажность#пола,#%-text Сенсоры 2 856 0 100 16
-logging analog 1 15 график Сенсоры 17
-//level Вода#в#баке,#%-gauge Сенсоры 125 20 18
-//dallas 2 Спальня,#t°C-text Сенсоры 19
+button 3 14 Кухня Освещение 0 3
+pwm 1 3 Яркость#коредор: Освещение 1023 4
+pwm 2 4 Яркость#ванная: Освещение 510 5
+analog Аналоговый#вход,#%-text Датчики 1 1024 1 1024 6
+logging analog 1 144 график Датчики 7
+input value1 20.0 5 порог.#значение Датчики 8
+button 4 na Вкл#по#analog>20 Датчики 0 11
+//dallas 2 Водонагреватель,#t°C-text Датчики 8
+//level Вода#в#баке,#%-gauge Датчики 125 20 9
+input value2 8.0 1 период#сек Таймер 12
+button 5 na Вкл#обратный#таймер Таймер 0 15
+button 6 5 Включится#по#таймеру Таймер 0 16
+switch 1 0 20
+text 1 Квартира Двери 17
+button 7 scenario Сценарии Настройки 1 18

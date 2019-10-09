@@ -9,6 +9,7 @@ void CMD_init() {
   sCmd.addCommand("switch",  switch_);
 
   sCmd.addCommand("analog",  analog);
+  sCmd.addCommand("ph",  ph);
   sCmd.addCommand("level",  level);
   sCmd.addCommand("dallas",  dallas);
 
@@ -21,7 +22,8 @@ void CMD_init() {
   sCmd.addCommand("text",  text);
   sCmd.addCommand("textSet",  textSet);
 
-  sCmd.addCommand("timer",  timer);
+  sCmd.addCommand("time",  time);
+  // sCmd.addCommand("timeSet",  timeSet);
 
   sCmd.addCommand("timerStart",  timerStart);
   sCmd.addCommand("timerStop",  timerStop);
@@ -46,7 +48,7 @@ void button() {
   String start_state = sCmd.next();
   String page_number = sCmd.next();
 
-  if (button_pin != "na"  || button_pin != "scenario") {
+  if (button_pin != "na"  || button_pin != "scenario" || button_pin.indexOf("line") != -1) {
     pinMode(button_pin.toInt(), OUTPUT);
     digitalWrite(button_pin.toInt(), start_state.toInt());
     uint8_t button_pin_int = button_pin.toInt();
@@ -60,6 +62,24 @@ void button() {
     jsonWrite(configSetup, "scenario", start_state);
     Scenario_init();
     saveConfig();
+  }
+
+  if  (button_pin.indexOf("line") != -1) {
+
+    String str = button_pin;
+
+
+    while (str.length() != 0) {
+      String tmp = selectToMarker (str, ",");  //line1,
+
+      String number = deleteBeforeDelimiter(tmp, "e");   //1,
+      number.replace(",", "");
+      Serial.println(number);
+      int number_int = number.toInt();
+      scenario_line_status[number_int] = start_state.toInt();
+
+      str = deleteBeforeDelimiter(str, ",");
+    }
   }
 
   static String viget;
@@ -82,13 +102,30 @@ void buttonSet() {
   String button_state = sCmd.next();
   String button_pin = jsonRead(optionJson, "button_pin" + button_number);
 
-  if (button_pin != "na" || button_pin != "scenario") {
+  if (button_pin != "na" || button_pin != "scenario" || button_pin.indexOf("line") != -1) {
     digitalWrite(button_pin.toInt(), button_state.toInt());
   }
   if  (button_pin == "scenario") {
     jsonWrite(configSetup, "scenario", button_state);
     Scenario_init();
     saveConfig();
+  }
+
+  if  (button_pin.indexOf("line") != -1) {
+
+    String str = button_pin;
+
+    while (str.length() != 0) {
+      String tmp = selectToMarker (str, ",");  //line1,
+
+      String number = deleteBeforeDelimiter(tmp, "e");   //1,
+      number.replace(",", "");
+      Serial.println(number);
+      int number_int = number.toInt();
+      scenario_line_status[number_int] = button_state.toInt();
+
+      str = deleteBeforeDelimiter(str, ",");
+    }
   }
 
   eventGen ("buttonSet", button_number);
@@ -182,8 +219,6 @@ void handleButton()  {
   if (switch_number == NUM_BUTTONS) switch_number = 0;
 }
 
-
-
 //=====================================================================================================================================
 //=========================================Добавление окна ввода переменной============================================================
 void input() {
@@ -195,6 +230,15 @@ void input() {
   String value_name = sCmd.next();
   String page_name = sCmd.next();
   String page_number = sCmd.next();
+
+  int psn1 = start_value.indexOf(".");  //ищем позицию запятой
+
+  int digits = 0;
+
+  if (psn1 != -1) {                     //если она есть
+    String last_part = deleteBeforeDelimiter(start_value, ".");
+    digits = last_part.length() + 1;
+  }
 
   static boolean flag1 = true;
   static String viget1;
@@ -226,6 +270,9 @@ void input() {
   jsonWrite(configJson, name_, jsonRead(configSetup, name_));
 
   jsonWrite(configJson, name_ + "step", step_);
+  jsonWrite(configJson, name_ + "digits", digits);
+
+
   all_vigets += viget2 + "\r\n";
 
   static boolean flag3 = true;
@@ -245,9 +292,10 @@ void valueUpSet() {
   String number = sCmd.next();
   float val = jsonRead(configJson, "value" + number).toFloat();
   float step_ = jsonRead(configJson, "value" + number + "step").toFloat();
+  int digits = jsonRead(configJson, "value" + number + "digits").toInt();
   val = val + step_;
   String val_str = String(val);
-  val_str = selectToMarkerPlus (val_str, ".", 2);
+  val_str = selectToMarkerPlus (val_str, ".", digits);
   jsonWrite(configJson, "value" + number, val_str);
   jsonWrite(configSetup, "value" + number, val_str);
   saveConfig();
@@ -258,9 +306,10 @@ void valueDownSet() {
   String number = sCmd.next();
   float val = jsonRead(configJson, "value" + number).toFloat();
   float step_ = jsonRead(configJson, "value" + number + "step").toFloat();
+  int digits = jsonRead(configJson, "value" + number + "digits").toInt();
   val = val - step_;
   String val_str = String(val);
-  val_str = selectToMarkerPlus (val_str, ".", 2);
+  val_str = selectToMarkerPlus (val_str, ".", digits);
   jsonWrite(configJson, "value" + number, val_str);
   jsonWrite(configSetup, "value" + number, val_str);
   saveConfig();
@@ -361,7 +410,7 @@ void handleCMD_loop() {
       }
     }
   }, nullptr, true);
-}*/
+  }*/
 
 
 

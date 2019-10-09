@@ -3,7 +3,7 @@
 
   "/config.live.json",
   "/config.setup.json",
-"/config.option.json"
+  "/config.option.json"
  ],
  "class":"col-sm-offset-1 col-sm-10",
  "content": [
@@ -20,11 +20,9 @@
    "type": "h4",
    "title": "IP address: {{ip}}"
   },
-
  {
    "type": "hr"
   },
-
 {
    "type": "h2",
    "title": "Конфигурация устройства"
@@ -32,7 +30,7 @@
  {
    "type":"file",
    "state":"config.all.txt",
-   "style":"width:100%;height:250px",
+   "style":"width:100%;height:400px",
    "title": "Сохранить",
    "action": "/all_modules_init",
    "class":"btn btn-block btn-success"
@@ -56,37 +54,14 @@
 },
 {
    "type": "h6",
-   "title": "SCENARIO | Название сенсора | Знак > или < | Значение или переменная val1 val2 | команда которую надо выполнить | repeat-no/yes жесткая привязка повтором"
+   "title": ""
   },
 {
    "type":"file",
    "state":"scenario.all.txt",
-   "style":"width:100%;height:500px",
+   "style":"width:100%;height:400px",
    "title": "Сохранить и включить",
    "action": "/scenario?status=1",
-   "class":"btn btn-block btn-success"
-  },
-{
-   "type": "h2",
-   "title": "Таймеры"
-  },
-{
-"type": "checkbox",
-"name":"timers",
-"title": "Включить таймеры",
-"action": "/timers?status=[[timers]]",
-"state": "{{timers}}"
-},
-{
-   "type": "h6",
-   "title": "TIMER / Время / Команда которая выполнится в это время"
-  },
-{
-   "type":"file",
-   "state":"timers.all.txt",
-   "style":"width:100%;height:250px",
-   "title": "Сохранить и включить",
-   "action": "/timers?status=1",
    "class":"btn btn-block btn-success"
   },
 {
@@ -104,11 +79,11 @@
 
  {
    "type": "h6",
-   "title": "Расстояние от датчика до воды: {{lev_in}} см"
+   "title": "Расстояние от датчика до воды: {{level_in}} см"
   },
 {
    "type": "h6",
-   "title": " Заполнение бака: {{lev_out}} %"
+   "title": " Заполнение бака: {{level}} %"
   },
 {
    "type": "hr"
@@ -120,23 +95,35 @@
   },
 {
    "type": "h6",
-   "title": "Прочитанное значение: {{ana_in}}"
+   "title": "Прочитанное значение: {{analog_in}}"
   },
 {
    "type": "h6",
-   "title": "Преобразованное значение: {{ana_out}}"
+   "title": "Преобразованное значение: {{analog}}"
   },
  {
    "type": "hr"
  },
 {
    "type": "h4",
-   "title": "Модуль температурного датчика dallas",
+   "title": "Модуль температурного датчика (dallas)",
 "style": "width:100%"
   },
 {
    "type": "h6",
-   "title": "Текущее значение: {{ds_out}} °C"
+   "title": "Текущее значение: {{dallas}} °C"
+  },
+{
+   "type": "hr"
+ },
+{
+   "type": "h4",
+   "title": "Модуль pH сенсора от df robot (ph)",
+"style": "width:100%"
+  },
+{
+   "type": "h6",
+   "title": "Текущее значение: {{ph}}"
   },
 {
    "type": "hr"
