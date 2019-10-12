@@ -12,7 +12,7 @@
       "widgetConfig": {
         "fill": "#F5F5F5",
         "fillPressed": "#4169E1",
-        "title": "+",
+        "title": "-",
        "delay":500
       }
       }

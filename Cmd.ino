@@ -35,95 +35,76 @@ void CMD_init() {
   //handleCMD_ticker();
 }
 
+
 //==========================================================================================================
 //==========================================Модуль кнопок===================================================
 void button() {
 
-  static boolean flag = true;
   String button_number = sCmd.next();
-  String button_pin = sCmd.next();
+  String button_param = sCmd.next();
   String viget_name = sCmd.next();
-  viget_name.replace("#", " ");
   String page_name = sCmd.next();
   String start_state = sCmd.next();
   String page_number = sCmd.next();
 
-  if (button_pin != "na"  || button_pin != "scenario" || button_pin.indexOf("line") != -1) {
-    pinMode(button_pin.toInt(), OUTPUT);
-    digitalWrite(button_pin.toInt(), start_state.toInt());
-    uint8_t button_pin_int = button_pin.toInt();
-  }
-
-
-  jsonWrite(optionJson, "button_pin" + button_number, button_pin);
+  jsonWrite(optionJson, "button_param" + button_number, button_param);
   jsonWrite(configJson, "buttonSet" + button_number, start_state);
 
-  if  (button_pin == "scenario") {
+  if (button_param != "na"  || button_param != "scenario" || button_param.indexOf("line") != -1) {
+    pinMode(button_param.toInt(), OUTPUT);
+    digitalWrite(button_param.toInt(), start_state.toInt());
+  }
+
+  if  (button_param == "scenario") {
     jsonWrite(configSetup, "scenario", start_state);
     Scenario_init();
     saveConfig();
   }
 
-  if  (button_pin.indexOf("line") != -1) {
-
-    String str = button_pin;
-
-
+  if  (button_param.indexOf("line") != -1) {
+    String str = button_param;
     while (str.length() != 0) {
+      if (str == "") return;
       String tmp = selectToMarker (str, ",");  //line1,
-
       String number = deleteBeforeDelimiter(tmp, "e");   //1,
       number.replace(",", "");
       Serial.println(number);
       int number_int = number.toInt();
       scenario_line_status[number_int] = start_state.toInt();
-
       str = deleteBeforeDelimiter(str, ",");
     }
   }
 
-  static String viget;
 
-  if (flag) {
-    viget = readFile("viget.toggle.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/buttonSet" + button_number);
-  all_vigets += viget + "\r\n";
+  createViget (viget_name, page_name, page_number, "viget.toggle.json", "buttonSet" + button_number);
 }
 
 void buttonSet() {
 
   String button_number = sCmd.next();
   String button_state = sCmd.next();
-  String button_pin = jsonRead(optionJson, "button_pin" + button_number);
+  String button_param = jsonRead(optionJson, "button_param" + button_number);
 
-  if (button_pin != "na" || button_pin != "scenario" || button_pin.indexOf("line") != -1) {
-    digitalWrite(button_pin.toInt(), button_state.toInt());
+  if (button_param != "na" || button_param != "scenario" || button_param.indexOf("line") != -1) {
+    digitalWrite(button_param.toInt(), button_state.toInt());
   }
-  if  (button_pin == "scenario") {
+
+  if  (button_param == "scenario") {
     jsonWrite(configSetup, "scenario", button_state);
     Scenario_init();
     saveConfig();
   }
 
-  if  (button_pin.indexOf("line") != -1) {
-
-    String str = button_pin;
-
+  if  (button_param.indexOf("line") != -1) {
+    String str = button_param;
     while (str.length() != 0) {
+      if (str == "") return;
       String tmp = selectToMarker (str, ",");  //line1,
-
       String number = deleteBeforeDelimiter(tmp, "e");   //1,
       number.replace(",", "");
       Serial.println(number);
       int number_int = number.toInt();
       scenario_line_status[number_int] = button_state.toInt();
-
       str = deleteBeforeDelimiter(str, ",");
     }
   }
@@ -154,17 +135,7 @@ void pwm() {
   analogWrite(pwm_pin_int, start_state.toInt());
   jsonWrite(configJson, "pwmSet" + pwm_number, start_state);
 
-  static String viget;
-  if (flag) {
-    viget = readFile("viget.range.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/pwmSet" + pwm_number);
-  all_vigets += viget + "\r\n";
+  createViget (viget_name, page_name, page_number, "viget.range.json", "pwmSet" + pwm_number);
 }
 
 void pwmSet() {
@@ -192,8 +163,6 @@ void switch_ () {
   buttons[switch_number.toInt()].attach(switch_pin.toInt());
   buttons[switch_number.toInt()].interval(switch_delay.toInt());
   but[switch_number.toInt()] = true;
-
-
 }
 
 void handleButton()  {
@@ -231,61 +200,23 @@ void input() {
   String page_name = sCmd.next();
   String page_number = sCmd.next();
 
-  int psn1 = start_value.indexOf(".");  //ищем позицию запятой
-
+  int psn1 = start_value.indexOf(".");                         //ищем позицию запятой
   int digits = 0;
-
-  if (psn1 != -1) {                     //если она есть
+  if (psn1 != -1) {                                            //если она есть
     String last_part = deleteBeforeDelimiter(start_value, ".");
     digits = last_part.length() + 1;
   }
 
-  static boolean flag1 = true;
-  static String viget1;
-  if (flag1) {
-    viget1 = readFile("viget.buttondown.json", 1024);
-    flag1 = false;
-  }
-  jsonWrite(viget1, "page", page_name);
-  jsonWrite(viget1, "pageId", page_number);
-  jsonWrite(viget1, "topic", prex + "/valueDownSet" + number);
-  all_vigets += viget1 + "\r\n";
+  createViget ("", page_name, page_number, "viget.button.json", "valueDownSet" + number, "title", "-");
+  createViget (value_name, page_name, String(page_number.toInt() + 1), "viget.alertbg.json", name_);
+  createViget ("", page_name, String(page_number.toInt() + 2), "viget.button.json", "valueUpSet" + number , "title", "+");
 
-  static boolean flag2 = true;
-  static String viget2;
-  if (flag2) {
-    viget2 = readFile("viget.alertbg.json", 1024);
-    flag2 = false;
-  }
-  jsonWrite(viget2, "page", page_name);
-  page_number = String(page_number.toInt() + 1);
-  jsonWrite(viget2, "pageId", page_number);
-  value_name.replace("#", " ");
-  if (value_name != "nil") jsonWrite(viget2, "descr", value_name);
-  jsonWrite(viget2, "topic", prex + "/" + name_);
+  //jsonWrite(valuesJson, name_, start_value);
+  //saveValues ();
   sendSTATUS(name_, start_value);
-
-  if (by_button) jsonWrite(configSetup, name_, start_value);
-
-  jsonWrite(configJson, name_, jsonRead(configSetup, name_));
 
   jsonWrite(configJson, name_ + "step", step_);
   jsonWrite(configJson, name_ + "digits", digits);
-
-
-  all_vigets += viget2 + "\r\n";
-
-  static boolean flag3 = true;
-  static String viget3;
-  if (flag3) {
-    viget3 = readFile("viget.buttonup.json", 1024);
-    flag3 = false;
-  }
-  jsonWrite(viget3, "page", page_name);
-  page_number = String(page_number.toInt() + 1);
-  jsonWrite(viget3, "pageId", page_number);
-  jsonWrite(viget3, "topic", prex + "/valueUpSet" + number);
-  all_vigets += viget3 + "\r\n";
 }
 
 void valueUpSet() {
@@ -297,8 +228,8 @@ void valueUpSet() {
   String val_str = String(val);
   val_str = selectToMarkerPlus (val_str, ".", digits);
   jsonWrite(configJson, "value" + number, val_str);
-  jsonWrite(configSetup, "value" + number, val_str);
-  saveConfig();
+  //jsonWrite(valuesJson, "value" + number, val_str);
+  //saveValues ();
   sendSTATUS("value" + number, val_str);
 }
 
@@ -311,8 +242,8 @@ void valueDownSet() {
   String val_str = String(val);
   val_str = selectToMarkerPlus (val_str, ".", digits);
   jsonWrite(configJson, "value" + number, val_str);
-  jsonWrite(configSetup, "value" + number, val_str);
-  saveConfig();
+  //jsonWrite(valuesJson, "value" + number, val_str);
+  //saveValues ();
   sendSTATUS("value" + number, val_str);
 }
 
@@ -322,22 +253,10 @@ void text() {
 
   String number = sCmd.next();
   String viget_name = sCmd.next();
-  viget_name.replace("#", " ");
   String page_name = sCmd.next();
   String page_number = sCmd.next();
 
-  static boolean flag = true;
-  static String viget;
-  if (flag) {
-    viget = readFile("viget.alertsm.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  if (viget_name != "nil") jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/textSet" + number);
-  all_vigets += viget + "\r\n";
+  createViget (viget_name, page_name, page_number, "viget.alertsm.json", "textSet" + number);
 }
 
 
@@ -360,7 +279,7 @@ void textSet() {
 
 //=================================================Глобальные команды удаленного управления===========================================================
 
-void mqttOrderSend() {   //mqtt 9139530-1458400 rel#1#1
+void mqttOrderSend() {   //mqtt 9139530-1458400 timerStart 1 value2 sec
 
   String id = sCmd.next();
   String order = sCmd.next();
@@ -447,7 +366,94 @@ void stringExecution(String str) {
   }
 }
 
+//======================================================================================================================
+//===============================================Создание виджетов=======================================================
 
+void createViget (String viget_name, String  page_name, String page_number, String file, String topic) {
+
+  String viget;
+  viget = readFile(file, 1024);
+
+  if (viget == "Failed") return;
+  if (viget == "Large") return;
+
+  viget_name.replace("#", " ");
+  page_name.replace("#", " ");
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/" + topic);
+  all_vigets += viget + "\r\n";
+  viget = "";
+}
+void createViget (String viget_name, String  page_name, String page_number, String file, String topic, String key, String value) {
+
+  String viget;
+  viget = readFile(file, 1024);
+
+  if (viget == "Failed") return;
+  if (viget == "Large") return;
+
+  viget_name.replace("#", " ");
+  page_name.replace("#", " ");
+
+  value.replace("#", " ");
+
+  viget = vidgetConfigWrite(viget, key, value);
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/" + topic);
+
+  all_vigets += viget + "\r\n";
+  viget = "";
+}
+
+void createViget (String viget_name, String  page_name, String page_number, String file, String topic, String key, String value, String key2, String value2) {
+
+  String viget;
+  viget = readFile(file, 1024);
+
+  if (viget == "Failed") return;
+  if (viget == "Large") return;
+
+  viget_name.replace("#", " ");
+  page_name.replace("#", " ");
+
+  value.replace("#", " ");
+
+  viget = vidgetConfigWrite(viget, key, value);
+  viget = vidgetConfigWrite(viget, key2, value2);
+
+  jsonWrite(viget, "page", page_name);
+  jsonWrite(viget, "pageId", page_number);
+  jsonWrite(viget, "descr", viget_name);
+  jsonWrite(viget, "topic", prex + "/" + topic);
+
+  all_vigets += viget + "\r\n";
+  viget = "";
+}
+
+String vidgetConfigWrite(String viget, String key, String value) {
+
+  if (viget == "") return "";
+  if (viget == "{}") return "";
+  int psn1 = viget.indexOf("{");
+  if (psn1 != -1) {
+    psn1 = viget.indexOf("{", psn1 + 1);
+    if (psn1 != -1) {
+      int psn2 = viget.indexOf("}", psn1);
+      String WigetConfig = viget.substring(psn1, psn2) + "}";
+      jsonWrite(WigetConfig, key, value);
+      String part1 = viget.substring(0, psn1);
+      viget = part1 + WigetConfig + "}";
+      return viget;
+
+    }
+  }
+}
 
 
 

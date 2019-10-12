@@ -46,6 +46,9 @@ String jsonWrite(String &json, String name, float volume) {
 void saveConfig () {
   writeFile("config.json", configSetup);
 }
+void saveValues () {
+  writeFile("values.json", valuesJson);
+}
 //=============================================ТЕКСТ============================================================
 // --------Выделяем строку от конца строки до маркера-----------------------------------------------------------
 String selectToMarkerLast (String str, String found) {
@@ -267,3 +270,17 @@ void led_blink(int pin, int fq, String blink_satus) {
   }
 }
 #endif
+
+void getMemoryLoad(String text) {
+
+  int memory_remain = ESP.getFreeHeap();
+  int memory_used = 53312 - memory_remain;
+  int memory_load = memory_used * 100 / 53312;
+  if (memory_load > 65) Serial.print("Attention!!! too match memory used!!!");
+  Serial.print(text + " memory used:");
+  Serial.println(String(memory_load) + "%");
+  
+}
+
+//higher bendwidth 57
+//low memory no futures 51

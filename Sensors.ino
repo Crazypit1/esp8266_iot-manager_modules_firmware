@@ -5,15 +5,22 @@ void analog() {
   static boolean flag = true;
   String viget_name = sCmd.next();
   String page_name = sCmd.next();
-  String start_value = sCmd.next();
-  String end_value = sCmd.next();
-  String start_value_out = sCmd.next();
-  String end_value_out = sCmd.next();
+  String type = sCmd.next();
+  String analog_start = sCmd.next();
+  String analog_end = sCmd.next();
+  String analog_start_out = sCmd.next();
+  String analog_end_out = sCmd.next();
   String page_number = sCmd.next();
 
-  jsonWrite(optionJson, "analog_values", start_value + " " + end_value + " " + start_value_out + " " + end_value_out);
+  jsonWrite(optionJson, "analog_start", analog_start);
+  jsonWrite(optionJson, "analog_end", analog_end);
+  jsonWrite(optionJson, "analog_start_out", analog_start_out);
+  jsonWrite(optionJson, "analog_end_out", analog_end_out);
 
-  createViget (viget_name, page_name, page_number, "analog");
+  if (type == "text") createViget (viget_name, page_name, page_number, "viget.alertsm.json", "analog");
+  if (type == "gauge") createViget (viget_name, page_name, page_number, "viget.fillgauge.json", "analog");
+  if (type == "gauge2") createViget (viget_name, page_name, page_number, "viget.gauge.json", "analog", "maximum", analog_end_out);
+  if (type == "termometr") createViget (viget_name, page_name, page_number, "viget.termometr.json", "analog", "titleString", viget_name);
 
   ts.add(ANALOG, analog_update_int, [&](void*) {
 
@@ -22,12 +29,11 @@ void analog() {
     int analog_in = analogRead(A0);
     jsonWrite(configJson, "analog_in", analog_in);
 
-    String analog_values = jsonRead(optionJson, "analog_values");
-
-    int analog = map(analog_in, selectFromMarkerToMarker(analog_values, " ", 0).toInt(),
-                     selectFromMarkerToMarker(analog_values, " ", 1).toInt(),
-                     selectFromMarkerToMarker(analog_values, " ", 2).toInt(),
-                     selectFromMarkerToMarker(analog_values, " ", 3).toInt());
+    int analog = map(analog_in,
+                     jsonReadtoInt(optionJson, "analog_start") ,
+                     jsonReadtoInt(optionJson, "analog_end"),
+                     jsonReadtoInt(optionJson, "analog_start_out"),
+                     jsonReadtoInt(optionJson, "analog_end_out"));
 
     jsonWrite(configJson, "analog", analog);
 
@@ -46,14 +52,18 @@ void analog() {
 //=========================================Модуль аналогового сенсора============================================================
 void ph() {
 
-  static boolean flag = true;
   String viget_name = sCmd.next();
   String page_name = sCmd.next();
+  String type = sCmd.next();
   String offset = sCmd.next();
   String page_number = sCmd.next();
 
-  createViget (viget_name, page_name, page_number, "ph");
   jsonWrite(optionJson, "ph_offset", offset);
+
+  if (type == "text") createViget (viget_name, page_name, page_number, "viget.alertsm.json", "ph");
+  if (type == "gauge") createViget (viget_name, page_name, page_number, "viget.fillgauge.json", "ph");
+  if (type == "gauge2") createViget (viget_name, page_name, page_number, "viget.gauge.json", "ph");
+  if (type == "termometr") createViget (viget_name, page_name, page_number, "viget.termometr.json", "ph", "titleString", viget_name);
 
 
   ts.add(PH, ph_shooting_interval, [&](void*) {
@@ -97,16 +107,21 @@ void level() {
   static boolean flag = true;
   String viget_name = sCmd.next();
   String page_name = sCmd.next();
+  String type = sCmd.next();
   String empty_level = sCmd.next();
   String full_level = sCmd.next();
   String page_number = sCmd.next();
 
-  jsonWrite(optionJson, "level_values", empty_level + " " + full_level);
+  jsonWrite(optionJson, "empty_level", empty_level);
+  jsonWrite(optionJson, "full_level", full_level);
 
   pinMode(14, OUTPUT);
   pinMode(12, INPUT);
 
-  createViget (viget_name, page_name, page_number, "level");
+  if (type == "text") createViget (viget_name, page_name, page_number, "viget.alertsm.json", "level");
+  if (type == "gauge") createViget (viget_name, page_name, page_number, "viget.fillgauge.json", "level");
+  if (type == "gauge2") createViget (viget_name, page_name, page_number, "viget.gauge.json", "level", "maximum", "100");
+  if (type == "termometr") createViget (viget_name, page_name, page_number, "viget.termometr.json", "level", "titleString", viget_name);
 
   ts.add(LEVEL, tank_level_shooting_interval, [&](void*) {
 
@@ -131,10 +146,11 @@ void level() {
       counter = 0;
       jsonWrite(configJson, "level_in", distance_cm);
 
-      String level_values = jsonRead(optionJson, "level_values");
-      level = map(distance_cm, selectFromMarkerToMarker(level_values, " ", 0).toInt(), selectFromMarkerToMarker(level_values, " ", 1).toInt(), 0, 100);
+      level = map(distance_cm,
+                  jsonReadtoInt(optionJson, "empty_level"),
+                  jsonReadtoInt(optionJson, "full_level"), 0, 100);
 
-      jsonWrite(configJson, "level", level);
+      //jsonWrite(configJson, "level", level);
 
       //if (level_old != level) {
 
@@ -156,6 +172,7 @@ void dallas() {
   String pin = sCmd.next();
   String viget_name = sCmd.next();
   String page_name = sCmd.next();
+  String type = sCmd.next();
   String page_number = sCmd.next();
 
   oneWire = new OneWire((uint8_t) pin.toInt());
@@ -163,7 +180,10 @@ void dallas() {
   sensors.begin();
   sensors.setResolution(12);
 
-  createViget (viget_name, page_name, page_number, "dallas");
+  if (type == "text") createViget (viget_name, page_name, page_number, "viget.alertsm.json", "dallas");
+  if (type == "gauge") createViget (viget_name, page_name, page_number, "viget.fillgauge.json", "dallas");
+  if (type == "gauge2") createViget (viget_name, page_name, page_number, "viget.gauge.json", "dallas");
+  if (type == "termometr") createViget (viget_name, page_name, page_number, "viget.termometr.json", "dallas", "titleString", viget_name);
 
   ts.add(DALLAS, temp_update_int, [&](void*) {
 
@@ -181,54 +201,11 @@ void dallas() {
     Serial.println("sensor dallas send date " + String(temp));
 
     //}
+    
     temp_old = temp;
   }, nullptr, true);
 }
 
-//======================================================================================================================
-//===============================================Создание виджета=======================================================
-void createViget (String viget_name, String  page_name, String page_number, String topic) {
-
-  static String viget;
-  static boolean flag = true;
-
-  viget_name.replace("#", " ");
-
-  if (viget_name.indexOf("-text") >= 0) {
-    viget_name.replace("-text", "");
-    if (flag) {
-      viget = readFile("viget.alertsm.json", 1024);
-      flag = false;
-    }
-  }
-  if (viget_name.indexOf("-gauge") >= 0) {
-    viget_name.replace("-gauge", "");
-    if (flag) {
-      viget = readFile("viget.fillgauge.json", 1024);
-      flag = false;
-    }
-  }
-  if (viget_name.indexOf("-term") >= 0) {
-    viget_name.replace("-term", "");
-    if (flag) {
-      viget = readFile("viget.termometr.json", 1024);
-      flag = false;
-    }
-  }
-  if (viget_name.indexOf("-chart") >= 0) {
-    viget_name.replace("-chart", "");
-    if (flag) {
-      viget = readFile("viget.chart.json", 1024);
-      flag = false;
-    }
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-  jsonWrite(viget, "topic", prex + "/" + topic);
-  all_vigets += viget + "\r\n";
-}
 //======================================================================================================================
 //===============================================Логирование============================================================
 
@@ -249,23 +226,10 @@ void logging() {
   if (sensor_name == "dallas") jsonWrite(optionJson, "dallas_logging_count", maxCount);
   if (sensor_name == "ph") jsonWrite(optionJson, "ph_logging_count", maxCount);
 
-  static String viget;
-
-  if (flag) {
-    viget = readFile("viget.chart.json", 1024);
-    flag = false;
-  }
-
-  jsonWrite(viget, "page", page_name);
-  jsonWrite(viget, "pageId", page_number);
-  jsonWrite(viget, "descr", viget_name);
-
-  if (sensor_name == "analog") jsonWrite(viget, "topic", prex + "/loganalog");
-  if (sensor_name == "level") jsonWrite(viget, "topic", prex + "/loglevel");
-  if (sensor_name == "dallas") jsonWrite(viget, "topic", prex + "/logdallas");
-  if (sensor_name == "ph") jsonWrite(viget, "topic", prex + "/logph");
-
-  all_vigets += viget + "\r\n";
+  if (sensor_name == "analog") createViget (viget_name, page_name, page_number, "viget.chart.json", "loganalog", "maxCount", maxCount);
+  if (sensor_name == "level") createViget (viget_name, page_name, page_number, "viget.chart.json", "loglevel", "maxCount", maxCount);
+  if (sensor_name == "dallas") createViget (viget_name, page_name, page_number, "viget.chart.json", "logdallas", "maxCount", maxCount);
+  if (sensor_name == "ph") createViget (viget_name, page_name, page_number, "viget.chart.json", "logph", "maxCount", maxCount);
 
   if (sensor_name == "analog") {
     flagLoggingAnalog = true;
@@ -313,6 +277,7 @@ void deleteOldDate(String file, int seted_number_of_lines, String date_to_add, b
   }
 
   String log_date = readFile(file, 5000);
+  getMemoryLoad("->after logging procedure");
 
   //предел количества строк 255
 
@@ -321,6 +286,7 @@ void deleteOldDate(String file, int seted_number_of_lines, String date_to_add, b
 
   int current_number_of_lines = count(log_date, "\n");
   Serial.println("->in log file " + file + " " + current_number_of_lines + " lines");
+
 
   if (current_number_of_lines > seted_number_of_lines + 1) {
     SPIFFS.remove("/" + file);

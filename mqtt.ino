@@ -1,5 +1,4 @@
 //===============================================ИНИЦИАЛИЗАЦИЯ================================================
-
 void MQTT_init() {
 
   HTTP.on("/mqttSave", HTTP_GET, []() {
@@ -57,9 +56,6 @@ void  handleMQTT() {
   if (WiFi.status() == WL_CONNECTED) {
     if (client.connected()) {
       client.loop();
-    }
-    else {
-
     }
   }
 }
@@ -166,7 +162,7 @@ void outcoming_date() {
 
   sendAllWigets();
   sendAllData();
-  
+
   if (flagLoggingAnalog) sendLogData("log.analog.txt", "loganalog");
   if (flagLoggingPh) sendLogData("log.ph.txt", "logph");
   if (flagLoggingDallas) sendLogData("log.dallas.txt", "logdallas");
@@ -200,7 +196,7 @@ void sendSTATUS(String topik, String state) {
   //long end_time = millis();
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
 }
-void sendSTATUS(String topik, String state, String type, String param) {
+/*void sendSTATUS(String topik, String state, String type, String param) {
   topik = prefix + "/" + chipID + "/" + topik + "/" + "status";
   String json_ = "{}";
   jsonWrite(json_, "status", state);
@@ -210,7 +206,7 @@ void sendSTATUS(String topik, String state, String type, String param) {
   int send_status =  client.publish (topik.c_str(), json_.c_str(), false);
   //long end_time = millis();
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
-}
+}*/
 //======================================CONTROL==================================================
 ///IoTmanager/2058631-1589487/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
@@ -225,57 +221,61 @@ void sendCONTROL(String id, String topik, String state) {
 //=====================================================ОТПРАВЛЯЕМ ВИДЖЕТЫ========================================================
 void sendAllWigets() {
 
-  String viget = all_vigets;
   int counter = 0;
+  String line;
+  int psn_1 = 0;
+  int psn_2;
 
-  while (viget.length() != 0) {
-    if (!client.connected()) return;
-    String tmp = selectToMarker (viget, "\r\n");
-    jsonWrite(tmp, "id", String(counter));
+  do  {
 
-    /*
-        //-----------------------------------------------------------------------------------------------------------------------------------------------
-        //jsonWrite(tmp, "status", "1");
-
-        String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
-        current_config.replace("{", "");
-        current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
-        current_config += ",";                                //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
-
-        while (current_config.length() != 0) {
-
-          String tmp = selectToMarker (current_config, ",");  //"rel1":"1"
-          String topic =  selectToMarker (tmp, ":");          //"rel1"
-          topic.replace("\"", "");                            //rel1
-          Serial.println(topic);
-          String state =  selectToMarkerLast (tmp, ":");      //"1"
-          state.replace("\"", "");                            //1
-
-          //if (viget.lastIndexOf(topic) > 0) {
-            jsonWrite(tmp, "status", state);
-          //}
-          current_config = deleteBeforeDelimiter(current_config, ",");
-        }
-       //-------------------------------------------------------------------------------------------------------------------------------------------------
-    */
-    boolean send_status = sendMQTT("config", tmp);
-    String send_status_str;
-    if (send_status) {
-      send_status_str = " pass";
-    } else {
-      send_status_str = " failed";
-    }
-    //Serial.println("videt no " + String(counter) + send_status_str);
-    Serial.println(tmp);
-    //Serial.println(all_vigets);
+    psn_2 = all_vigets.indexOf("\r\n", psn_1);
+    line = all_vigets.substring(psn_1, psn_2);
+    jsonWrite(line, "id", String(counter));
     counter++;
-    viget = deleteBeforeDelimiter(viget, "\r\n");
-  }
+    sendMQTT("config", line);
+    Serial.println(line);
+    psn_1 = psn_2 + 1;
+
+  } while (psn_2 + 2 < all_vigets.length());
+
+  getMemoryLoad("->after send all vigets");
 }
+
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ========================================================
+void sendAllDataTest() {
+
+  String line;
+  int psn_1 = 0;
+  int psn_2;
+
+  do  {
+    psn_2 = configJson.indexOf(",", psn_1);
+    line = configJson.substring(psn_1, psn_2);
+
+    String topic =  selectToMarker (line, ":");
+    topic.replace("{", "");
+    topic.replace("}", "");
+    topic.replace("\"", "");
+    String state =  selectToMarkerLast (line, ":");
+    state.replace("{", "");
+    state.replace("}", "");
+    state.replace("\"", "");
+    if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
+      sendSTATUS(topic, state);
+      //Serial.println("-->" + topic);
+    }
+
+    psn_1 = psn_2 + 1;
+  } while (psn_2 + 25 < configJson.length());
+
+  getMemoryLoad("->after send all date");
+}
+
+//57
 void sendAllData() {   //берет строку json и ключи превращает в топики а значения колючей в них посылает
 
   String current_config = configJson;                      //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
+  getMemoryLoad("->after send all date");
   current_config.replace("{", "");
   current_config.replace("}", "");                         //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
   current_config += ",";                                   //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
@@ -285,7 +285,6 @@ void sendAllData() {   //берет строку json и ключи превра
     String tmp = selectToMarker (current_config, ",");
     String topic =  selectToMarker (tmp, ":");
     topic.replace("\"", "");
-
     String state =  selectToMarkerLast (tmp, ":");
     state.replace("\"", "");
     if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
@@ -295,11 +294,13 @@ void sendAllData() {   //берет строку json и ключи превра
 
     current_config = deleteBeforeDelimiter(current_config, ",");
   }
+
 }
 
 void sendLogData(String file, String topic) {
 
   String log_date = readFile(file, 5000) + "\r\n";
+  getMemoryLoad("->after send log date");
 
   log_date.replace("\r\n", "\n");
   log_date.replace("\r", "\n");
@@ -380,3 +381,29 @@ String stateMQTT() {
     }
   }
   }*/
+
+/*
+      //-----------------------------------------------------------------------------------------------------------------------------------------------
+      //jsonWrite(tmp, "status", "1");
+
+      String current_config = configJson;                  //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
+      current_config.replace("{", "");
+      current_config.replace("}", "");                      //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"
+      current_config += ",";                                //"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1",
+
+      while (current_config.length() != 0) {
+
+        String tmp = selectToMarker (current_config, ",");  //"rel1":"1"
+        String topic =  selectToMarker (tmp, ":");          //"rel1"
+        topic.replace("\"", "");                            //rel1
+        Serial.println(topic);
+        String state =  selectToMarkerLast (tmp, ":");      //"1"
+        state.replace("\"", "");                            //1
+
+        //if (viget.lastIndexOf(topic) > 0) {
+          jsonWrite(tmp, "status", state);
+        //}
+        current_config = deleteBeforeDelimiter(current_config, ",");
+      }
+     //-------------------------------------------------------------------------------------------------------------------------------------------------
+*/

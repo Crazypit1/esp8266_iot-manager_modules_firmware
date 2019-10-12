@@ -85,17 +85,16 @@ GMedian medianFilter;
 String chipID = "";
 String prefix   = "/IoTmanager";
 String prex;
-String conStatus = "";
 String ids;
 
 String configSetup = "{}";
 String configJson = "{}";
 String optionJson = "{}";
+String valuesJson = "{}";
 
 int port = 80;
 
 String order_loop;
-String order_ticker;
 String order_timer = "";
 
 String current_time;
@@ -113,4 +112,4 @@ boolean flagLoggingPh = false;
 
 boolean by_button;
 
-int scenario_line_status [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+int scenario_line_status [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};

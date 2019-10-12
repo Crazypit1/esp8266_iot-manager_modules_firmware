@@ -22,7 +22,7 @@ void setup() {
   Serial.println("HTTP_init");
   //--------------------------------------------------------------
   All_init();
-  Serial.println("buttons_init");
+  Serial.println("All_init");
   //--------------------------------------------------------------
   WIFI_init();
   Serial.println("WIFI_init");
@@ -43,9 +43,18 @@ void setup() {
   Serial.println("Push_init");
   //--------------------------------------------------------------
 
+  /*
+    ts.add(29, 1000, [&](void*) {
+    getMemoryLoad();
+    }, nullptr, true);
+  */
+
+  //jsonWrite(valuesJson, "value", "123");
+  //saveValues ();
+
 #ifdef date_logging
-  addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
-#endif
+    addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
+#endif 
 
 }
 
@@ -59,7 +68,7 @@ void loop()
   handleMQTT();
   handleCMD_loop();
   handleButton();
-  
+
   handleScenario();
 
   ts.update();
