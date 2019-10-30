@@ -49,9 +49,6 @@ void setup() {
     }, nullptr, true);
   */
 
-  //jsonWrite(valuesJson, "value", "123");
-  //saveValues ();
-
 #ifdef date_logging
     addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
 #endif 

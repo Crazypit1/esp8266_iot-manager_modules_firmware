@@ -132,14 +132,14 @@ void MQTT_Connecting() {
 
 void callback(char* topic, byte* payload, unsigned int length) {
 
-  // Serial.print(topic);
+  Serial.print(topic);
   String topic_str = String(topic);
 
   String str;
   for (int i = 0; i < length; i++) {
     str += (char)payload[i];
   }
-  //Serial.println(" -> " + str);
+  Serial.println(" -> " + str);
   if (str == "HELLO") outcoming_date();
   //if (str == "work") outcoming_date();     //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
   //превращает название топика в команду, а значение в параметр команды
@@ -289,12 +289,10 @@ void sendAllData() {   //берет строку json и ключи превра
     state.replace("\"", "");
     if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
       sendSTATUS(topic, state);
-      //Serial.println("-->" + topic);
+      Serial.println("-->" + topic + " " + state);
     }
-
     current_config = deleteBeforeDelimiter(current_config, ",");
   }
-
 }
 
 void sendLogData(String file, String topic) {
