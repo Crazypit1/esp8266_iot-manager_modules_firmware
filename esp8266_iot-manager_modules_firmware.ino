@@ -33,8 +33,8 @@ void setup() {
   SSDP_init();
   Serial.println("SSDP_init");
   //--------------------------------------------------------------
-  // WebSoket_init ();
-  // Serial.println("WebSoket_init");
+  WebSoket_init ();
+  Serial.println("WebSoket_init");
   //--------------------------------------------------------------
   MQTT_init();
   Serial.println("MQTT_init");
@@ -50,8 +50,8 @@ void setup() {
   */
 
 #ifdef date_logging
-    addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
-#endif 
+  addFile("log.txt", GetDataDigital() + " " + GetTime() + "->Device started");
+#endif
 
 }
 
@@ -60,7 +60,7 @@ void loop()
 {
   HTTP.handleClient();
 
-  //webSocket.loop();
+  webSocket.loop();
 
   handleMQTT();
   handleCMD_loop();
