@@ -279,16 +279,16 @@ void textSet() {
 
 //=================================================Глобальные команды удаленного управления===========================================================
 
-void mqttOrderSend() {   //mqtt 9139530-1458400 timerStart 1 value2 sec
+void mqttOrderSend() {   
 
   String id = sCmd.next();
   String order = sCmd.next();
 
-  String topik = selectFromMarkerToMarker(order, "#", 0) + selectFromMarkerToMarker(order, "#", 1);
-  String state = selectFromMarkerToMarker(order, "#", 2);
-
-  String  all_line = prefix + "/" + id + "/" + topik + "/control";
-  int send_status = client.publish (all_line.c_str(), state.c_str(), false);
+  String  all_line = prefix + "/" + id + "/order";
+  //Serial.print(all_line);
+  //Serial.print("->");
+  //Serial.println(order);
+  int send_status = client.publish (all_line.c_str(), order.c_str(), false);
 }
 
 void httpOrderSend() {

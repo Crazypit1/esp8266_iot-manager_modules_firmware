@@ -28,8 +28,8 @@ ESP8266HTTPUpdateServer httpUpdater;
 TickerScheduler ts(30);
 enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, PH, DALLAS, ANALOG_LOG, LEVEL_LOG, DALLAS_LOG, PH_LOG, CMD, TIMERS , TEST};
 //---------------------------------------------------------
-#include <WebSocketsServer.h>
-WebSocketsServer webSocket = WebSocketsServer(81);
+//#include <WebSocketsServer.h>
+//WebSocketsServer webSocket = WebSocketsServer(81);
 //---------------------------------------------------------
 #include <PubSubClient.h>
 WiFiClient espClient;

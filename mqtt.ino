@@ -93,6 +93,7 @@ void MQTT_Connecting() {
 
           client.subscribe(prefix.c_str());  // Для приема получения HELLOW и подтверждения связи
           client.subscribe((prefix + "/" + chipID + "/+/control").c_str()); // Подписываемся на топики control
+          client.subscribe((prefix + "/" + chipID + "/order").c_str()); // Подписываемся на топики order
           //client.subscribe((prefix + "/" + chipID + "/test").c_str());  //Для приема получения work и подтверждения связи (для приложения mqtt IOT MQTT Panel)
           /* String tmp_line = id_of_other_device;
 
@@ -153,6 +154,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     order_loop += final_line + ",";
 
   }
+  if (topic_str.indexOf("order") > 0) {
+    str.replace("_", " ");
+    Serial.println(str);
+    order_loop += str + ",";
+  }
 }
 
 //данные которые отправляем при подключении или отбновлении страницы
@@ -206,7 +212,7 @@ void sendSTATUS(String topik, String state) {
   int send_status =  client.publish (topik.c_str(), json_.c_str(), false);
   //long end_time = millis();
   //Serial.println("send status = " + String(send_status) + ", timeout = " + String(end_time - st_time));
-}*/
+  }*/
 //======================================CONTROL==================================================
 ///IoTmanager/2058631-1589487/rel1/control 1
 void sendCONTROL(String id, String topik, String state) {
