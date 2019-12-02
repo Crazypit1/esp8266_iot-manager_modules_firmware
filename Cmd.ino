@@ -3,6 +3,8 @@ void CMD_init() {
   sCmd.addCommand("button",  button);
   sCmd.addCommand("buttonSet",  buttonSet);
 
+  sCmd.addCommand("pinSet",  pinSet);
+
   sCmd.addCommand("pwm",  pwm);
   sCmd.addCommand("pwmSet",  pwmSet);
 
@@ -115,6 +117,16 @@ void buttonSet() {
   sendSTATUS("buttonSet" + button_number, button_state);
 }
 
+void pinSet() {
+
+  String pin_number = sCmd.next();
+  String pin_state = sCmd.next();
+  
+  pinMode(pin_number.toInt(), OUTPUT);
+
+  digitalWrite(pin_number.toInt(), pin_state.toInt());
+
+}
 //==================================================================================================================
 //==========================================Модуль управления ШИМ===================================================
 void pwm() {
@@ -279,7 +291,7 @@ void textSet() {
 
 //=================================================Глобальные команды удаленного управления===========================================================
 
-void mqttOrderSend() {   
+void mqttOrderSend() {
 
   String id = sCmd.next();
   String order = sCmd.next();

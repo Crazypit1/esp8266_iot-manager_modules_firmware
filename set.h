@@ -24,7 +24,7 @@ ESP8266HTTPUpdateServer httpUpdater;
 //#include <SoftwareSerial.h>
 //SoftwareSerial mySerial(4, 5); //  TX, RX
 //---------------------------------------------------------
-#include <TickerScheduler.h>
+#include <TickerScheduler.h>  //https://github.com/Toshik/TickerScheduler
 TickerScheduler ts(30);
 enum { MQTT_WIFI, WIFI, LEVEL, ANALOG, PH, DALLAS, ANALOG_LOG, LEVEL_LOG, DALLAS_LOG, PH_LOG, CMD, TIMERS , TEST};
 //---------------------------------------------------------
