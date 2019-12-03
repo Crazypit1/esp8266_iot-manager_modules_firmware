@@ -16,12 +16,8 @@
 
 [1.Как прошить модуль](https://www.youtube.com/watch?v=octnqt9XBAs)
 
-[2.Настройка подключения к серверу mqtt](https://www.youtube.com/watch?v=SXgtQ0zh1RQ&t)
+[2.Настройка подключения к серверу mqtt](https://www.youtube.com/watch?v=SXgtQ0zh1RQ)
 
-[3.Настройка модуля управления реле](https://www.youtube.com/watch?v=1aIoAOH7Hms&t)
+[3.Обзор некоторого функционала:](https://www.youtube.com/watch?v=b85dDy2Kvms)
 
-[4.Настройка Push Notification](https://www.youtube.com/watch?v=8vzU5YEo9LE&t)
-
-[5.Система измерения уровня воды в баке](https://www.youtube.com/watch?v=RXWekYtgQ6Y&t)
-
-[6.Как настроить сценарии](https://www.youtube.com/watch?v=2v368psGFLc&t)
+[4.Отправка команд по воздуху:](https://www.youtube.com/watch?v=oF7Qz2KuMbU)
