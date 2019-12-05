@@ -16,7 +16,7 @@
 Видео инструкции:
 
 
-[1.Как прошить модуль](https://www.youtube.com/watch?v=octnqt9XBAs)
+[1.Как прошить модуль](https://youtu.be/Em2mVQ1HfQU)
 
 [2.Настройка подключения к серверу mqtt](https://www.youtube.com/watch?v=SXgtQ0zh1RQ)
 
