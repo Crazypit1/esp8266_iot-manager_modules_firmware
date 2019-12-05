@@ -2,11 +2,13 @@
 
 Это модульная прошивка для совместного использования модулей ESP8266 и приложения IoT Manager.
 
-### Ссылка для скачивания прошивки: [esp8266_iot-manager_modules_firmware](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/releases/download/ver2.0.0/esp8266_iot-manager_modules_firmware.zip)
+### Ссылка для скачивания прошивки(2.0.2): [esp8266_iot-manager_modules_firmware](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/releases/download/ver2.0.2/esp8266_iot-manager_modules_firmware.7z)
+
+### Инструкция как прошить: [How flash module](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/How-to-flash-module)
 
 ### Ссылка для скачивания IOT manager: [IOT manager](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/raw/master/iot_manager/IoT%20Manager%201.5.5.apk)
 
-### Ссылка на подробную ниструкцию(в процессе обновления): [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
+### Описание прошивки (в процессе обновления): [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
 
 ### Ссылка на телеграм канал прошивки: [Telegram Channel](https://t.me/joinchat/HQ-cJxWQ7qiIFlUbpvCXKg)
 
