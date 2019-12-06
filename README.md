@@ -11,12 +11,13 @@
 ### Описание прошивки (в процессе обновления): [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
 
 ### Ссылка на телеграм канал прошивки: [Telegram Channel](https://t.me/joinchat/HQ-cJxWQ7qiIFlUbpvCXKg)
+### Альтернативная сылка на телеграм канал прошивки: [Telegram Channel](https://teleg.run/joinchat/HQ-cJxWQ7qiIFlUbpvCXKg)
 
 
 Видео инструкции:
 
 
-[1.Как прошить модуль](https://www.youtube.com/watch?v=octnqt9XBAs)
+[1.Как прошить модуль](https://youtu.be/Em2mVQ1HfQU)
 
 [2.Настройка подключения к серверу mqtt](https://www.youtube.com/watch?v=SXgtQ0zh1RQ)
 
