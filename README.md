@@ -11,6 +11,7 @@
 ### Описание прошивки (в процессе обновления): [Wiki](https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/wiki/Instruction)
 
 ### Ссылка на телеграм канал прошивки: [Telegram Channel](https://t.me/joinchat/HQ-cJxWQ7qiIFlUbpvCXKg)
+### Альтернативная сылка на телеграм канал прошивки: [Telegram Channel](https://teleg.run/joinchat/HQ-cJxWQ7qiIFlUbpvCXKg)
 
 
 Видео инструкции:
