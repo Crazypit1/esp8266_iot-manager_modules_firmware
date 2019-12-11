@@ -226,58 +226,29 @@ void sendCONTROL(String id, String topik, String state) {
 
 //=====================================================ОТПРАВЛЯЕМ ВИДЖЕТЫ========================================================
 void sendAllWigets() {
+  if (all_vigets != "") {
+    int counter = 0;
+    String line;
+    int psn_1 = 0;
+    int psn_2;
 
-  int counter = 0;
-  String line;
-  int psn_1 = 0;
-  int psn_2;
+    do  {
 
-  do  {
+      psn_2 = all_vigets.indexOf("\r\n", psn_1);
+      line = all_vigets.substring(psn_1, psn_2);
+      jsonWrite(line, "id", String(counter));
+      counter++;
+      sendMQTT("config", line);
+      Serial.println(line);
+      psn_1 = psn_2 + 1;
 
-    psn_2 = all_vigets.indexOf("\r\n", psn_1);
-    line = all_vigets.substring(psn_1, psn_2);
-    jsonWrite(line, "id", String(counter));
-    counter++;
-    sendMQTT("config", line);
-    Serial.println(line);
-    psn_1 = psn_2 + 1;
+    } while (psn_2 + 2 < all_vigets.length());
 
-  } while (psn_2 + 2 < all_vigets.length());
-
-  getMemoryLoad("->after send all vigets");
+    getMemoryLoad("->after send all vigets");
+  }
 }
-
 //=====================================================ОТПРАВЛЯЕМ ДАННЫЕ В ВИДЖЕТЫ ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ========================================================
-void sendAllDataTest() {
 
-  String line;
-  int psn_1 = 0;
-  int psn_2;
-
-  do  {
-    psn_2 = configJson.indexOf(",", psn_1);
-    line = configJson.substring(psn_1, psn_2);
-
-    String topic =  selectToMarker (line, ":");
-    topic.replace("{", "");
-    topic.replace("}", "");
-    topic.replace("\"", "");
-    String state =  selectToMarkerLast (line, ":");
-    state.replace("{", "");
-    state.replace("}", "");
-    state.replace("\"", "");
-    if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
-      sendSTATUS(topic, state);
-      //Serial.println("-->" + topic);
-    }
-
-    psn_1 = psn_2 + 1;
-  } while (psn_2 + 25 < configJson.length());
-
-  getMemoryLoad("->after send all date");
-}
-
-//57
 void sendAllData() {   //берет строку json и ключи превращает в топики а значения колючей в них посылает
 
   String current_config = configJson;                      //{"SSDP":"MODULES","lang":"","ip":"192.168.43.60","DS":"34.00","rel1":"1","rel2":"1"}
@@ -293,7 +264,7 @@ void sendAllData() {   //берет строку json и ключи превра
     topic.replace("\"", "");
     String state =  selectToMarkerLast (tmp, ":");
     state.replace("\"", "");
-    if (topic != "SSDP" && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
+    if (topic != ssdpS && topic != "lang" && topic != "ip" && topic.indexOf("_in") < 0) {
       sendSTATUS(topic, state);
       Serial.println("-->" + topic + " " + state);
     }

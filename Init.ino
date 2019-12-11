@@ -56,6 +56,6 @@ void Device_init() {
 
 void Scenario_init() {
   if (jsonRead(configSetup, "scenario") == "1") {
-    scenario = readFile("scenario.all.txt", 2048);
+    scenario = readFile(scenarioFileNameS, 2048);
   }
 }

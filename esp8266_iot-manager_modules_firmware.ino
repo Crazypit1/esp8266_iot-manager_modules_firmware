@@ -12,7 +12,7 @@ void setup() {
   FS_init();
   Serial.println("FS_init");
   configSetup = readFile("config.json", 4096);
-  jsonWrite(configJson, "SSDP", jsonRead(configSetup, "SSDP"));
+  jsonWrite(configJson, ssdpS, jsonRead(configSetup, ssdpS));
   jsonWrite(configJson, "lang", jsonRead(configSetup, "lang"));
   //--------------------------------------------------------------
   CMD_init();
@@ -41,6 +41,9 @@ void setup() {
   //--------------------------------------------------------------
   Push_init();
   Serial.println("Push_init");
+  //--------------------------------------------------------------
+  initUpgrade();
+  Serial.println("initUpgrade");
   //--------------------------------------------------------------
 
   /*

@@ -52,7 +52,7 @@ void button() {
   jsonWrite(optionJson, "button_param" + button_number, button_param);
   jsonWrite(configJson, "buttonSet" + button_number, start_state);
 
-  if (button_param != "na"  || button_param != "scenario" || button_param.indexOf("line") != -1) {
+  if (isDigitStr (button_param)) {
     pinMode(button_param.toInt(), OUTPUT);
     digitalWrite(button_param.toInt(), start_state.toInt());
   }
@@ -120,11 +120,10 @@ void buttonSet() {
 void pinSet() {
 
   String pin_number = sCmd.next();
-  String pin_state = sCmd.next();
-  
+  String pin_state = sCmd.next(); 
   pinMode(pin_number.toInt(), OUTPUT);
-
   digitalWrite(pin_number.toInt(), pin_state.toInt());
+  
 }
 //==================================================================================================================
 //==========================================Модуль управления ШИМ===================================================
@@ -306,7 +305,7 @@ void httpOrderSend() {
 
   String ip = sCmd.next();
   String order = sCmd.next();
-  order.replace("#", "%20");
+  order.replace("_", "%20");
   String url = "http://" + ip + "/cmd?command=" + order;
   getURL(url);
 }

@@ -19,6 +19,7 @@
 			"type": "h4",
 			"title": "IP address: {{ip}}"
 		},
+               
 		{
 			"type": "link",
 			"title": "Конфигурация устройства",
@@ -51,6 +52,26 @@
 			"title": "Скачать приложение IoT Manager",
 			"action": "https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/raw/master/iot_manager/IoT%20Manager%201.5.5.apk",
 			"class": "btn btn-block btn-success"
-		}
+		},
+ {
+   "type": "button",
+   "title": "Проверить версию прошивки",
+   "action": "/check",
+"response":"[[my-block]]",
+   "class": "btn btn-block btn-primary"
+  },
+{
+   "type": "button",
+   "title": "Обновить версию прошивки",
+   "action": "/upgrade",
+"response":"[[my-block]]",
+   "class": "btn btn-block btn-primary"
+  },
+{
+  "type":"h3",
+  "name":"my-block",
+"style":"position:fixed;top:30%;left:47%;width:700px;margin-left:-300px;text-align:center;",
+  "class":"hidden"
+ }
 	]
 }

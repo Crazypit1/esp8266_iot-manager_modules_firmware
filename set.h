@@ -1,3 +1,7 @@
+//407480
+//407496
+//407496
+//407512
 #ifdef ESP8266
 #include <ESP8266WiFi.h>
 #elif defined ESP32
@@ -55,6 +59,11 @@ Bounce * buttons = new Bounce[NUM_BUTTONS];
 #include "GyverFilters.h" //настраивается в GyverHacks.h - MEDIAN_FILTER_SIZE
 GMedian medianFilter;
 //---------------------------------------------------------
+#include <ESP8266httpUpdate.h>       //Содержится в пакете
+
+
+
+//---------------------------------------------------------
 #define led_status
 //---------------------------------------------------------
 #define reconnecting_mqtt 60000
@@ -101,7 +110,7 @@ String current_time;
 
 String all_vigets = "";
 String scenario;
-String timers;
+//String timers;
 
 boolean busy;
 
@@ -112,4 +121,12 @@ boolean flagLoggingPh = false;
 
 boolean by_button;
 
+String current_version = "2.0.2";
+String server_version;
+
+String var;
+
 int scenario_line_status [] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+const String scenarioFileNameS = "scenario.all.txt";
+const String ssdpS = "SSDP";

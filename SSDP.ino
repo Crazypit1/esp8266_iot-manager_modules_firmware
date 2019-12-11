@@ -7,10 +7,10 @@ void SSDP_init(void) {
     });
     // --------------------Получаем SSDP со страницы
     HTTP.on("/ssdp", HTTP_GET, []() {
-      String ssdp = HTTP.arg("ssdp");
-      configJson = jsonWrite(configJson, "SSDP", ssdp);
-      configSetup = jsonWrite(configSetup, "SSDP", ssdp);
-      SSDP.setName(jsonRead(configSetup, "SSDP"));
+      String ssdp = HTTP.arg(ssdpS);
+      configJson = jsonWrite(configJson, ssdpS, ssdp);
+      configSetup = jsonWrite(configSetup, ssdpS, ssdp);
+      SSDP.setName(jsonRead(configSetup, ssdpS));
       saveConfig();                 // Функция сохранения данных во Flash
       HTTP.send(200, "text/plain", "OK"); // отправляем ответ о выполнении
     });
@@ -18,11 +18,11 @@ void SSDP_init(void) {
     SSDP.setDeviceType("upnp:rootdevice");
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort(80);
-    SSDP.setName(jsonRead(configSetup, "SSDP"));
+    SSDP.setName(jsonRead(configSetup, ssdpS));
     SSDP.setSerialNumber(chipID);
     SSDP.setURL("/");
     SSDP.setModelName("tech");
-    SSDP.setModelNumber(chipID + "/" + jsonRead(configSetup, "SSDP"));
+    SSDP.setModelNumber(chipID + "/" + jsonRead(configSetup, ssdpS));
 
 
     SSDP.setModelURL("https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware");

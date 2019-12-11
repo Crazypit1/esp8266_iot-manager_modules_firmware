@@ -3,7 +3,7 @@ void handleScenario() {
   if (jsonRead(configSetup, "scenario") == "1") {
     if ((jsonRead(optionJson, "scenario_status") != "")) {
       int i = 0;
-      String str = scenario;                                                   //читаем переменную с сценариями
+      String str = scenario;                                                   //читаем переменную с сценариями (то что из файла на странице)
       str += "\n";
       str.replace("\r\n", "\n");
       str.replace("\r", "\n");
@@ -15,8 +15,8 @@ void handleScenario() {
 
        if (scenario_line_status[i] == 1) {
           //Serial.println(i);
-          String condition = selectToMarker (tmp, "\n");                        //выделяем первую строку самого сценария  button1 = 1
-          String param_name = selectFromMarkerToMarker(condition, " " , 0);     //из первой страки берем имя параметра  button1
+          String condition = selectToMarker (tmp, "\n");                        //выделяем первую строку самого сценария  button1 = 1 (условие)
+          String param_name = selectFromMarkerToMarker(condition, " " , 0);     //из первой страки берем имя параметра  button1 и вставляем в него Set и получаем buttonSet1
           String num1 = param_name.substring(param_name.length() - 1);
           String num2 = param_name.substring(param_name.length() - 2, param_name.length() - 1);
           if (isDigitStr(num1) && isDigitStr(num2)) {
@@ -29,6 +29,7 @@ void handleScenario() {
           String order = jsonRead(optionJson, "scenario_status");                //читаем весь файл событий
           String param = selectToMarker (order, ",");                            //читаем первое событие из файла событий
           if (param_name == param) {                                             //если поступившее событие равно событию заданному buttonSet1 в файле начинаем его обработку
+            
             String sign = selectFromMarkerToMarker(condition, " " , 1);          //читаем знак  (=)
             String value = selectFromMarkerToMarker(condition, " " , 2);         //читаем значение (1)
             if (value.indexOf("value") != -1) {
@@ -57,6 +58,9 @@ void handleScenario() {
             if (flag) {
               tmp = deleteBeforeDelimiter(tmp, "\n");                                 //удаляем строку самого сценария оставляя только команды
               stringExecution(tmp);                                                   //выполняем все команды
+              
+              Serial.println("[" + condition + "]");
+              Serial.println(tmp);
             }
           }
         }
@@ -71,10 +75,11 @@ void handleScenario() {
   }
 }
 
-void eventGen (String event_name, String number) {   //event name: buttonSet
+void eventGen (String event_name, String number) {   //событие выглядит как имя плюс set плюс номер: button+Set+1 
 
   if (jsonRead(configSetup, "scenario") == "1") {
     String tmp = jsonRead(optionJson, "scenario_status") ;    //генерирование события
+    //Serial.println(event_name);
     jsonWrite(optionJson, "scenario_status", tmp + event_name + number + ",");
   }
 }

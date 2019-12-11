@@ -42,6 +42,23 @@ String jsonWrite(String &json, String name, float volume) {
   root.printTo(json);
   return json;
 }
+
+// ------------- Отправить данные в Status String ------------------------------
+boolean sendStatus(String Name, String volume) {
+  jsonWrite(configJson, Name, volume);
+  return true;
+}
+// ------------- Отправить данные в Status int -----------------------
+boolean sendStatus(String Name, int volume) {
+  jsonWrite(configJson, Name, volume);
+  return true;
+}
+// ------------- Отправить данные в Status float ----------
+boolean sendStatusF(String Name, float volume) {
+  jsonWrite(configJson, Name, volume);
+  return true;
+}
+
 //=============================================CONFIG===========================================================
 void saveConfig () {
   writeFile("config.json", configSetup);
@@ -111,14 +128,28 @@ int count(String str, String found) {
   return i; // Достигли пустой строки и ничего не нашли
 }
 
-boolean isDigitStr (String str) {
 
+boolean isDigitStr (String str) {
+  if (str.length() == 1) {
+    return Digit (str);
+  }
+  if (str.length() > 1) {
+    for (int i = 0; i < str.length(); i++) {
+      if (!Digit (String(str.charAt(i)))) return false;
+    }
+    return true;
+  }
+}
+
+boolean Digit (String str) {
   if (str == "0" || str == "1" || str == "2" || str == "3" || str == "4" || str == "5" || str == "6" || str == "7" || str == "8" || str == "9") {
     return true;
   } else {
     return false;
   }
 }
+
+
 //============================================WEB SOKET==========================================================
 
 /*
@@ -279,7 +310,7 @@ void getMemoryLoad(String text) {
   if (memory_load > 65) Serial.print("Attention!!! too match memory used!!!");
   Serial.print(text + " memory used:");
   Serial.println(String(memory_load) + "%");
-  
+
 }
 
 //higher bendwidth 57
