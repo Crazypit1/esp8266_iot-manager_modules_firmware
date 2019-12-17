@@ -1,23 +1,37 @@
 void initUpgrade() {
   // Добавляем функцию Update для перезаписи прошивки по Wi-Fi при 1М(256K SPIFFS) и выше
   httpUpdater.setup(&HTTP);
-  HTTP.on("/upgrade", webUpgrade);                // запустить обновление
+
+  HTTP.on("/upgradeSave", HTTP_GET, []() {
+    webUpgrade(true);
+  });
+
+  HTTP.on("/upgradeDefault", HTTP_GET, []() {
+    webUpgrade(false);
+  });
 }
 // ----------------------- Обновление с сайта
-void webUpgrade() {
+void webUpgrade(boolean save_settings) {
   String spiffsData = "http://91.204.228.124:1002/update/esp8266_iot-manager_modules_firmware.spiffs.bin"; // Получим путь к файловой системе
-  String buildData = "http://91.204.228.124:1002/update/esp8266_iot-manager_modules_firmware.ino.generic.bin";  // Получим путь к файлу прошивки 
+  String buildData = "http://91.204.228.124:1002/update/esp8266_iot-manager_modules_firmware.ino.generic.bin";  // Получим путь к файлу прошивки
   if (spiffsData != "") { // Если нужно прошить FS
+    String scenario_for_update;
+    String config_for_update;
+    String configSetup_for_update;
     Serial.println(spiffsData);
-    String scenario_for_update = readFile(scenarioFileNameS, 2048);
-    String config_for_update = readFile("config.all.txt", 2048);
-    String configSetup_for_update = configSetup;
+    if (save_settings) {
+      scenario_for_update = readFile(scenarioFileNameS, 2048);
+      config_for_update = readFile("config.all.txt", 2048);
+      configSetup_for_update = configSetup;
+    }
     ESPhttpUpdate.rebootOnUpdate(false); // Отключим перезагрузку после обновления
     updateHTTP(spiffsData, true);
-    writeFile(scenarioFileNameS, scenario_for_update);
-    writeFile("config.all.txt", config_for_update);
-    writeFile("config.json", configSetup_for_update);
-    saveConfig();
+    if (save_settings) {
+      writeFile(scenarioFileNameS, scenario_for_update);
+      writeFile("config.all.txt", config_for_update);
+      writeFile("config.json", configSetup_for_update);
+      saveConfig();
+    }
   }
   if (buildData != "") { // Если нужно прошить build
     Serial.println(buildData);

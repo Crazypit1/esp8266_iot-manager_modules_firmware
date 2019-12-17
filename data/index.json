@@ -53,17 +53,21 @@
 			"action": "https://github.com/DmitryBorisenko33/esp8266_iot-manager_modules_firmware/raw/master/iot_manager/IoT%20Manager%201.5.5.apk",
 			"class": "btn btn-block btn-success"
 		},
+{
+			"type": "hr"
+		},
  {
    "type": "button",
-   "title": "Проверить версию прошивки",
-   "action": "/check",
+   "title": "Обновить версию прошивки (сохранить настройки)",
+   "action": "/upgradeSave",
 "response":"[[my-block]]",
    "class": "btn btn-block btn-primary"
   },
+
 {
    "type": "button",
-   "title": "Обновить версию прошивки",
-   "action": "/upgrade",
+   "title": "Обновить версию прошивки (сбросить настройки)",
+   "action": "/upgradeDefault",
 "response":"[[my-block]]",
    "class": "btn btn-block btn-primary"
   },
